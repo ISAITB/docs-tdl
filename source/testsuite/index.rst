@@ -54,6 +54,8 @@ Elements
 
 Here we will see how a test suite breaks down into its individual sections and discuss the purpose of each. 
 
+.. _test-suite-metadata:
+
 Metadata
 ~~~~~~~~
 
@@ -79,6 +81,8 @@ manage existing test suites but also for end users to understand the purpose of 
     within a given specification. An uploaded test suite whose ``name`` matches that of an existing test suite will result in the existing test suite
     being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
     values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
+
+.. _test-suite-actors:
 
 Actors
 ~~~~~~
@@ -156,6 +160,8 @@ have to be provided. With these values in place, the test case could then refer 
 never actually figures when referencing the values. Given this you might wonder why is the endpoint name important then? The answer is to
 cover the more complex scenario discussed next.
 
+.. _test-suite-actors-endpoints-simulated:
+
 Endpoints to map simulated actor configuration
 ++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -226,6 +232,8 @@ This section is used to reference the test cases contained in the test suite. On
 .. note::
     **GITB software support:** The ``prequisite`` and ``option`` values are currently ignored.
 
+.. _test-suite-deploying:
+
 Deploying a test suite in the GITB software
 -------------------------------------------
 
@@ -249,7 +257,7 @@ Uploading a test suite to the GITB software the following results:
   and existing ones are updated. Note that actors, endpoints and parameters that are not defined in the new test suite are not removed. The matching of
   actors is on the basis of their ID, whereas for endpoints and parameters their name is used.
 
-As previously discussed the Actors [TODO] section serves to define which actors are used within the test suite and provide their details (their name, their endpoints
+As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and provide their details (their name, their endpoints
 and their endpoint parameters). An alternative approach to avoid defining in each test suite the complete actor details is to simply refer to the actors that are used
 in its test cases without providing their information. Refering to actors is on the basis of their ID and referred actors are assumed and required to be present in the
 target specification (resulting in an upload error otherwise).
