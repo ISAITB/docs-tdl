@@ -12,3 +12,4 @@ GITB TDL Documentation
    testsuite/index
    testcase/index
    constructs/index
+   handlers/index

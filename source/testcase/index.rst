@@ -1,9 +1,6 @@
 Test Cases
 ===============================
 
-ID is used to display. Also to link with test suite.
-Type CONFORMANCE needs to be provided.
-
 Overview
 --------
 
@@ -439,6 +436,8 @@ TDL step construct per test step. The available test steps that can be defined a
     :ref:`tdl-step-verify`, Validate content
     :ref:`tdl-step-call`, Call a scriptlet
     :ref:`tdl-step-interact`, Trigger an interaction with the user
+
+.. _test-case-scriptlets:
 
 Scriptlets
 ~~~~~~~~~~

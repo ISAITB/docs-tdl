@@ -119,6 +119,8 @@ Once actors are defined they play an important role in the testing process as fo
 * Each test case foresees that actors are either simulated by the test bed or are the focus of the test. In the latter case
   they are refered to as having a role of **SUT** (System Under Test).
 
+.. _introduction-concepts-messaging-handlers:
+
 Messaging handlers
 ~~~~~~~~~~~~~~~~~~
 
@@ -139,6 +141,8 @@ but could also act as a adapter layer on top of existing software.
 Messaging handlers receive in each case (when sending or receiving) input parameters and return a set of output parameters. These output
 parameters are stored in the test session context and can be subsequently used in further test steps.
 
+.. _introduction-concepts-validation-handlers:
+
 Validation handlers
 ~~~~~~~~~~~~~~~~~~~
 
@@ -147,6 +151,8 @@ returning a report with the result. Validation is a fully decoupled process in t
 are provided by the test bed as input without needing to be aware of how validation actually takes place.
 
 The result of a validation handler is recorded in the test session context for subsequent use in the test case.
+
+.. _introduction-concepts-processing-handlers:
 
 Processing handlers
 ~~~~~~~~~~~~~~~~~~~
