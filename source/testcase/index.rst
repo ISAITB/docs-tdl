@@ -105,7 +105,7 @@ Namespaces
 
 The ``namespaces`` optional element is used to define one or more expression languages that are used in test case constructs that support them. This needs to
 be done when expressions are used that should not be processed using the default XPath 1.0 language. A detailed discussion on GITB expressions as well 
-as where and how you can use them is provided in :ref:`test-case-expressions`. Each refered expression language is defined in a ``namespace`` element with
+as where and how you can use them is provided in :ref:`test-case-expressions`. Each referred expression language is defined in a ``namespace`` element with
 the following structure:
 
 .. csv-table::
@@ -165,17 +165,17 @@ defines one or more ``artifact`` children with the following structure:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @name, yes, The name with which this artifact will be associated to the test session context for subsequent lookups.
-    @type, yes, The type as which the artifact needs to be loaded.
-    @encoding, no, In case the artifact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
+    @name, yes, The name with which this artefact will be associated to the test session context for subsequent lookups.
+    @type, yes, The type as which the artefact needs to be loaded.
+    @encoding, no, In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
 
 The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. Regarding the ``type``
 attribute, this needs to refer to an appropriate type from the GITB type system (see :ref:`test-case-types`). Given that in this case we are referring to a file 
 being loaded, the types that can be used are:
 
-* ``binary``: Load the artifact as a set of bytes without additional processing.
-* ``object``: Load the artifact as a XML Document Object Model. In this case it is best to also explicitly provide the ``encoding`` to consider.
-* ``schema``: Load the artifact as a XML Schema. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
+* ``binary``: Load the artefact as a set of bytes without additional processing.
+* ``object``: Load the artefact as a XML Document Object Model. In this case it is best to also explicitly provide the ``encoding`` to consider.
+* ``schema``: Load the artefact as a XML Schema. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
 
 Regarding the path to the resource, this considers as the root the name of the test suite, followed by the resource's path within the test suite archive. As an 
 example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable of type ``schema`` that is named "ublSchema". The
@@ -450,7 +450,7 @@ of steps that might be executed multiple times and at different locations in the
     @id, yes, The ID of the scriptlet used to refer to it in ``call`` steps (see :ref:`tdl-step-call`).
     metadata, no, Optional scriptlet metadata. Structurally this matches exactly the ``metadata`` for the test case (see :ref:`test-case-metadata`).
     namespaces, no, Optional namespaces for contained expressions. Structurally this matches exactly the ``namespaces`` for the test case (see :ref:`test-case-namespaces`).
-    imports, no, Optional artifacts to import for the scriptlet. Structurally this matches exactly the ``imports`` for the test case (see :ref:`test-case-imports`).
+    imports, no, Optional artefacts to import for the scriptlet. Structurally this matches exactly the ``imports`` for the test case (see :ref:`test-case-imports`).
     params, no, An optional set of parameters that the scriptlet will expect from a ``call`` step  (see :ref:`tdl-step-call`).
     variables, no, An optional set of local variables. Structurally this matches exactly the ``variables`` for the test case (see :ref:`test-case-variables`).
     steps, yes, The sequence of steps to be executed in this scriptlet. Can contain any supported test steps (see :ref:`test-case-steps`).

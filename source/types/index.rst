@@ -38,10 +38,10 @@ List variables
 Variables of type ``list`` can contain an arbitrary sequence of elements. A key difference however when comparing to a ``map`` is that
 the elements contained in a ``list`` are of a single type. This type is defined when the ``list`` is declared in the test case's :ref:`test-case-variables` section.
 
-.. _test-case-types-type-convesions:
+.. _test-case-types-type-conversions:
 
-Type convesions
-~~~~~~~~~~~~~~~
+Type conversions
+~~~~~~~~~~~~~~~~
 
 It is often the case when executing a test case that we need to convert a session context variable of one type to another. An an example
 consider a ``string`` variable containing XML content that we want to validate using a validator that only expects ``binary`` or ``object``

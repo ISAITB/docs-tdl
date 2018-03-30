@@ -9,7 +9,7 @@ support any number of expression languages that a test case can then refer to. T
 test case's  ``namespaces`` element (see :ref:`test-case-namespaces`) where a prefix is used to identify each language used. 
 The default expression language assumed by GITB TDL is XPath 1.0 given that processing XML constructs is one of the more frequent needs 
 when conformance testing for content specifications. However, the use of XPath does not restrict us to using XML documents as variables; 
-XPath provides sufficient expressiveness to define most operation you would need to support (albeit not always in the most intuituve way).
+XPath provides sufficient expressiveness to define most operation you would need to support (albeit not always in the most intuitive way).
 
 The following ``assign`` operations illustrate some interesting examples:
 
@@ -106,7 +106,7 @@ Referring to variables
 
 As you have seen in the previous examples, referring to variables is a very common use case in GITB TDL expressions. Variable
 references are done as ``$VARIABLE``, i.e. using the ``$`` character, followed by the variable's name. Furthermore, when
-an expression consists only of a variable reference without other XPath elements it is refered to as a **pure variable reference**.
+an expression consists only of a variable reference without other XPath elements it is referred to as a **pure variable reference**.
 As we have discussed in :ref:`test-case-types-type-convesions`, pure variable references are important when we need to convert 
 variables from one type to another in ``assign`` steps.
 

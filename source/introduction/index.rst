@@ -119,7 +119,7 @@ Once actors are defined they play an important role in the testing process as fo
 
 * They define properties relevant to the testing (think of them as actor-specific configuration elements).
 * Each test case foresees that actors are either simulated by the test bed or are the focus of the test. In the latter case
-  they are refered to as having a role of **SUT** (System Under Test).
+  they are referred to as having a role of **SUT** (System Under Test).
 
 .. _introduction-concepts-messaging-handlers:
 
@@ -130,7 +130,7 @@ Messaging handlers
 messaging for actors, defining how these receive and send messages. How this actually takes place can be
 completely arbitrary and is not tied to a specific protocol. What is important is that the test bed can signal to the handler that
 it needs to send data or similarly signal that it is waiting to receive data. In this latter case, the handler notifies the 
-test bed by means of a callback with the relevant received payload.
+test bed by means of a call-back with the relevant received payload.
 
 To enable interaction with the test bed, messaging handlers implement the GITB messaging service API [TODO]. This interface defines the 
 methods needed to signal events between the test bed and the handler and provide relevant input and output. Implementations can 

@@ -11,7 +11,7 @@ steps are described in the sections that follow, organised in four main categori
 * **Messaging steps** used to exchange information between actors.
 * **Processing steps** to perform complex arbitrary processing.
 * **Flow steps** to manage the execution flow of the test case.
-* **Support steps** to introduce support features to test cases`.
+* **Support steps** to introduce support features to test cases.
 
 .. _tdl-messaging-steps:
 
@@ -70,7 +70,7 @@ ID. It is structured as follows:
 
     @txnid, yes, The identifier of the transaction to end.
 
-Executing the ``etxn`` results in a call to the transaction's messaging handler to take necessary actions such as resource cleanup.
+Executing the ``etxn`` results in a call to the transaction's messaging handler to take necessary actions such as resource clean-up.
 
 .. code-block:: xml
     :emphasize-lines: 7
@@ -143,12 +143,12 @@ of the ``receive`` element is as follows:
 When the test bed executes the ``receive`` step it performs two actions:
 
 #. It signals the transaction's messaging handler that content is expected to be received.
-#. It blocks waiting for a callback from the messaging handler that will contain the received data.
+#. It blocks waiting for a call-back from the messaging handler that will contain the received data.
 
 Regarding the ``input`` elements provided these act as information provided to the messaging handler that are relevant to the
 message's reception. They act as a counterpart to ``config`` elements to allow evaluated expressions (e.g. variable values) to 
 be passed considering that ``config`` elements may only contain static strings. The ``output`` elements provided are optional
-and serve only to restrict the messaging handler's output (returned via its callback to the test bed) to the specified values.
+and serve only to restrict the messaging handler's output (returned via its call-back to the test bed) to the specified values.
 If not specified all available output values are returned.
 
 .. code-block:: xml
@@ -243,7 +243,7 @@ close a transaction the ID of which it references. The structure of the ``eptxn`
     @txnid, yes, A string identifier for the processing transaction to end.
 
 The ``eptxn`` step results in a call to the transaction's processing handler to signal that it should consider the transaction as
-completed and proceed with any needed actions such as resource cleanup.
+completed and proceed with any needed actions such as resource clean-up.
 
 .. code-block:: xml
     :emphasize-lines: 6
@@ -544,7 +544,7 @@ The following example sends a SOAP request to two actors in parallel and proceed
 exit
 ~~~~
 
-The ``exit`` step is used to immediately exit the test case from any execution branch. Triggerring this step will result in the 
+The ``exit`` step is used to immediately exit the test case from any execution branch. Triggering this step will result in the 
 test session having an ``UNDEFINED`` result. The structure of the ``exit`` element is as follows:
 
 .. csv-table::
@@ -594,7 +594,7 @@ assign
 ~~~~~~
 
 The ``assign`` step is a frequently used construct in GITB TDL. It is used to assign values to variables but also as a means of 
-performing simple processing on the data stored in the session's context or conversion between data types (see :ref:`test-case-types-type-convesions`). 
+performing simple processing on the data stored in the session's context or conversion between data types (see :ref:`test-case-types-type-conversions`). 
 The processing and assignment result is determined by an expression provided as the text content of the ``assign`` element (see :ref:`test-case-expressions`). 
 The element's structure is as follows:
 
@@ -768,7 +768,7 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
     **with:** The purpose of the ``with`` attribute is to identify the actor with role SUT to which this interaction needs to be presented. Currently 
     tests with more than one SUTs are not supported so this attribute should not be needed. Based on the specification's requirements it however needs
     to be specified. Secondly, having the ``with`` attribute both on the parent ``interact`` element and the specific ``instruct`` and ``request`` elements
-    would suggest that if all interactions are meant for the same actor it is enough to speficy the ``with`` on the ``interact``. This is implemented as
+    would suggest that if all interactions are meant for the same actor it is enough to specify the ``with`` on the ``interact``. This is implemented as
     such in the GITB test bed software however the specification currently requires that it is also specified on the ``instruct`` and ``request`` elements.
     This is an issue likely to be corrected in future GITB TDL versions (i.e. making it optional everywhere and dynamically evaluated).
 

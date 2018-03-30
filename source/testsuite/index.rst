@@ -111,8 +111,8 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    name, yes, The name of the endpoint that must be unique for the actor.
-    desc, no, A description to explain the purpose of this endpoint.
+    @name, yes, The name of the endpoint that must be unique for the actor.
+    @desc, no, A description to explain the purpose of this endpoint.
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
 The ``config`` elements defining an endpoint's parameters are structured as follows:
@@ -211,7 +211,7 @@ The key point to note is the reference to the "configuredValue" parameter in ``$
 Test cases
 ~~~~~~~~~~
 
-This section is used to reference the test cases contained in the test suite. One or mose test case entries must be defined using the 
+This section is used to reference the test cases contained in the test suite. One or more test case entries must be defined using the 
 ``testcase`` element whose structure is as follows:
 
 .. csv-table::
@@ -219,8 +219,8 @@ This section is used to reference the test cases contained in the test suite. On
     :header: "Name", "Required?", "Description"
 
     @id, yes, The ID of the test case. This needs to match one defined in the test case's XML file (see :ref:`test-case`).
-    prequisite, no, Zero or more elements defining other test case IDs that should be considered as prerequisites before running this one.
-    option, no, Zero or more string values that match an option defined for the actor in the specification.
+    prequisite, no, Zero or more elements each defining as text content a test case ID that should be considered as a prerequisite before running this one.
+    option, no, Zero or more elements each defining as text content string values that match an option defined for the actor in the specification.
 
 .. note::
     **GITB software support:** The ``prequisite`` and ``option`` values are currently ignored.
@@ -255,7 +255,7 @@ Uploading a test suite to the GITB software the following has the following resu
 
 As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and to provide their details (their name, endpoints
 and endpoint parameters). An alternative approach to avoid defining the complete actor details in the test suite is to simply refer to the actors used
-in its test cases without providing their information. Refering to actors is on the basis of their ID and referred actors are assumed and required to be present in the
+in its test cases without providing their information. Referring to actors is on the basis of their ID and referred actors are assumed and required to be present in the
 target specification (resulting in an upload error otherwise).
 
 The following example shows a test suite in which a "User" actor is referred to.
