@@ -107,7 +107,7 @@ Referring to variables
 As you have seen in the previous examples, referring to variables is a very common use case in GITB TDL expressions. Variable
 references are done as ``$VARIABLE``, i.e. using the ``$`` character, followed by the variable's name. Furthermore, when
 an expression consists only of a variable reference without other XPath elements it is referred to as a **pure variable reference**.
-As we have discussed in :ref:`test-case-types-type-convesions`, pure variable references are important when we need to convert 
+As we have discussed in :ref:`test-case-types-type-conversions`, pure variable references are important when we need to convert 
 variables from one type to another in ``assign`` steps.
 
 Map elements

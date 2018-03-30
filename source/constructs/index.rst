@@ -663,8 +663,11 @@ verify
 
 The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-processing-steps`, validation
 takes place using a validation handler implementation that can either be an embedded test bed component or a remote service that implements the
-GITB validation service API [TODO]. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
-a test report is returned in the GITB TRL (Test Reporting Language) format [TODO]. The structure of the ``verify`` element is as follows:
+`GITB validation service API`_. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
+a test report is returned in the `GITB TRL (Test Reporting Language) format`_. The structure of the ``verify`` element is as follows:
+
+.. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
+.. _GITB TRL (Test Reporting Language) format: https://www.itb.ec.europa.eu/specs/latest/gitb_tr.xsd
 
 .. csv-table::
     :stub-columns: 1

@@ -7,9 +7,13 @@ between actors, complex processing or content validation and implement APIs that
 specification. The components implementing these services are termed generally **handlers** and, depending on
 their purpose can be:
 
-* :ref:`introduction-concepts-messaging-handlers` implementing the GITB messaging service API [TODO].
-* :ref:`introduction-concepts-processing-handlers` implementing the GITB processing service API [TODO].
-* :ref:`introduction-concepts-validation-handlers` implementing the GITB validation service API [TODO].
+* :ref:`introduction-concepts-messaging-handlers` implementing the `GITB messaging service API`_.
+* :ref:`introduction-concepts-processing-handlers` implementing the `GITB processing service API`_.
+* :ref:`introduction-concepts-validation-handlers` implementing the `GITB validation service API`_.
+
+.. _GITB messaging service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ms.wsdl
+.. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
+.. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
 Another important distinction for handlers is whether they are embedded within the test bed software or external.
 Considering that handlers are typically used to extend the test bed for domain-specific operations, the norm

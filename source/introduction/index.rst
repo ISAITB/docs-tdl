@@ -132,7 +132,7 @@ completely arbitrary and is not tied to a specific protocol. What is important i
 it needs to send data or similarly signal that it is waiting to receive data. In this latter case, the handler notifies the 
 test bed by means of a call-back with the relevant received payload.
 
-To enable interaction with the test bed, messaging handlers implement the GITB messaging service API [TODO]. This interface defines the 
+To enable interaction with the test bed, messaging handlers implement the `GITB messaging service API`_. This interface defines the 
 methods needed to signal events between the test bed and the handler and provide relevant input and output. Implementations can 
 either be embedded test bed components or external web service endpoints. Input to a handler is provided using the test session's
 configuration and context whereas the output of messaging is recorded in the session context for subsequent use.
@@ -145,6 +145,8 @@ and receive email, it does not need to support e.g. SMTP natively, it just needs
     **Messaging handlers as adapters:** Messaging handlers are used when messaging to and from simulated actors but can also
     act as adapters over existing software, translating GITB-specific calls to the actual processes that carry out messaging.
 
+.. _GITB messaging service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ms.wsdl
+
 .. _introduction-concepts-validation-handlers:
 
 Validation handlers
@@ -155,8 +157,10 @@ returning a report with the result. Validation is a fully decoupled process in t
 are provided by the test bed as input without needing to be aware of how validation actually takes place. The result of a validation handler is 
 recorded in the test session context for subsequent use in the test case.
 
-Validation handlers implement the GITB validation service API [TODO] that defines the operations needed by the test bed to request
+Validation handlers implement the `GITB validation service API`_ that defines the operations needed by the test bed to request
 validation for specific input and receive the results. Implementations can be either embedded components or external web service endpoints.
+
+.. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
 .. _introduction-concepts-processing-handlers:
 
@@ -167,8 +171,10 @@ Processing handlers
 purpose of a processing handler is to receive a set of input parameters that it can process and produce a 
 set of output values. These output values are stored in the test session context for subsequent use. 
 
-Processing handlers implement the GITB processing service API [TODO] that defines the operations needed by the test bed to request
+Processing handlers implement the `GITB processing service API`_ that defines the operations needed by the test bed to request
 processing for specific input and receive the results. Implementations can be either embedded components or external web service endpoints.
+
+.. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
 
 The lifecycle of a test session
 -------------------------------
@@ -231,3 +237,27 @@ Step 7: Consult
 The results of the test session can be consulted either immediately following completion or by looking up the results in the organisation's test session
 history. A test session records its output per step that can be used to produce detailed test step reports or an overview report for the complete
 test session.
+
+Specification links
+-------------------
+
+The following table provides the links to access the latest version of the GITB specifications. These include XSDs defining the GITB
+TDL constructs but also related specifications such as the WSDLs for messaging, processing and validation services.
+
+.. csv-table::
+  :header: "Specification", "Description", "Link"
+
+  GITB core elements, The XSD defining core elements used in other GITB XSDs, https://www.itb.ec.europa.eu/specs/latest/gitb_core.xsd
+  GITB test description language (TDL), The XSD defining the types used when defining TDL test suites and test cases, https://www.itb.ec.europa.eu/specs/latest/gitb_tdl.xsd
+  GITB test presentation language (TPL), The XSD defining types used to report on the status of a test session, https://www.itb.ec.europa.eu/specs/latest/gitb_tpl.xsd
+  GITB test reporting language (TRL), The XSD defining the types used to report step output, https://www.itb.ec.europa.eu/specs/latest/gitb_tr.xsd
+  GITB messaging service API, The WSDL defining messaging service operations, https://www.itb.ec.europa.eu/specs/latest/gitb_ms.wsdl
+  GITB messaging service types, The XSD defining the messaging service message types, https://www.itb.ec.europa.eu/specs/latest/gitb_ms.xsd
+  GITB validation service API, The WSDL defining validation service operations, https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
+  GITB validation service types, The XSD defining the validation service message types, https://www.itb.ec.europa.eu/specs/latest/gitb_vs.xsd
+  GITB processing service API, The WSDL defining processing service operations, https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
+  GITB processing service types, The XSD defining the processing service message types, https://www.itb.ec.europa.eu/specs/latest/gitb_ps.xsd
+  GITB test bed service API, The WSDL defining test bed service operations, https://www.itb.ec.europa.eu/specs/latest/gitb_tbs.wsdl
+  GITB test bed service types, The XSD defining the test bed service message types, https://www.itb.ec.europa.eu/specs/latest/gitb_tbs.xsd
+
+The complete set of latest GITB specifications can be downloaded from https://www.itb.ec.europa.eu/specs/latest/gitb_all.zip
