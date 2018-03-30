@@ -13,6 +13,7 @@ steps are described in the sections that follow, organised in four main categori
 * **Flow steps** to manage the execution flow of the test case.
 * **Support steps** to introduce support features to test cases.
 
+.. index:: Messaging steps
 .. _tdl-messaging-steps:
 
 Messaging steps
@@ -21,6 +22,7 @@ Messaging steps
 Messaging steps allow the test case to handle the exchange of messages between actors. The actual implementation
 allowing content to be sent or received is implemented by a messaging handler (see :ref:`introduction-concepts-messaging-handlers`).
 
+.. index:: btxn
 .. _tdl-step-btxn:
 
 btxn
@@ -56,6 +58,7 @@ and ``receive`` calls.
 
 Note that ``btxn`` steps are not presented to the user.
 
+.. index:: etxn
 .. _tdl-step-etxn:
 
 etxn
@@ -85,6 +88,7 @@ Executing the ``etxn`` results in a call to the transaction's messaging handler 
 
 Note that ``etxn`` steps are not presented to the user.
 
+.. index:: send
 .. _tdl-step-send:
 
 send
@@ -118,6 +122,7 @@ sending always takes place through the message handler implementation. The ``sen
     </send>
     <etxn txnId="t1"/>
 
+.. index:: receive
 .. _tdl-step-receive:
 
 receive
@@ -160,6 +165,7 @@ If not specified all available output values are returned.
     </receive>
     <etxn txnId="t1"/>
 
+.. index:: listen
 .. _tdl-step-listen:
 
 listen
@@ -185,6 +191,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     **GITB software support:** The ``listen`` step is currently not supported. As a general note, 
     interoperability tests involving multiple actors as SUTs are not currently possible.
 
+.. index:: Processing steps
 .. _tdl-processing-steps:
 
 Processing steps
@@ -196,6 +203,7 @@ that carries out operations is implemented by a processing handler (see :ref:`in
 
 Note that processing steps are not presented to the user.
 
+.. index:: bptxn
 .. _tdl-step-bptxn:
 
 bptxn
@@ -228,6 +236,7 @@ start.
     </process>
     <eptxn txnId="t1"/>
 
+.. index:: eptxn
 .. _tdl-step-eptxn:
 
 eptxn
@@ -255,6 +264,7 @@ completed and proceed with any needed actions such as resource clean-up.
     </process>
     <eptxn txnId="t1"/>
 
+.. index:: process
 .. _tdl-step-process:
 
 process
@@ -322,12 +332,15 @@ processing service is illustrated in the following example:
     -->
     <eptxn txnId="t1"/>
 
+.. index:: Flow steps
+
 Flow steps
 ----------
 
 Flow steps are used to control the processing flow of a test case. The constructs available are similar to the
 flow control structures available in programming languages.
 
+.. index:: if
 .. _tdl-step-if:
 
 if
@@ -365,6 +378,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     even if you don't need to specify an ``else`` block you need to, even if it means adding a step that is not meaningful (e.g. an ``assign``
     that has no effect. This is expected to be adapted in a future version of the specification to skip the ``else`` if not needed.
 
+.. index:: while
 .. _tdl-step-while:
 
 while
@@ -407,6 +421,7 @@ The following example validates the name of each attachment defined in an XML do
         </do>
     </while>
 
+.. index:: repuntil
 .. _tdl-step-repuntil:
 
 repuntil
@@ -443,6 +458,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     (i.e. the logic is actually inversed). The naming of this step is thus unfortunate; it would be more appropriate if this was named ``dowhile``
     reflecting accurately how the condition is considered.
 
+.. index:: foreach
 .. _tdl-step-foreach:
 
 foreach
@@ -483,6 +499,7 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
     as fixed numbers. Considering that variable references can't be used this diminishes the effectiveness of this construct. 
     This will likely be addressed in a future version of GITB TDL to allow pure variable references to be used as well.
 
+.. index:: flow
 .. _tdl-step-flow:
 
 flow
@@ -539,6 +556,7 @@ The following example sends a SOAP request to two actors in parallel and proceed
     </send>
     <etxn txnId="t3"/>
 
+.. index:: exit
 .. _tdl-step-exit:
 
 exit
@@ -583,11 +601,14 @@ The following example shows a test case that exits based on the user's input:
     user interface. The session appears still running with the ``exit`` step pending. The user has to manually select to stop
     the session.
 
+.. index:: Support steps
+
 Support steps
 -------------
 
 Support steps are those that perform specific actions not related to messaging, processing or flow control. 
 
+.. index:: assign
 .. _tdl-step-assign:
 
 assign
@@ -618,6 +639,7 @@ The following example illustrates assigning a value to a ``number`` variable and
 Multiple further examples per variable type are provided in the documentation of :ref:`test-case-expressions`. Note that ``assign`` steps are not presented 
 to the user.
 
+.. index:: group
 .. _tdl-step-group:
 
 group
@@ -656,6 +678,7 @@ related validations.
     **GITB software support:** The ``group`` step is currently not supported. Using it will execute the contained steps but these will not be
     rendered on the user interface.
 
+.. index:: verify
 .. _tdl-step-verify:
 
 verify
@@ -705,6 +728,7 @@ The following example illustrates use of two ``verify`` steps, one using an :ref
     When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
     outside the test bed using any SOAP client.
 
+.. index:: call
 .. _tdl-step-call:
 
 call
@@ -732,6 +756,9 @@ its required input parameters and receive its output. The structure of the ``cal
 
 More information and examples on how to call a ``scriptlet`` and how to manage its output are provided in :ref:`test-case-scriptlets`.
 
+.. index:: interact
+.. index:: instruct
+.. index:: request
 .. _tdl-step-interact:
 
 interact

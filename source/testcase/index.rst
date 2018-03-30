@@ -1,3 +1,4 @@
+.. index:: Test cases
 .. _test-case:
 
 Test Cases
@@ -72,6 +73,7 @@ Elements
 
 We will now see how a test case breaks down into its individual sections and discuss the purpose of each.
 
+.. index:: Metadata (Test cases)
 .. _test-case-metadata:
 
 Metadata
@@ -98,6 +100,7 @@ about the test case to help users understand its purpose. Its structure is as fo
     "INTEROPERABILITY" type is not supported. Moreover, even if "CONFORMANCE" is considered the default, it currently must be explicitly set to avoid 
     errors during test suite upload. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
+.. index:: Namespaces (Test cases)
 .. _test-case-namespaces:
 
 Namespaces
@@ -152,6 +155,7 @@ additional details need to first be defined unambiguously by the test bed and ma
 .. note::
     **GITB software support:** Expression languages other than the default XPath 1.0 are not supported. As such the ``namespaces`` element is currently ignored.
 
+.. index:: Imports (Test cases)
 .. _test-case-imports:
 
 Imports
@@ -205,6 +209,8 @@ path specified suggests that this test case is part of a test suite with name "U
     the test bed itself. The preferred and simpler approach now is to simply define the handler in the respective test step (e.g. the ``verify``
     step's ``handler`` attribute for validators) without previously importing it.
 
+.. index:: Preliminary (Test cases)
+
 Preliminary
 ~~~~~~~~~~~
 
@@ -235,6 +241,7 @@ The following example shows a test case that prompts the user before starting to
         </steps>
     </testcase>
 
+.. index:: Actors (Test cases)
 .. _test-case-actors:
 
 Actors
@@ -311,6 +318,7 @@ if not already specified by the response of the simulated actor's handler. The b
     being considered for the actor's conformance statements. Note in addition that the "MONITOR" value for the actor ``role`` is currently
     not supported.
 
+.. index:: Variables (Test cases)
 .. _test-case-variables:
 
 Variables
@@ -395,6 +403,7 @@ type. The following example illustrates setting values for different variable ty
     **GITB software support:** Currently values for variables are defined in a fixed manner. Using expressions to set variable values
     is not supported.
 
+.. index:: Steps (Test cases)
 .. _test-case-steps:
 
 Steps
@@ -427,6 +436,7 @@ TDL step construct per test step. The available test steps that can be defined a
     :ref:`tdl-step-call`, Call a scriptlet
     :ref:`tdl-step-interact`, Trigger an interaction with the user
 
+.. index:: Scriptlets (Test cases)
 .. _test-case-scriptlets:
 
 Scriptlets

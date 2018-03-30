@@ -6,6 +6,8 @@ using the GITB TDL. The approach followed herein is to document the available po
 follow examples but also to note where appropriate certain considerations on the use of TDL in the GITB test bed
 software.
 
+.. index:: GITB
+.. index:: TDL
 
 What is the GITB TDL?
 ---------------------
@@ -51,6 +53,8 @@ GITB TDL test cases by facilitating their discovery and listing their expected a
 .. _published taxonomy: http://data.europa.eu/itw
 .. _GITB Test Registry and Repository (TRR): https://joinup.ec.europa.eu/collection/gitb-trr
 
+.. index:: Interoperability Test Bed Action
+
 How is it maintained?
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -68,11 +72,15 @@ Core concepts
 
 Before diving into GITB TDL it is important to be aware of certain core concepts.
 
+.. index:: Test case
+
 Test case
 ~~~~~~~~~
 
 A **test case** represents a set of steps and assertions that form a cohesive scenario for testing purposes. 
 These are captured as as a single XML file authored using GITB TDL constructs.
+
+.. index:: Test suite
 
 Test suite
 ~~~~~~~~~~
@@ -82,12 +90,17 @@ metadata such a name and description that provide useful context to understand t
 tests. A test suite is expressed as an XML file and is bundled in a ZIP archive along with its contained 
 test cases and the resources they use.
 
+.. index:: Test session
+
 Test session
 ~~~~~~~~~~~~
 
 A **test session** represents a single execution of a test case. It typically involves the provision of
 configuration from the user starting the test, goes through the steps the test case foresees and eventually
 completes providing the session's overall result.
+
+.. index:: Test session context
+.. index:: Session context
 
 Test session context
 ~~~~~~~~~~~~~~~~~~~~
@@ -101,6 +114,9 @@ makes it possible to implement complex flows and control logic.
 
 The test session context can be viewed as a map or keys to values, where each key is a string identifier and the value can be 
 any type supported by GITB, including additional nested maps.
+
+.. index:: Actor
+.. index:: SUT *System Under Test)
 
 Actor
 ~~~~~
@@ -122,6 +138,7 @@ Once actors are defined they play an important role in the testing process as fo
 * Each test case foresees that actors are either simulated by the test bed or are the focus of the test. In the latter case
   they are referred to as having a role of **SUT** (System Under Test).
 
+.. index:: Messaging handlers
 .. _introduction-concepts-messaging-handlers:
 
 Messaging handlers
@@ -148,6 +165,7 @@ and receive email, it does not need to support e.g. SMTP natively, it just needs
 
 .. _GITB messaging service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ms.wsdl
 
+.. index:: Validation handlers
 .. _introduction-concepts-validation-handlers:
 
 Validation handlers
@@ -163,6 +181,7 @@ validation for specific input and receive the results. Implementations can be ei
 
 .. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
+.. index:: Processing handlers
 .. _introduction-concepts-processing-handlers:
 
 Processing handlers

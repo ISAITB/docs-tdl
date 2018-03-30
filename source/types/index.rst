@@ -1,3 +1,4 @@
+.. index:: Types
 .. _test-case-types:
 
 Types
@@ -26,11 +27,15 @@ in GITB TDL:
     ``map``, Container, A map of key-value pairs (similar to a ``java.util.Map``).
     ``list``, Container, A list of values (similar to a ``java.util.List``)
 
+.. index:: Map (Type)
+
 Map variables
 ~~~~~~~~~~~~~
 
 Variables of type ``map`` can contain values or any type, with even different types contained in the same ``map``. In fact a ``map``
 may also contain embedded ``map`` variables at any level of depth. The keys of a ``map`` are however always strings.
+
+.. index:: List (Type)
 
 List variables
 ~~~~~~~~~~~~~~

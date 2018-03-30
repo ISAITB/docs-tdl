@@ -52,6 +52,7 @@ Elements
 
 Here we will see how a test suite breaks down into its individual sections and discuss the purpose of each. 
 
+.. index:: Metadata (Test suites)
 .. _test-suite-metadata:
 
 Metadata
@@ -78,6 +79,7 @@ manage existing test suites but also for end users to understand the test suite'
     being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
     values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
 
+.. index:: Actors (Test suites)
 .. _test-suite-actors:
 
 Actors
@@ -133,6 +135,8 @@ Endpoints and their parameters are used in two main scenarios:
 
 These two scenarios are explained in the following sections.
 
+.. index:: Endpoints (simple configuration values)
+
 Endpoints as simple configuration values
 ++++++++++++++++++++++++++++++++++++++++
 
@@ -155,6 +159,7 @@ have to be provided. With these values in place, the test case could then refer 
 never actually figures when referencing the values. Given this you might wonder why the endpoint name is important to provide. The answer is to
 cover the more complex scenario discussed next.
 
+.. index:: Endpoints (simulated actor configuration)
 .. _test-suite-actors-endpoints-simulated:
 
 Endpoints to map simulated actor configuration
@@ -207,6 +212,8 @@ The key point to note is the reference to the "configuredValue" parameter in ``$
 .. note::
     **GITB software support:** Only a single endpoint can currently be configured for an actor. Additional endpoints will be recorded for the actor but will be 
     ignored during test execution.
+
+.. index:: Test cases (Test suites)
 
 Test cases
 ~~~~~~~~~~

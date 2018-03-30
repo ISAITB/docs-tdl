@@ -1,3 +1,5 @@
+.. index:: Service handlers
+
 Service handlers
 ================
 
@@ -74,6 +76,7 @@ Using remote service handlers is considered a best practice based on the benefit
   presentation. If e.g. a document needs to be validated by one XSD and two Schematron files we would only show a single,
   concise validation step versus three separate validations.
 
+.. index:: Embedded handlers
 .. _handlers-predefined-handlers:
 
 Embedded handlers
@@ -81,6 +84,8 @@ Embedded handlers
 
 The sections that follow list the handler implementations that already exist as predefined embedded implementations
 in the GITB test bed software.
+
+.. index:: Embedded messaging handlers
 
 Embedded messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,6 +100,8 @@ as follows:
 * **Send configuration:** These are configuration properties expected by the ``send`` step.
 
 The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
+
+.. index:: TCPMessaging
 
 TCPMessaging
 ++++++++++++
@@ -118,6 +125,8 @@ Used to send or receive an arbitrary byte stream over TCP.
     </send>
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
+
+.. index:: SoapMessaging
 
 SoapMessaging
 +++++++++++++
@@ -155,6 +164,8 @@ Used to send or receive payloads via SOAP web service calls.
     </send>
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
+
+.. index:: HttpMessaging
 
 HttpMessaging
 +++++++++++++
@@ -195,6 +206,8 @@ Used to send or receive content over HTTP.
     </receive>
     <etxn txnId="t1"/>
 
+.. index:: HttpsMessaging
+
 HttpsMessaging
 ++++++++++++++
 
@@ -232,6 +245,8 @@ Used to send or receive content over HTTPS.
     </receive>
     <etxn txnId="t1"/>
 
+.. index:: HttpProxyMessaging
+
 HttpProxyMessaging
 ++++++++++++++++++
 
@@ -263,15 +278,20 @@ the initial parameters received.
     </send>
     <etxn txnId="t1"/>
 
+.. index:: Embedded processing handlers
+
 Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 No processing handlers currently exist as predefined and embedded in the test bed software.
 
+.. index:: Embedded validation handlers
 .. _handlers-predefined-validation-handlers:
 
 Embedded validation handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. index:: NumberValidator
 
 NumberValidator
 +++++++++++++++
@@ -292,6 +312,8 @@ Used to verify that a provided ``number`` matches an expected value.
         <input name="expectednumber">'10'</input>
     </verify>
 
+.. index:: StringValidator
+
 StringValidator
 +++++++++++++++
 
@@ -310,6 +332,8 @@ Used to verify that a provided ``string`` matches an expected value.
         <input name="actualstring">$aString</input>
         <input name="expectedstring">'expected_string'</input>
     </verify>
+
+.. index:: XPathValidator
 
 XPathValidator
 ++++++++++++++
@@ -346,6 +370,7 @@ use. The following example illustrates both cases:
         <input name="xpathexpression">concat("contains(/toc/text()", ", 'string to look for')")</input>
     </verify>
 
+.. index:: XSDValidator
 .. _handlers-XSDValidator:
 
 XSDValidator
@@ -367,6 +392,7 @@ Used to validate an XML document against an XML Schema (XSD) instance.
         <input name="xsddocument">$schemaFile</input>
     </verify>
 
+.. index:: SchematronValidator
 .. _handlers-SchematronValidator:
 
 SchematronValidator
@@ -388,6 +414,7 @@ Used to validate an XML document against a Schematron file.
         <input name="schematron">$schematronFile</input>
     </verify>
 
+.. index:: Handler inputs and outputs
 .. _handlers-inputs-outputs:
 
 Handler inputs and outputs

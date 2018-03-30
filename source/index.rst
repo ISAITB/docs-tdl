@@ -15,8 +15,4 @@ GITB TDL Documentation
    expressions/index
    constructs/index
    handlers/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
+   genindex

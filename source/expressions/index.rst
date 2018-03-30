@@ -1,3 +1,4 @@
+.. index:: Expressions
 .. _test-case-expressions:
 
 Expressions
