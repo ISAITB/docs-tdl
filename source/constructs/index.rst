@@ -4,7 +4,7 @@ TDL step constructs
 Overview
 --------
 
-TDL step constructs are used to capture the core testing logic. They are used in test cases and
+TDL step constructs are used to capture a test case's core testing logic. They are used in test cases and
 also in :ref:`test-case-scriptlets` to define their sequence of test steps. The available test
 steps are described in the sections that follow, organised in four main categories:
 
@@ -34,13 +34,13 @@ encountered to end it. The structure of the ``btxn`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnid, yes, A string identifier for the transaction.
+    @txnid, yes, A string ID for the transaction.
     @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`).
-    @handler, yes, A string value identifying the the messaging handler for the transaction (see :ref:`handlers-implementation`).
+    @handler, yes, A string value identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
 
-Executing the ``btxn`` step results in a call to messaging handler specified by the ``handler`` attribute. This gives it an 
+Executing the ``btxn`` step results in a call to the messaging handler specified by the ``handler`` attribute. This gives it an 
 opportunity to take any actions needed for the upcoming transaction and apply specific configurations for its related ``send``
 and ``receive`` calls.
 
@@ -54,9 +54,9 @@ and ``receive`` calls.
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
 
-.. _tdl-step-etxn:
-
 Note that ``btxn`` steps are not presented to the user.
+
+.. _tdl-step-etxn:
 
 etxn
 ~~~~
@@ -70,10 +70,10 @@ ID. It is structured as follows:
 
     @txnid, yes, The identifier of the transaction to end.
 
-Executing the ``etxn`` results in a call to the transaction's messaging handler to take necessary action such as resource cleanup.
+Executing the ``etxn`` results in a call to the transaction's messaging handler to take necessary actions such as resource cleanup.
 
 .. code-block:: xml
-    :emphasize-lines: 6
+    :emphasize-lines: 7
 
     <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
     <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
@@ -83,9 +83,9 @@ Executing the ``etxn`` results in a call to the transaction's messaging handler 
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
 
-.. _tdl-step-send:
-
 Note that ``etxn`` steps are not presented to the user.
+
+.. _tdl-step-send:
 
 send
 ~~~~
@@ -101,11 +101,12 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
+    @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 The ``send`` step results in the transaction's messaging handler to be notified that it needs to send content. Recall that the actual
-sending always takes place through the message handlier implementation. The ``send`` step simply acts as the signal to do so.
+sending always takes place through the message handler implementation. The ``send`` step simply acts as the signal to do so.
 
 .. code-block:: xml
     :emphasize-lines: 2,3,4,5
@@ -134,11 +135,12 @@ of the ``receive`` element is as follows:
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
+    @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
-    output, no, Zero or more elements for the output parameters. See :ref:`handlers-inputs-outputs` for details.
+    output, no, Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
 
-When the test bed execute the ``receive`` step it performs two actions:
+When the test bed executes the ``receive`` step it performs two actions:
 
 #. It signals the transaction's messaging handler that content is expected to be received.
 #. It blocks waiting for a callback from the messaging handler that will contain the received data.
@@ -163,7 +165,7 @@ If not specified all available output values are returned.
 listen
 ~~~~~~
 
-The ``listen`` step is used to tell the test bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
+The ``listen`` step is used to instruct the test bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
 Similar to the ``send`` and ``receive`` steps, this step is expected to take place within a transaction created by ``btxn``, the 
 identifier of which it references. The structure of the ``listen`` element is as follows:
 
@@ -174,13 +176,14 @@ identifier of which it references. The structure of the ``listen`` element is as
     @txnid, yes, The ID of the transaction this ``listen`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
+    @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
-    output, no, Zero or more elements for the output parameters reported to the test case. See :ref:`handlers-inputs-outputs` for details.
+    output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
 
 .. note::
-    **GITB software support:** The ``listen`` step is currently not supported by the GITB test bed software. As a general note, 
-    interoperability tests involving multiple actors as SUTs are not currently supported.
+    **GITB software support:** The ``listen`` step is currently not supported. As a general note, 
+    interoperability tests involving multiple actors as SUTs are not currently possible.
 
 .. _tdl-processing-steps:
 
@@ -202,7 +205,7 @@ Similar to :ref:`tdl-messaging-steps`, processing occurs in the context of a tra
 over related operations. The ``bptxn`` step (the name stands for "Begin processing transaction") is the construct used to
 signal that a processing transaction should be considered as started as is assigned an identifier. Subsequent relevant 
 operations will be accompanied by this transaction ID to allow their processing handler to carry them out accordingly.
-The structure of the ``btxn`` element is as follows:
+The structure of the ``bptxn`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -212,7 +215,7 @@ The structure of the ``btxn`` element is as follows:
     @handler, yes, A string value identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
 
-The ``bptxn`` step results in a call to the configured processing handler to signal it that a new transaction is going to 
+The ``bptxn`` step results in a call to the configured processing handler to signal that a new transaction is going to 
 start.
 
 .. code-block:: xml
@@ -239,8 +242,8 @@ close a transaction the ID of which it references. The structure of the ``eptxn`
 
     @txnid, yes, A string identifier for the processing transaction to end.
 
-The ``eptxn`` acts results in a call to the transaction's processing handler to signal that it should consider the transaction as
-completed and proceed with any actions such as resource cleanup.
+The ``eptxn`` step results in a call to the transaction's processing handler to signal that it should consider the transaction as
+completed and proceed with any needed actions such as resource cleanup.
 
 .. code-block:: xml
     :emphasize-lines: 6
@@ -267,10 +270,11 @@ element is as follows:
 
     @txnid, yes, The ID of the transaction to which this processing step belongs.
     @desc, yes, A description for the action taking place within the processing step.
+    @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
-The ``operation`` is relevant for processing handlers that can support more than one task. Use of multiple operations under
+The ``operation`` attribute is relevant for processing handlers that can support more than one task. Use of multiple operations under
 the same transaction renders processing services quite powerful in that they can perform any number of related operations
 and be extended with additional ones if needed.
 
@@ -321,7 +325,7 @@ processing service is illustrated in the following example:
 Flow steps
 ----------
 
-Flow steps are used to control the processing flow of a test case. The consstructs available are similar to the
+Flow steps are used to control the processing flow of a test case. The constructs available are similar to the
 flow control structures available in programming languages.
 
 .. _tdl-step-if:
@@ -336,7 +340,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the check.
-    cond, yes, The condition to verify in order to execute the ``then`` steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions:`).
+    cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
     else, yes, Contains as children any sequence of steps to execute if the condition results to false.
 
@@ -367,14 +371,14 @@ while
 ~~~~~
 
 The ``while`` step is the most useful looping construct. It allows a sequence of steps to be continuously executed as long as a condition
-continues to result to true. The structure of the ``while`` element is as follows:
+continues to be true. The structure of the ``while`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the loop.
-    cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions:`).
+    cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
     do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
 
 The following example validates the name of each attachment defined in an XML document using a ``while`` loop:
@@ -389,12 +393,12 @@ The following example validates the name of each attachment defined in an XML do
     <while desc="Validate attachment names">
         <cond>$iteration &lt;= $iterationCount</cond>
         <do>
-            <verify handler="XPathValidator" desc="The referenced attachment is in the container">
+            <verify handler="XPathValidator" desc="The attachment is named as expected">
                 <input name="xmldocument" source="$document"/>
                 <!-- 
-                    Construct the XPath expression to use using the iteration variable.
+                    Construct the XPath expression to apply using the iteration variable.
                 -->
-                <input name="xpathexpression">concat("//*[local-name() = "Attachment"][", $iteration, "]/text() = 'file_", $iteration, ".xml'")</input>
+                <input name="xpathexpression">concat("//*[local-name() = 'Attachment'][", $iteration, "]/text() = 'file_", $iteration, ".xml'")</input>
             </verify>
             <!--
                 Increment iteration counter.
@@ -417,7 +421,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
 
     @desc, yes, A description to display to the user on the purpose of the loop.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
-    cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions:`).
+    cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
 
 .. code-block:: xml
 
@@ -452,7 +456,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
 
     @desc, yes, A description to display to the user on the purpose of the loop.
     @start, yes, A number to initialise the iteration index to.
-    @end, yes, A number for that is considered as the maximum iteration count plus 1.
+    @end, yes, A number that is considered as the maximum iteration count plus 1.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
@@ -462,8 +466,8 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
 .. code-block:: xml
 
     <!-- 
-        The loop will execute 2 times (start must be less than end). The current iteration counter will be
-        5 and then 6. Note that referring to this is done as a variable reference (if not specified the variable
+        The loop will execute 2 times (start must be less than end). The currentIndex variable will be 5 in the first 
+        iteration and then 6. Note that referring to this is done as a variable reference (if not specified the variable
         would be named "i" and referred to as "$i").
     -->
     <foreach desc="Do iteration" counter="currentIndex" start="5" end="7">
@@ -505,11 +509,11 @@ The following example sends a SOAP request to two actors in parallel and proceed
                 Send message to ReceiverA and wait for response.
             -->
             <btxn from="Sender" to="ReceiverA" txnId="t1" handler="SoapMessaging"/>
-            <send id="dataSend" desc="Send data" from="Sender" to="ReceiverA" txnId="t1">
+            <send id="dataSend" desc="Send data to A" from="Sender" to="ReceiverA" txnId="t1">
                 <config name="soap.version">1.2</config>
                 <input name="soap_message">$soapMessageForA</input>
             </send>
-            <receive id="dataReceive" desc="Receive data" from="ReceiverA" to="Sender" txnId="t1"/>
+            <receive id="dataReceive" desc="Receive data from A" from="ReceiverA" to="Sender" txnId="t1"/>
             <etxn txnId="t1"/>
         </thread>
         <thread>
@@ -517,11 +521,11 @@ The following example sends a SOAP request to two actors in parallel and proceed
                 Send message to ReceiverB and wait for response.
             -->
             <btxn from="Sender" to="ReceiverB" txnId="t2" handler="SoapMessaging"/>
-            <send id="dataSend" desc="Send data" from="Sender" to="ReceiverB" txnId="t2">
+            <send id="dataSend" desc="Send data to B" from="Sender" to="ReceiverB" txnId="t2">
                 <config name="soap.version">1.2</config>
                 <input name="soap_message">$soapMessageForB</input>
             </send>
-            <receive id="dataReceive" desc="Receive data" from="ReceiverB" to="Sender" txnId="t2"/>
+            <receive id="dataReceive" desc="Receive data from B" from="ReceiverB" to="Sender" txnId="t2"/>
             <etxn txnId="t2"/>
         </thread>
     </flow>
@@ -529,7 +533,7 @@ The following example sends a SOAP request to two actors in parallel and proceed
         After ReceiverA and ReceiverB have responded send a message to ReceiverC.
     -->
     <btxn from="Sender" to="ReceiverC" txnId="t3" handler="SoapMessaging"/>
-    <send id="dataSend" desc="Send data" from="Sender" to="ReceiverC" txnId="t3">
+    <send id="dataSend" desc="Send data to C" from="Sender" to="ReceiverC" txnId="t3">
         <config name="soap.version">1.2</config>
         <input name="soap_message">$soapMessageForC</input>
     </send>
@@ -564,7 +568,7 @@ The following example shows a test case that exits based on the user's input:
             <exit desc="Terminate test"/>
         </then>
         <else>
-            <interact desc="Provide your choice" with="User">
+            <interact desc="You chose to continue" with="User">
                 <instruct desc="Test continues" with="User" type="string">""</instruct>
             </interact>
             <verify handler="XSDValidator" desc="Validate content">
@@ -576,7 +580,7 @@ The following example shows a test case that exits based on the user's input:
 
 .. note::
     **GITB software support:** The ``exit`` step currently successfully terminates a test session but this is not reflected on the
-    user interface. The session appears still running with the ``exit`` step pending. The user has to manually select to ``Stop``
+    user interface. The session appears still running with the ``exit`` step pending. The user has to manually select to stop
     the session.
 
 Support steps
@@ -590,16 +594,16 @@ assign
 ~~~~~~
 
 The ``assign`` step is a frequently used construct in GITB TDL. It is used to assign values to variables but also as a means of 
-performing simple processing on the data stored in the session's context. The processing and assignment result is determined by
-an expression provided as the text content of the ``assign`` element (see :ref:`test-case-expressions`). The element's structure 
-is as follows:
+performing simple processing on the data stored in the session's context or conversion between data types (see :ref:`test-case-types-type-convesions`). 
+The processing and assignment result is determined by an expression provided as the text content of the ``assign`` element (see :ref:`test-case-expressions`). 
+The element's structure is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
     @to, yes, The target variable to assign the result of the expression to.
-    @append, no, Used if the ``to`` variable is a ``list`` to append the result to.
+    @append, no, Used if the ``to`` variable is a ``list`` to append the result to. Can be "true" or "false".
     @type, no, Used to specify the type of variable to create if the ``to`` is an entry in a ``map``.
     @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
@@ -633,16 +637,16 @@ related validations.
 
 .. code-block:: xml
 
-    <group id="groupID" desc="Validate document">
-		<verify handler="XSDValidator" desc="Validate invoice against schema">
+    <group desc="Validate document">
+		<verify handler="XSDValidator" desc="Against schema">
             <input name="xmldocument">$document</input>
             <input name="xsddocument">$schema"</input>
         </verify>
-        <verify handler="SchematronValidator" desc="Validate against Schematron 1">
+        <verify handler="SchematronValidator" desc="Against Schematron 1">
             <input name="xmldocument">$document</input>
             <input name="schematron">$schematron1"</input>
         </verify>
-        <verify handler="SchematronValidator" desc="Validate against Schematron 2">
+        <verify handler="SchematronValidator" desc="Against Schematron 2">
             <input name="xmldocument">$document</input>
             <input name="schematron">$schematron2"</input>
         </verify>
@@ -657,10 +661,10 @@ related validations.
 verify
 ~~~~~~
 
-The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-messaging-steps`, validation
+The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-processing-steps`, validation
 takes place using a validation handler implementation that can either be an embedded test bed component or a remote service that implements the
-GITB validation service API. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
-a test report is returned in the GITB TRL (Test Reporting Language) format. The structure of the ``verify`` element is as follows:
+GITB validation service API [TODO]. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
+a test report is returned in the GITB TRL (Test Reporting Language) format [TODO]. The structure of the ``verify`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -671,7 +675,7 @@ a test report is returned in the GITB TRL (Test Reporting Language) format. The 
     config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content as value.
     input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
-The following example illustrates use of two ``verify`` steps, one using an XSDValidator and the other calling a remote validation service:
+The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other calling a remote validation service:
 
 .. code-block:: xml
 
@@ -690,23 +694,115 @@ The following example illustrates use of two ``verify`` steps, one using an XSDV
     </verify>
 
 .. note::
-    **Remote or local validators:** Simple validations such as those evaluating an XPath expression against a document can be implemented using embedded 
-    test bed validators. When validation logic however is complex is is always best to decouple this into an external validation service. This is the case
-    even in simple XML content validation since this usually involves multiple validation steps using an XSD and one or more Schematron files. It is more
-    concise to present this as a single validation step with one report. This also enhances maintainability of the test cases considering that use of embedded
-    ``XSDValidator`` and ``SchematronValidator`` means that you need to bundle (and maintain) the validation artefacts in each test suite. When decoupled as a service 
-    artefacts can be updated transparently to related test cases aside from the benefit that your service can also be invoked outside the test bed using any
-    SOAP client.
+    **Remote or local validators:** Simple validations such as those evaluating an XPath expression against a document can be implemented using 
+    :ref:`handlers-predefined-validation-handlers`. When validation logic however is complex it is always best to decouple this into an external validation service. 
+    This is the case even when validating XML content since this usually involves multiple validation steps using an XSD and one or more Schematron files. It is more
+    concise to present this as a single validation step with one report. This also enhances maintainability of the test cases considering that use of the embedded
+    :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator` means that you need to bundle (and maintain) the validation artefacts in each test suite. 
+    When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
+    outside the test bed using any SOAP client.
 
 .. _tdl-step-call:
 
 call
 ~~~~
 
+The ``call`` step is used to invoke a set of steps defined as a ``scriptlet`` (see :ref:`test-case-scriptlets`). If we consider that a scriptlet resembles a function 
+with input, output and local variables, the ``call`` step can be considered as the function's invocation. Its purpose is to identify the ``scriptlet`` to call, pass
+its required input parameters and receive its output. The structure of the ``call`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @path, yes, The ID of the scriptlet to call.
+    input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
+    output, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
+
+.. code-block:: xml
+
+    <call id="call1" path="script1">
+        <input name="docToValidate">$fileContent1</input>
+        <output name="outputMessage"/>
+    </call>
+
+More information and examples on how to call a ``scriptlet`` and how to manage its output are provided in :ref:`test-case-scriptlets`.
+
 .. _tdl-step-interact:
 
 interact
 ~~~~~~~~
 
-NEEDS TO SPECIFY TYPE
-INSTRUCTION NEEDS TO SPECIFY A MESSAGE EVEN IF EMPTY
+The ``interact`` step is used to exchange information with the user executing the test case. Interactions can be of two types:
+
+* **Instructions:** Informative messages to be presented to a user.
+* **Requests:** Prompts to a user to provide input.
+
+Both instructions and requests can be included in the same ``interact`` step to display and/or request multiple sets of information in one go.
+The structure of the ``interact`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @desc, yes, A description for the user interaction.
+    @with, no, The ID of the actor this interaction refers to. If not specified this needs to be specified in the individual ``instruct`` and/or ``request`` elements.
+    instruct, no, Zero or more elements to appear as instructions to the user.
+    request, no, Zero or more information requests for the user.
+
+The ``instruct`` and ``request`` elements in turn define what is going to presented to the user. They share the same structure as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
+
+    @desc~ yes~ The label to display to the user.
+    @with~ no~ The ID of the actor this interaction refers to. If not specified this needs to be defined in the ``interact`` parent element.
+    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`).
+    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI").
+    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider (default is "UTF-8").
+
+.. note::
+    **with:** The purpose of the ``with`` attribute is to identify the actor with role SUT to which this interaction needs to be presented. Currently 
+    tests with more than one SUTs are not supported so this attribute should not be needed. Based on the specification's requirements it however needs
+    to be specified. Secondly, having the ``with`` attribute both on the parent ``interact`` element and the specific ``instruct`` and ``request`` elements
+    would suggest that if all interactions are meant for the same actor it is enough to speficy the ``with`` on the ``interact``. This is implemented as
+    such in the GITB test bed software however the specification currently requires that it is also specified on the ``instruct`` and ``request`` elements.
+    This is an issue likely to be corrected in future GITB TDL versions (i.e. making it optional everywhere and dynamically evaluated).
+
+The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
+meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
+value is a complete expression that will be evaluated to produce the value to display. In this case the ``contentType`` and ``encoding`` 
+attributes are not used and are ignored if specified. What is important is the ``type`` attribute that defines how the element's expression
+result is to be interpreted (see :ref:`test-case-types`):
+
+* A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. This will be rendered as a
+  download link for the user to download the content as a file.
+* All other cases result in the value being displayed as text.
+
+Concerning ``request`` elements, the content of the expression is expected to be a pure variable reference that identifies the variable that
+will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
+
+* Specifying "BASE64" results in a file upload presented to the user.
+* Specifying "STRING" or "URI" results in a simple text input.
+
+The following example illustrates a user interaction presenting instructions and also requesting information:
+
+.. code-block:: xml
+
+	<interact desc="Some information and inputs" with="User">
+		<instruct desc="A text value:" type="string">concat("A text value ", $aTextValue)</instruct>
+		<instruct desc="A file to download:" type="binary">$schemaFile</instruct>
+		<request desc="Enter a text value:" contentType="STRING">$inputValue</request>
+		<request desc="Upload a file:" contentType="BASE64">$document</request>
+		<instruct desc="A final message:" type="string">"Final message"</instruct>
+	</interact>
+
+.. note::
+    **GITB software support:** Downloading binary content through ``instruct`` elements is currenty not supported. The binary
+    content is either displayed as BASE64 or as a string. In addition the ``type`` attribute needs to always be provided (even
+    though optional in the specification). Finally, ``instruct`` elements that don't need to evaluate an expression to present
+    a message (i.e. the label from the ``desc`` would be sufficient) need nonetheless to specify an empty message ``""``
+    with the ``type`` set to ``string``.

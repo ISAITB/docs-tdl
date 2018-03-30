@@ -11,5 +11,7 @@ GITB TDL Documentation
    introduction/index
    testsuite/index
    testcase/index
+   types/index
+   expressions/index
    constructs/index
    handlers/index

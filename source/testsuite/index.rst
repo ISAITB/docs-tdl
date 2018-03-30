@@ -5,7 +5,7 @@ Overview
 --------
 
 The purpose of a test suite is to group test cases into a cohesive set and define the actors
-that are its test cases involve. In addition, test suites introduce metadata such as a version
+that its test cases involve. In addition, test suites introduce metadata such as a version
 number and a description to facilitate their identification and management.
 
 The following is an example test suite that defines a single actor and two included test cases:
@@ -33,8 +33,6 @@ The following is an example test suite that defines a single actor and two inclu
 
 A test suite is defined as the XML file's root element ``testsuite``. The following table defines its attributes and child elements:
 
-**Attributes and child elements**
-
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
@@ -46,8 +44,8 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
 
 .. note::
     **GITB software support:** Currently the ``id`` attribute of a test suite is ignored in favour of the test suite's name that is used to uniquelly identify
-    the test suite within a specification. This is likely to be adapted in future versions so it is a good practice to provide a meaningful
-    unique value to the ``id``. A good approach is to use the same value as for the test suite name.
+    the test suite within a specification. This is likely to be adapted in future versions so it is a good practice to provide meaningful values for the ``id``. 
+    A good approach is to use the same value as for the test suite name.
 
 Elements
 --------
@@ -60,9 +58,7 @@ Metadata
 ~~~~~~~~
 
 The purpose of the ``metadata`` element is to provide basic information about the test suite. This information is used both by administrators to better
-manage existing test suites but also for end users to understand the purpose of each test case and the context of the overall test suite.
-
-**Attributes and child elements**
+manage existing test suites but also for end users to understand the test suite's purpose. The structure of the ``metadata`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -71,13 +67,13 @@ manage existing test suites but also for end users to understand the purpose of 
     name, yes, The name of the test suite that is used to identify it to users.
     type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when multiple systems under test are considered in the test suite's test cases.
     version, yes, A string that indicates the test suite's version.
-    authors, no, A string to indicate the authors.
+    authors, no, A string to indicate the test suite's authors.
     description, no, A string to provide a user-friendly description of the test suite that is displayed to users.
-    published, no, A string acting as an indication of the publishing time.
+    published, no, A string acting as an indication of the test suite's publishing time.
     lastModified, no, A string acting as an indication of the last modification time for the test suite.
 
 .. note::
-    **GITB software support:** The ``name`` attribute is used to uniquely identify the test suite within a specification so ensure that it is unique 
+    **GITB software support:** The ``name`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
     within a given specification. An uploaded test suite whose ``name`` matches that of an existing test suite will result in the existing test suite
     being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
     values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
@@ -88,9 +84,8 @@ Actors
 ~~~~~~
 
 In the ``actors`` element we identify the actors that will be involved in the test suite's test cases. These actors may either be ones that will be tested 
-as systems under test (i.e. the focus of test cases) or be simulated by the test bed. At least one actor needs to be defined here.
-
-**Attributes and child elements**
+as systems under test (i.e. the focus of test cases) or be simulated by the test bed. At least one actor needs to be defined here. The ``actors`` element 
+contains one or more ``actor`` elements with structure as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -106,7 +101,7 @@ The ``name`` and ``desc`` elements are present as metadata when displaying a tes
 
 Actors used in test suites may need to have configuration properties related to them that have meaning for the given specification or that are required to run 
 test cases. Examples of such configuration properties could be a Member State country code, an IP address or a certificate used to produce and verify signatures
-(i.e. these can be simple values or complete files). For an actor as a system under test (SUT), these are properties that would need to be provided before running
+(i.e. these can be simple values or complete files). For an actor as a system under test (SUT), these are properties that would need to be provided before executing
 a test case.
 
 Such actor configuration is captured in configuration sets named "endpoints" with each one defining key-value pair configuration properties named
@@ -120,7 +115,7 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
     desc, no, A description to explain the purpose of this endpoint.
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
-The endpoint parameters in turn are defined using ``config`` elements as follows:
+The ``config`` elements defining an endpoint's parameters are structured as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -134,7 +129,7 @@ The endpoint parameters in turn are defined using ``config`` elements as follows
 Endpoints and their parameters are used in two main scenarios:
 
 * As simple sets of configuration values.
-* As placeholders to allow messaging between SUT and simulated actors.
+* As placeholders for SUT actors to hold simulated actor configuration (provided via their messaging handlers).
 
 These two scenarios are explained in the following sections.
 
@@ -155,9 +150,9 @@ you can then use in a test case. An example of this would be a "person" actor de
     </gitb:actor>
 
 This means that before running a test case that has the "person" actor with role SUT, the values for "firstName" and "lastName" would
-have to be provided. With these values in place, the test case could then refer to these values using the expressions 
+have to be provided. With these values in place, the test case could then refer to them using the expressions 
 ``$person{firstName}`` and ``$person{lastName}``. As you see, in this scenario the actual name of the endpoint ("personInfo" in this case)
-never actually figures when referencing the values. Given this you might wonder why is the endpoint name important then? The answer is to
+never actually figures when referencing the values. Given this you might wonder why the endpoint name is important to provide. The answer is to
 cover the more complex scenario discussed next.
 
 .. _test-suite-actors-endpoints-simulated:
@@ -165,14 +160,14 @@ cover the more complex scenario discussed next.
 Endpoints to map simulated actor configuration
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-Simulator actors are handled in GITB through **messaging transactions** and **messaging handlers**. Any messaging interaction between actors
-takes place by means of a messaging handler that actually implements the simulated actor for the purpose of the transaction's interaction. Before
-a test session starts, the existing messaging transactions are detected and the pairs of communicating actors are split in "from" and "to" roles.
-Each simulated actor's messaging handler then receives an **initiate** call in which the configuration for the other actors is passed (if this exists).
+Simulated actors are handled in GITB through **messaging transactions** and **messaging handlers** (see :ref:`introduction-concepts-messaging-handlers`). 
+Any messaging interaction between actors takes place by means of a messaging handler that actually implements the simulated actor for the purpose of the transaction's 
+interaction. Before a test session starts, the existing messaging transactions are detected and the pairs of communicating actors are split in "from" and "to" roles.
+Each simulated actor's messaging handler then receives an **initiate** call in which the configuration for the other actors is passed (if defined).
 The messaging handler has now the opportunity to return a configuration per actor that can differ based on the current global testing state or the
-configuration received. Different sets of configuration properties can be returned per actor and are mapped to each one on the basis of an ``endpoint``.
+configuration received. Different sets of configuration properties can be returned per actor and are mapped to each one on the basis of their ``endpoint``.
 
-To better illustrate this, consider a sender and receiver example, defined in the test suite as follows:
+To better illustrate this, consider a sender and receiver example, defined in a test suite as follows:
 
 .. code-block:: xml
 
@@ -193,7 +188,7 @@ These actors can then be used in a test case by defining "sender" as the SUT and
         <gitb:actor id="receiver" name="receiver" role="SIMULATED"/>
     </actors>
     <steps>
-        <btxn from="sender" to="receiver" txnId="t1" handler="A_HANDLER_URL"/>
+        <btxn from="sender" to="receiver" txnId="t1" handler="aHandler"/>
         <send desc="Call receiver" from="sender" to="receiver" txnId="t1">
             <input name="anInputValue">$sender{receiver}{configuredValue}</input>
         </send>
@@ -207,7 +202,7 @@ The key point to note is the reference to the "configuredValue" parameter in ``$
    initiation phase.
 3. The receiver responded by providing a configuration for endpoint "expectedConfig" with a parameter named "configuredValue".
 4. The returned configuration was matched to the sender's "expectedConfig" endpoint and copied under the sender actor for this endpoint.
-5. The returned address parameter can now be referenced as ``$sender{receiver}{configuredValue}`` (``$SUT_ACTOR_ID{SIMULATED_ACTOR_ID}{PARAMETER_NAME}``).
+5. The returned parameter can now be referenced as ``$sender{receiver}{configuredValue}`` (i.e. ``$SUT_ACTOR_ID{SIMULATED_ACTOR_ID}{PARAMETER_NAME}``).
 
 .. note::
     **GITB software support:** Only a single endpoint can currently be configured for an actor. Additional endpoints will be recorded for the actor but will be 
@@ -217,15 +212,13 @@ Test cases
 ~~~~~~~~~~
 
 This section is used to reference the test cases contained in the test suite. One or mose test case entries must be defined using the 
-``testcase`` element.
-
-**Attributes and child elements**
+``testcase`` element whose structure is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @id, yes, The ID of the test case that needs to match the one defined in the test case's XML file.
+    @id, yes, The ID of the test case. This needs to match one defined in the test case's XML file (see :ref:`test-case`).
     prequisite, no, Zero or more elements defining other test case IDs that should be considered as prerequisites before running this one.
     option, no, Zero or more string values that match an option defined for the actor in the specification.
 
@@ -243,22 +236,25 @@ A test suite is packaged as a compressed ZIP archive that contains:
 * One or more test case XML files.
 * Any number of arbitrary files used as resources within test cases.
 
-The names of the archive, the test suite and the test case XML files are not important. What is important is that the test case IDs that are defined in the 
-test case XML files and the ones referenced in the test suite XML file match.
+The names of the archive, the test suite and the test case XML files are not important. Neither is the folder structure defined within the archive.
+What is important is that:
 
-Uploading a test suite to the GITB software the following results:
+* A single test suite XML file is defined.
+* The test case IDs defined in the test case XML files are referenced in the test suite XML.
+
+Uploading a test suite to the GITB software the following has the following results:
 
 * If it doesn't previously exist, the test suite is recorded along with its test cases and linked to the appropriate specification actors.
 * If the test suite does exist the user selects whether this new version should invalidate previous conformance testing sessions (if the
   change is significant) or not. Choosing to replace the test suite results in the test suite being updated and its test cases being replaced
-  with the ones contained in the new version, removing existing ones. Matching of the test suite with an existing one is on the basis of their name within the specification.
+  with the ones contained in the new version. Matching of the test suite with an existing one is on the basis of their name within the specification.
 * The actors that are defined in the test suite are created if they don't already exist along with their endpoints and endpoint parameters.
 * Actors that already exist in the specification are updated based on the latest provided information. In this case new endpoints and parameters are added
   and existing ones are updated. Note that actors, endpoints and parameters that are not defined in the new test suite are not removed. The matching of
   actors is on the basis of their ID, whereas for endpoints and parameters their name is used.
 
-As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and provide their details (their name, their endpoints
-and their endpoint parameters). An alternative approach to avoid defining in each test suite the complete actor details is to simply refer to the actors that are used
+As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and to provide their details (their name, endpoints
+and endpoint parameters). An alternative approach to avoid defining the complete actor details in the test suite is to simply refer to the actors used
 in its test cases without providing their information. Refering to actors is on the basis of their ID and referred actors are assumed and required to be present in the
 target specification (resulting in an upload error otherwise).
 
@@ -283,5 +279,5 @@ The following example shows a test suite in which a "User" actor is referred to.
 Specifying a test suite's actors in this way could be interesting if you want to be able to manage the actors' information through the GITB software's
 user interface without being concerned with keeping their definitions up to date in test suites. This would avoid for example an unwanted case where an
 actor's information is updated through the user interface but gets reset when a new version of a test suite gets uploaded where the change was not reflected.
-The only things you need to ensure are that the specification's actors are already defined before you start uploading test suites and you never change their 
+The only points you need to ensure are that the specification's actors are already defined before you start uploading test suites and that you don't change their 
 ID.

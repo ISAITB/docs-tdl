@@ -7,15 +7,14 @@ between actors, complex processing or content validation and implement APIs that
 specification. The components implementing these services are termed generally **handlers** and, depending on
 their purpose can be:
 
-* :ref:`introduction-concepts-messaging-handlers` implementing the GITB messaging web service API.
-* :ref:`introduction-concepts-processing-handlers` implementing the GITB processing web service API.
-* :ref:`introduction-concepts-validation-handlers` implementing the GITB validation web service API.
+* :ref:`introduction-concepts-messaging-handlers` implementing the GITB messaging service API [TODO].
+* :ref:`introduction-concepts-processing-handlers` implementing the GITB processing service API [TODO].
+* :ref:`introduction-concepts-validation-handlers` implementing the GITB validation service API [TODO].
 
-Another important distinction for handlers is whether they are embedded within the test bed software or remote.
+Another important distinction for handlers is whether they are embedded within the test bed software or external.
 Considering that handlers are typically used to extend the test bed for domain-specific operations, the norm
-is to externalise them as remotely callable services. Embedded handlers are defined for generic use cases that
-are frequently encountered in test cases but could also be implemented in case the GITB test bed is being reused
-at source code level by extending it for a specific domain.
+is to externalise them as remotely callable services. Embedded handlers are typically defined for generic and
+simple use cases that are frequently encountered in test cases.
 
 One thing that needs to be clear to test case authors is that the use of embedded handlers limits the 
 portability of their test cases. Each embedded handler used needs to be implemented in exactly the same
@@ -33,13 +32,13 @@ Handlers are defined in the following steps:
 * :ref:`tdl-step-verify`: When validating content.
 
 The element corresponding to each of these steps defines a ``handler`` attribute to identify the handler implementation.
-In case an embedded handler is to be used the value specified here is the name of the handler (see [TODO]). Using a remote
+In case an embedded handler is to be used the value specified here is the name of the handler (see :ref:`handlers-predefined-handlers`). Using an external
 handler implementation is achieved by specifying as the ``handler`` value the address where the service's WSDL file is 
-located. The test bed will automatically detect in this case that the handler is remote and will replace local method
+located. The test bed will automatically detect in this case that the handler is external and will internally replace local method
 invocations with web service calls.
 
-The following example shows two validation steps taking place, one using an embedded XSD validator and the other using 
-a remote service:
+The following example shows two validation steps taking place, one using an embedded :ref:`handlers-XSDValidator` and the other using 
+an external validation service:
 
 .. code-block:: xml
 
@@ -65,18 +64,21 @@ Using remote service handlers is considered a best practice based on the benefit
 * **Separation of concerns:** The test bed focuses on test orchestration whereas domain specific logic is captured only
   in the test case and the services it uses.
 * **Extensibility:** New capabilities can be added to the test bed by simply making available a new service to call.
-* **Maintenance:** Updates to service handlers can take place without impacting test bed operations.
+* **Maintenance:** Updates to service handlers can take place without impacting test bed operations or requiring new
+  versions of the test bed software. Similarly external service updates would not require new test suite versions.
 * **Better presentation:** Remote service handlers can encapsulate multiple custom actions leading to better test session
   presentation. If e.g. a document needs to be validated by one XSD and two Schematron files we would only show a single,
   concise validation step versus three separate validations.
 
-Predefined handlers
--------------------
+.. _handlers-predefined-handlers:
+
+Embedded handlers
+-----------------
 
 The sections that follow list the handler implementations that already exist as predefined embedded implementations
 in the GITB test bed software.
 
-Predefined messaging handlers
+Embedded messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each following section defines a table with the information expected by each messaging handler. The meaning of this information is
@@ -87,6 +89,8 @@ as follows:
 * **Actor configuration:** These are configuration properties that will be automatically set for simulated actors using this handler.
 * **Receive configuration:** These are configuration properties expected by the ``receive`` step.
 * **Send configuration:** These are configuration properties expected by the ``send`` step.
+
+The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
 
 TCPMessaging
 ++++++++++++
@@ -114,7 +118,7 @@ Used to send or receive an arbitrary byte stream over TCP.
 SoapMessaging
 +++++++++++++
 
-Used to send or receive payloads via SOAP web calls.
+Used to send or receive payloads via SOAP web service calls.
 
 .. csv-table::
     :stub-columns: 1
@@ -136,7 +140,7 @@ Used to send or receive payloads via SOAP web calls.
     soap.version, Receive configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
     soap.version, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
     soap.encoding, Send configuration, No, ``string``, Character set encoding.
-    http.uri.extension, Send configuration, No, ``string``, Http URI extension for the address2.
+    http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
 
 .. code-block:: xml
 
@@ -151,7 +155,7 @@ Used to send or receive payloads via SOAP web calls.
 HttpMessaging
 +++++++++++++
 
-Used to send or receive content sent over HTTP.
+Used to send or receive content over HTTP.
 
 .. csv-table::
     :stub-columns: 1
@@ -188,9 +192,9 @@ Used to send or receive content sent over HTTP.
     <etxn txnId="t1"/>
 
 HttpsMessaging
-+++++++++++++
+++++++++++++++
 
-Used to send or receive content sent over HTTPS.
+Used to send or receive content over HTTPS.
 
 .. csv-table::
     :stub-columns: 1
@@ -227,7 +231,7 @@ Used to send or receive content sent over HTTPS.
 HttpProxyMessaging
 ++++++++++++++++++
 
-Used to proxy HTTP requests between two actors.
+Used to proxy HTTP requests and responses between two actors.
 
 .. csv-table::
     :stub-columns: 1
@@ -255,13 +259,15 @@ the initial parameters received.
     </send>
     <etxn txnId="t1"/>
 
-Predefined processing handlers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Embedded processing handlers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 No processing handlers currently exist as predefined and embedded in the test bed software.
 
-Predefined validation handlers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _handlers-predefined-validation-handlers:
+
+Embedded validation handlers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NumberValidator
 +++++++++++++++
@@ -305,7 +311,7 @@ XPathValidator
 ++++++++++++++
 
 Used to evaluate an XPath 1.0 expression against a provided XML document. The result of the expression
-needs to evaluate to a boolean (i.e. true or false).
+needs to evaluate to a boolean (i.e. true for success or false for failure).
 
 .. csv-table::
     :stub-columns: 1
@@ -316,7 +322,7 @@ needs to evaluate to a boolean (i.e. true or false).
 
 An important note here is that the XPath expression passed in ``xpathexpression`` is meant to be a string.
 This means that to run an expression as-is you need to wrap it in quotes. This is because the content of
-the ``input`` element can also be an expression that you want to evaluate to give you the expression to
+the ``input`` element can also be an expression that you want to evaluate to give you the final expression to
 use. The following example illustrates both cases:
 
 .. code-block:: xml
@@ -335,6 +341,8 @@ use. The following example illustrates both cases:
         <input name="xmldocument">$myDocument</input>
         <input name="xpathexpression">concat("contains(/toc/text()", ", 'string to look for')")</input>
     </verify>
+
+.. _handlers-XSDValidator:
 
 XSDValidator
 ++++++++++++
@@ -355,10 +363,12 @@ Used to validate an XML document against an XML Schema (XSD) instance.
         <input name="xsddocument">$schemaFile</input>
     </verify>
 
+.. _handlers-SchematronValidator:
+
 SchematronValidator
 +++++++++++++++++++
 
-Used to validate an XML document against Schematron file.
+Used to validate an XML document against a Schematron file.
 
 .. csv-table::
     :stub-columns: 1
@@ -377,7 +387,7 @@ Used to validate an XML document against Schematron file.
 .. _handlers-inputs-outputs:
 
 Handler inputs and outputs
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 The ``input`` and ``output`` elements used with handlers are what GITB refers to as "Binding elements".
 They share the following structure:
@@ -387,12 +397,12 @@ They share the following structure:
     :header: "Name", "Required?", "Description"
 
     @name, no, The name of the input or output element.
-    @lang, no, The expression language that should be considered when eveluating its contained expression (Default is XPath 1.0).
+    @lang, no, The expression language that should be considered when evaluating its contained expression (see :ref:`test-case-expressions`).
     @source, no, A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
 
 The text content of the element is considered to be an expression (see :ref:`test-case-expressions`). In the case a ``source`` attribute is provided
 the contained expression is evaluated on the variable identified by ``source`` to produce the value. If no ``source`` attribute is present the value
-is the result of the expression itself. For inputs of type ``object`` or ``schema`` (i.e. XML documents) the ``source`` attribute can be used to pass
+is the result of the expression itself. For inputs of type ``object`` or ``schema`` (i.e. XML documents) the ``source`` attribute can also be used to pass
 the complete document as the value. In this case use of the ``source`` attribute to reference the relevant variable is equivalent to specifying its
 reference as the expression:
 
@@ -400,21 +410,19 @@ reference as the expression:
 
     <verify handler="SchematronValidator" desc="Validate content">
         <!--
-            Pass document through expression.
+            Pass document through the expression.
         -->
         <input name="xmldocument">$docToValidate</input>
         <!--
-            Pass document through source attribute.
+            Pass document through the source attribute.
         -->
         <input name="schematron" source="$schematronFile"/>
     </verify>
 
 .. note::
-    **Specifying a fixed value:** Considering that the default expression language is XPath 1.0, a fixed value is provided by enclosing it in
+    **Specifying a fixed value:** Considering that the default expression language is XPath 1.0, a fixed text value is provided by enclosing it in
     quotes. See :ref:`test-case-expressions` for further details.
 
-The ``input`` and ``output`` options for service handlers are documented as part of their module definition. For handlers implemented accessible
+The ``input`` and ``output`` options for service handlers are documented as part of their module definition. For handlers accessible
 via remote web service calls this information is returned when calling the handler's ``getModuleDefinition`` operation. This is also used internally
 by the test bed before calling a service handler to ensure that required parameters are provided by the test case.
-
-TODO use of source to pass XML docs
