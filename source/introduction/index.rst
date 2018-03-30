@@ -6,6 +6,7 @@ using the GITB TDL. The approach followed herein is to document the available po
 follow examples but also to note where appropriate certain considerations on the use of TDL in the GITB test bed
 software.
 
+
 What is the GITB TDL?
 ---------------------
 
@@ -182,8 +183,10 @@ The lifecycle of a test session
 The following diagram illustrates the steps involved in creating and using a test case. These steps occur within a test bed as part of overall
 test management before and after the test's execution and also during the test session itself.
 
-.. image:: images/lifecycle.png
-  :align: left
+.. figure:: images/lifecycle.png
+  :align: center
+
+  The test session lifecycle
 
 Step 1: Create
 ~~~~~~~~~~~~~~

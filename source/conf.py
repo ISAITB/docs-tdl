@@ -20,14 +20,23 @@
 # -- Project information -----------------------------------------------------
 
 project = 'GITB TDL Documentation'
-copyright = '2018, DIGIT ISA'
-author = 'DIGIT ISA'
+copyright = '2018, European Commission, DIGIT ISA'
+author = 'European Commission, DIGIT ISA'
 
 # The short X.Y version
-version = '1.2.0'
+version = 'GITB TDL version 1.2.0'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = 'GITB TDL version 1.2.0'
 
+html_show_sourcelink = False
+html_show_sphinx = False
+numfig = True
+numfig_format = {'figure': 'Figure %s:'}
+html_theme = 'sphinx_rtd_theme'
+html_logo = '_static/logo.png'
+html_title = "GITB TDL Documentation"
+html_favicon = '_static/favicon.ico'
+html_domain_indices = True
 
 # -- General configuration ---------------------------------------------------
 
@@ -70,8 +79,6 @@ pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------
-
-html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
