@@ -264,6 +264,84 @@ And the "config_test_1" test case is defined as follows:
         </steps>
     </testcase>
 
+Expressions and template files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All expression processing handles an input expression using the GITB expression processor. This processor is capable of detecting
+variable references in the input to an expression so that it can proceed with appropriate variable lookup and their replacement in 
+the resulting output. In simple terms this means that if the input to an expression includes variable references, these will be replaced
+if they match variables already present in the test session context at the time of the expression's evaluation. Using this feature,
+text content (either imported as an artefact, received from a service call or constructed in the test case itself) can act as a template
+that is instantiated with specific values when needed.
+
+As an example consider the following scenario. A XML file is provided in the test suite as an artefact named "metadata-template.xml" that 
+serves as a template for metadata responses to be provided by the test bed. This file contains variable references as follows:
+
+.. code-block:: xml
+    :emphasize-lines: 6,9,13
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <smp:SignedServiceMetadata xmlns:smp="http://busdox.org/serviceMetadata/publishing/1.0/">
+        <smp:ServiceMetadata>
+            <smp:ServiceInformation>
+                <ParticipantIdentifier scheme="iso6523-actorid-upis">0088:gitb-engine</ParticipantIdentifier>
+                <DocumentIdentifier scheme="busdox-docid-qns">${document_identifier}</DocumentIdentifier>
+                <smp:ProcessList>
+                    <smp:Process>
+                        <ProcessIdentifier scheme="cenbii-procid-ubl">${process_identifier}</ProcessIdentifier>
+                        <smp:ServiceEndpointList>
+                            <smp:Endpoint transportProfile="busdox-transport-as2-ver1p0">
+                                <wsa:EndpointReference>
+                                    <wsa:Address>${as2_address}</wsa:Address>
+                                </wsa:EndpointReference>
+                            </smp:Endpoint>
+                        </smp:ServiceEndpointList>
+                    </smp:Process>
+                </smp:ProcessList>
+            </smp:ServiceInformation>
+        </smp:ServiceMetadata>
+    </smp:SignedServiceMetadata>
+
+The highlighted lines above show use of variables that are expected to be replaced during test execution. In the test case this
+replacement occurs as follows:
+
+.. code-block:: xml
+
+    <testcase>
+        <imports>
+            <!--
+                Import the metadata template.
+            -->
+            <artifact type="object" encoding="UTF-8" name="SMP_Metadata_Template">UBL_invoice_AS2/artifacts/metadata-template.xml</artifact>
+        </imports>
+        <variables>
+            <!--
+                Set fixed values for the "document_identifier" and "process_identifier" placeholders.
+            -->
+            <var name="document_identifier" type="string">
+                <value>urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1</value>
+            </var>
+            <var name="process_identifier" type="string">
+                <value>urn:www.cenbii.eu:profile:bii04:ver2.0</value>
+            </var>
+        </variables>
+        <steps>
+            <!--
+                Use the simulated actor's configuration to construct the remaining placeholder value for "as2_address".
+            -->
+            <assign to="$as2_address">concat("https://", $Sender_AS2{Receiver_AS2}{network.host}, ":", $Sender_AS2{Receiver_AS2}{network.port})</assign>
+            <btxn from="Sender_AS2" to="ServiceMetadataPublisher" txnId="t1" handler="SMPFixedMessaging"/>
+            <receive id="smp_output" desc="Send message to SMP to get Receiver Access Point address" from="Sender_AS2" to="ServiceMetadataPublisher" txnId="t1"/>
+            <send desc="Return AP metadata" from="ServiceMetadataPublisher" to="Sender_AS2" txnId="t1">
+                <!--
+                    Using the template here triggers the replacement of the placeholders based on the existing session context variables.
+                -->
+                <input name="smp_metadata" source="$SMP_Metadata_Template"/>
+            </send>
+            <etxn txnId="t1"/>
+        </steps>
+    </testcase>
+
 Where can expressions be used?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -15,4 +15,5 @@ GITB TDL Documentation
    expressions/index
    constructs/index
    handlers/index
+   examples/index
    genindex

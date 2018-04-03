@@ -246,6 +246,7 @@ Used to send or receive content over HTTPS.
     <etxn txnId="t1"/>
 
 .. index:: HttpProxyMessaging
+.. _handlers-HttpProxyMessaging:
 
 HttpProxyMessaging
 ++++++++++++++++++
@@ -334,6 +335,7 @@ Used to verify that a provided ``string`` matches an expected value.
     </verify>
 
 .. index:: XPathValidator
+.. _handlers-XPathValidator:
 
 XPathValidator
 ++++++++++++++
