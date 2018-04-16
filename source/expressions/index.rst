@@ -114,7 +114,7 @@ variables from one type to another in ``assign`` steps.
 Map elements
 ++++++++++++
 
-Variables of type ``map`` represent special cases as they can contain additional variables and even additional ``map``s. Referring to 
+Variables of type ``map`` represent special cases as they can contain additional variables and even additional ``map`` s. Referring to 
 ``map`` variables themselves is done as with any other variable (i.e. ``$myMap``), but referring to entries in the ``map`` are done
 by specifying the key in curly brackets (i.e. ``$myMap{myKey}``). In the case a ``map`` contains a nested ``map`` its inner values
 can be referenced by appending to the expression an additional set of curly braces with the inner ``map``'s key. There is no limit to 
