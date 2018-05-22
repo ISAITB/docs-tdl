@@ -141,6 +141,9 @@ of the ``receive`` element is as follows:
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
+    @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
+    @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
@@ -148,7 +151,7 @@ of the ``receive`` element is as follows:
 When the test bed executes the ``receive`` step it performs two actions:
 
 #. It signals the transaction's messaging handler that content is expected to be received.
-#. It blocks waiting for a call-back from the messaging handler that will contain the received data.
+#. It blocks waiting for a call-back from the messaging handler that will contain the received data, or until the configured timeout has elapsed.
 
 Regarding the ``input`` elements provided these act as information provided to the messaging handler that are relevant to the
 message's reception. They act as a counterpart to ``config`` elements whose purpose is more to signal parameters for the communication
@@ -156,13 +159,28 @@ setup rather than the involved message. The ``output`` elements provided are opt
 output (returned via its call-back to the test bed) to the specified values. If not specified all available output values are returned.
 
 .. code-block:: xml
-    :emphasize-lines: 2,3,4
+    :emphasize-lines: 2,3,4,8,9,10,16
 
     <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
         <config name="soap.version">1.2</config>
     </receive>
+    <!--
+        Example using timeouts (that are considered as an error).
+    -->
+    <receive 
+      id="dataReceiveTimeout" desc="Receive data with timeout" from="Actor2" to="Actor1" txnId="t1"
+      timeout="$maxWaitTime" timeoutFlag="timeoutOccurred" timeoutIsError="true">
+        <config name="soap.version">1.2</config>
+    </receive>
     <etxn txnId="t1"/>
+    <!--
+        Check to see if timeout took place or not and inform the user.
+    -->
+    <interact desc="Check timeout status">
+        <instruct desc="Timeout occurred:" with="Actor2">$dataReceiveTimeout{timeoutOccurred}</instruct>
+    </interact>
+    
 
 .. index:: listen
 .. _tdl-step-listen:
