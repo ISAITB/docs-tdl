@@ -154,6 +154,7 @@ Used to send or receive payloads via SOAP web service calls.
     soap.version, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
     soap.encoding, Send configuration, No, ``string``, Character set encoding.
     http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
+    http.ssl, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
 
 .. code-block:: xml
 
@@ -162,8 +163,42 @@ Used to send or receive payloads via SOAP web service calls.
         <config name="soap.version">1.2</config>
         <input name="soap_message">$soapMessage</input>
     </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+        <config name="soap.version">1.2</config>
+    </receive>
     <etxn txnId="t1"/>
+
+**Using HTTPS**
+
+The ``SoapMessaging`` handler can be used both over an HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
+HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
+is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
+step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+
+The following example illustrates its use:
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">true</config>
+    </btxn>
+    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
+        <config name="soap.version">$soapVersion</config>
+        <input name="soap_message">$soapMessage</input>
+    </send>
+
+Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
+if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
+test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">$sutInfo{isHTTPS}</config>
+    </btxn>
 
 .. index:: HttpMessaging
 
