@@ -29,3 +29,9 @@ Verify installation with `sphinx-build --version`
 
 Install RTD theme: `pip install sphinx_rtd_theme`.
 This is then used as "sphinx_rtd_theme"
+
+## Use
+
+To generate the HTML documentation issue (from the current folder): `make html`. The output is stored in folder "build"
+To fully cleanup the produced documentation: `make clean`.
+
