@@ -40,7 +40,7 @@ encountered to end it. The structure of the ``btxn`` element is as follows:
     @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`).
     @handler, yes, A string value identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 Executing the ``btxn`` step results in a call to the messaging handler specified by the ``handler`` attribute. This gives it an 
 opportunity to take any actions needed for the upcoming transaction and apply specific configurations for its related ``send``
@@ -106,7 +106,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 The ``send`` step results in the transaction's messaging handler to be notified that it needs to send content. Recall that the actual
@@ -141,7 +141,7 @@ of the ``receive`` element is as follows:
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
 
@@ -151,10 +151,9 @@ When the test bed executes the ``receive`` step it performs two actions:
 #. It blocks waiting for a call-back from the messaging handler that will contain the received data.
 
 Regarding the ``input`` elements provided these act as information provided to the messaging handler that are relevant to the
-message's reception. They act as a counterpart to ``config`` elements to allow evaluated expressions (e.g. variable values) to 
-be passed considering that ``config`` elements may only contain static strings. The ``output`` elements provided are optional
-and serve only to restrict the messaging handler's output (returned via its call-back to the test bed) to the specified values.
-If not specified all available output values are returned.
+message's reception. They act as a counterpart to ``config`` elements whose purpose is more to signal parameters for the communication
+setup rather than the involved message. The ``output`` elements provided are optional and serve only to restrict the messaging handler's
+output (returned via its call-back to the test bed) to the specified values. If not specified all available output values are returned.
 
 .. code-block:: xml
     :emphasize-lines: 2,3,4
@@ -183,7 +182,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
 
@@ -221,7 +220,7 @@ The structure of the ``bptxn`` element is as follows:
 
     @txnid, yes, A string identifier for the transaction.
     @handler, yes, A string value identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 The ``bptxn`` step results in a call to the configured processing handler to signal that a new transaction is going to 
 start.
@@ -698,7 +697,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
 
     @desc, yes, The description for the validation.
     @handler, yes, A string value identifying the the validation handler (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other calling a remote validation service:
