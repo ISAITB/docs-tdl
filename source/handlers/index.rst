@@ -1,4 +1,5 @@
 .. index:: Service handlers
+.. _handlers:
 
 Service handlers
 ================
@@ -43,8 +44,12 @@ handler implementation is achieved by specifying as the ``handler`` value the ad
 located. The test bed will automatically detect in this case that the handler is external and will internally replace local method
 invocations with web service calls.
 
-The following example shows two validation steps taking place, one using an embedded :ref:`handlers-XSDValidator` and the other using 
-an external validation service:
+The value provided for the ``handler`` attribute can also be provided with a pure variable reference (see :ref:`test-case-referring-to-variables`)
+allowing the actual value to be determined from configuration or even dynamically based on the test session context. In such a case the variable
+reference is first evaluated to a ``string`` that is then considered to determine whether the handler is a remote or embedded one.
+
+The following example shows three validation steps taking place, the first one using an embedded :ref:`handlers-XSDValidator`, the second one using 
+an external validation service, and the third one using an external validation service whose address is configurable:
 
 .. code-block:: xml
 
@@ -59,6 +64,13 @@ an external validation service:
         Call a remote validation service handler
     -->
     <verify handler="https://serviceaddress?wsdl" desc="Validate content remote">
+        <input name="xmldocument">$docToValidate</input>
+        <input name="xsddocument">$schemaFile</input>
+    </verify>
+    <!-- 
+        Call a remote validation service handler (address in configuration)
+    -->
+    <verify handler="$DOMAIN{validationHandlerAddress}" desc="Validate content remote">
         <input name="xmldocument">$docToValidate</input>
         <input name="xsddocument">$schemaFile</input>
     </verify>
