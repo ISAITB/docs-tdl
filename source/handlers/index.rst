@@ -98,6 +98,7 @@ as follows:
 * **Actor configuration:** These are configuration properties that will be automatically set for simulated actors using this handler.
 * **Receive configuration:** These are configuration properties expected by the ``receive`` step.
 * **Send configuration:** These are configuration properties expected by the ``send`` step.
+* **Transaction configuration:** These are configuration properties defined in the ``btxn`` or ``bptxn`` step.
 
 The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
 
