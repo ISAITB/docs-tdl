@@ -96,7 +96,7 @@ contains one or more ``actor`` elements with structure as follows:
     @id, yes, The unique identifier for the actor.
     name, yes, A user-friendly name for the actor.
     desc, no, A description to provide additional information on the purpose of this actor in the specification.
-    endpoint, yes, One or more ``endpoint`` elements that capture an actor's configuration. 
+    endpoint, no, Zero or more ``endpoint`` elements that capture an actor's configuration. 
 
 The value for the ``id`` attribute is very important as it is used internally to link the test suite and its test cases to the relevant actor in the specification.
 The ``name`` and ``desc`` elements are present as metadata when displaying a test case to a user but are not important with respect to test case steps and logic. 
