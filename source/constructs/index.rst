@@ -470,8 +470,8 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the loop.
-    @start, yes, A number to initialise the iteration index to.
-    @end, yes, A number that is considered as the maximum iteration count plus 1.
+    @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
+    @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
@@ -492,11 +492,16 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
             </interact>
         </do>
     </foreach>
-
-.. note::
-    **Variables for foreach indexes:** The ``foreach`` step currently expects that the ``start`` and ``end`` indexes are provided 
-    as fixed numbers. Considering that variable references can't be used this diminishes the effectiveness of this construct. 
-    This will likely be addressed in a future version of GITB TDL to allow pure variable references to be used as well.
+    <!-- In the following case the loop's boundaries are set dynamically. -->
+    <assign to="$start">5</assign>
+    <assign to="$end">$start + 2</assign>
+    <foreach desc="Do iteration" counter="currentIndex" start="$start" end="$end">
+        <do>
+            <interact desc="Message to user" with="User">
+                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            </interact>
+        </do>
+    </foreach>	
 
 .. index:: flow
 .. _tdl-step-flow:
