@@ -789,9 +789,9 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
 
     @desc~ yes~ The label to display to the user.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this needs to be defined in the ``interact`` parent element.
-    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`).
-    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI").
-    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider (default is "UTF-8").
+    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`). The default is "string".
+    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
+    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
 
 .. note::
     **with:** The purpose of the ``with`` attribute is to identify the actor with role SUT to which this interaction needs to be presented. Currently 
@@ -815,23 +815,24 @@ Concerning ``request`` elements, the content of the expression is expected to be
 will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
 
 * Specifying "BASE64" results in a file upload presented to the user.
-* Specifying "STRING" or "URI" results in a simple text input.
+* Specifying "STRING" (the default) or "URI" results in a simple text input.
 
 The following example illustrates a user interaction presenting instructions and also requesting information:
 
 .. code-block:: xml
 
 	<interact desc="Some information and inputs" with="User">
-		<instruct desc="A text value:" type="string">concat("A text value ", $aTextValue)</instruct>
+        <!-- type="string" ommitted as default -->
+        <instruct desc="This is a simple message"/>
+		<instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
 		<instruct desc="A file to download:" type="binary">$schemaFile</instruct>
-		<request desc="Enter a text value:" contentType="STRING">$inputValue</request>
+        <!-- contentType="STRING" ommitted as default -->
+		<request desc="Enter a text value:">$inputValue</request>
 		<request desc="Upload a file:" contentType="BASE64">$document</request>
-		<instruct desc="A final message:" type="string">"Final message"</instruct>
+        <!-- type="string" ommitted as default -->
+		<instruct desc="A final message:">"Final message"</instruct>
 	</interact>
 
 .. note::
     **GITB software support:** Downloading binary content through ``instruct`` elements is currenty not supported. The binary
-    content is either displayed as BASE64 or as a string. In addition the ``type`` attribute needs to always be provided (even
-    though optional in the specification). Finally, ``instruct`` elements that don't need to evaluate an expression to present
-    a message (i.e. the label from the ``desc`` would be sufficient) need nonetheless to specify an empty message ``""``
-    with the ``type`` set to ``string``.
+    content is either displayed as BASE64 or as a string.
