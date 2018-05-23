@@ -160,7 +160,7 @@ setup rather than the involved message. The ``output`` elements provided are opt
 output (returned via its call-back to the test bed) to the specified values. If not specified all available output values are returned.
 
 .. code-block:: xml
-    :emphasize-lines: 2,3,4,8,9,10,16
+    :emphasize-lines: 2,3,4,8,9,10,18
 
     <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
