@@ -464,6 +464,92 @@ Used to validate an XML document against a Schematron file.
         <input name="schematron">$schematronFile</input>
     </verify>
 
+.. index:: Handler authentication
+.. index:: HTTP Basic
+.. index:: UsernameToken
+.. index:: WS-Security
+.. _handlers-authentication:
+
+Authentication for external handlers
+------------------------------------
+
+Handlers defined as external service implementations may need to be protected with access control. To support such protected services,
+the GITB software foresees the possibility to authenticate as part of each service call. Authentication information needs to be configured
+before any exchanges take place with the service and as such, cannot use the ``config`` and ``input`` elements otherwise used to pass information. 
+Authentication configuration is handled with ``property`` elements that are used as part of the handler setup in:
+
+* The :ref:`tdl-step-btxn` step for messaging services.
+* The :ref:`tdl-step-bptxn` step for processing services.
+* The :ref:`tdl-step-verify` step for messaging services.
+
+The authentication possibilities currently supported are:
+
+* **Basic HTTP authentication** for all calls to the service's HTTP/HTTPS endpoint. This is authentication at the transport layer.
+* Authentication using the **WS-Security UsernameToken profile** (see `here`_), supporting text and digest password transmission with timestamps and nonces. This is authentication at the SOAP application layer.
+
+.. _here: https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm
+
+The properties that are supported in the ``property`` elements are listed in the following table:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Property name", "Value", "Description"
+
+    auth.basic.username, Any ``string``, The username to provide when prompted for basic HTTP authentication.
+    auth.basic.password, Any ``string``, The password to provide when prompted for basic HTTP authentication.
+    auth.token.username, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
+    auth.token.password, Any ``string``, The password to include in the SOAP header as the UsernameToken's password.
+    auth.token.password.type, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
+
+Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
+where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
+of a UsernameToken. Combining both approaches is rare but possible. The following example illustrates use of these authentication properties
+calling various test services:
+
+.. code-block:: xml
+
+    <!--
+        Messaging service authentication with UsernameToken (DIGEST).
+    -->
+    <btxn from="Sender" to="Receiver1" txnId="t1" handler="$messagingServiceURL">
+        <property name="auth.token.username">$DOMAIN{serviceUsername1}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword1}</property>
+        <property name="auth.token.password.type">DIGEST</property>
+    </btxn>
+    <send id="dataSend" desc="Send message" from="Sender" to="Receiver1" txnId="t1"/>
+    <etxn txnId="t1"/>
+    <!--
+        Validation service authentication with UsernameToken (DIGEST - the default) and HTTP basic authentication.
+    -->
+    <verify handler="$validationService1" desc="Validate content">
+        <property name="auth.basic.username">$DOMAIN{serviceUsername2}</property>
+        <property name="auth.basic.password">$DOMAIN{servicePassword2}</property>
+        <property name="auth.token.username">$DOMAIN{serviceUsername3}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword3}</property>
+        <input name="content">$contentToValidate</input>
+    </verify>
+    <!--
+        Processing service authentication with HTTP basic authentication.
+    -->
+    <bptxn txnId="t1" handler="$processingServiceURL">
+        <property name="auth.basic.username">$DOMAIN{serviceUsername4}</property>
+        <property name="auth.basic.password">$DOMAIN{servicePassword4}</property>
+    </bptxn>
+    <process id="result" txnId="t1">
+        <operation>action</operation>
+        <input name="anInput">$aValue</input>
+    </process>
+    <eptxn txnId="t1"/>
+    <!--
+        Validation service authentication with UsernameToken (TEXT) authentication.
+    -->
+    <verify handler="$validationService2" desc="Validate content">
+        <property name="auth.token.username">$DOMAIN{serviceUsername5}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword5}</property>
+        <property name="auth.token.password.type">TEXT</property>
+        <input name="content">$contentToValidate</input>
+    </verify>
+
 .. index:: Handler inputs and outputs
 .. _handlers-inputs-outputs:
 

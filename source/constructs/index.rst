@@ -40,6 +40,7 @@ encountered to end it. The structure of the ``btxn`` element is as follows:
     @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`).
     @handler, yes, A string value or variable reference identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 Executing the ``btxn`` step results in a call to the messaging handler specified by the ``handler`` attribute. This gives it an 
@@ -238,6 +239,7 @@ The structure of the ``bptxn`` element is as follows:
 
     @txnid, yes, A string identifier for the transaction.
     @handler, yes, A string value or variable reference identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the processing handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 The ``bptxn`` step results in a call to the configured processing handler to signal that a new transaction is going to 
@@ -720,6 +722,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
 
     @desc, yes, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
