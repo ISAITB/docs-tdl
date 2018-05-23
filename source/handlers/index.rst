@@ -140,6 +140,7 @@ Used to send or receive an arbitrary byte stream over TCP.
     <etxn txnId="t1"/>
 
 .. index:: SoapMessaging
+.. _handlers-soapmessaging:
 
 SoapMessaging
 +++++++++++++

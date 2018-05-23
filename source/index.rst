@@ -9,6 +9,7 @@ GITB TDL Documentation
    :includehidden:
 
    introduction/index
+   changelog/index
    testsuite/index
    testcase/index
    types/index
