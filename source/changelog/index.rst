@@ -26,7 +26,7 @@ for more information.
     The ``foreach`` step now allows its boundaries (start and end) to be set using variable references~ GITB TDL~ :ref:`tdl-step-foreach`
     Actors can now be defined in test suites without endpoints~ GITB TDL~ :ref:`test-suite-actors`
     Service handler implementations can now be specified with variable references~ GITB TDL~ :ref:`handlers-implementation`
-    The ``receive`` step now allows a timeout to be specified~ GITB TDL~ :ref:`tdl-step-btxn`
+    The ``receive`` step now allows a timeout to be specified~ GITB TDL~ :ref:`tdl-step-receive`
     Communication with service handlers now supports authentication (HTTP Basic and UsernameToken)~ GITB TDL and software~ :ref:`handlers-implementation`
     The ``SoapMessaging`` embedded messaging handler now supports HTTPS~ GITB software~ :ref:`handlers-soapmessaging`
     Value 'CONFORMANCE' is now correctly considered as the default test case type~ GITB software~ :ref:`test-case-metadata`
