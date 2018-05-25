@@ -96,9 +96,8 @@ about the test case to help users understand its purpose. Its structure is as fo
 
 .. note::
     **GITB software support:** Contrary to a test suite's ``name``, the ``name`` of the test case is recorded but not otherwise used. Matching of test cases
-    and display uses the test case's ``id`` attribute. Regarding the test case ``type`` this must currently be set to "CONFORMANCE" as the 
-    "INTEROPERABILITY" type is not supported. Moreover, even if "CONFORMANCE" is considered the default, it currently must be explicitly set to avoid 
-    errors during test suite upload. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
+    and display uses the test case's ``id`` attribute. Regarding the test case ``type`` this must currently be set to "CONFORMANCE" (the default value) as the 
+    "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
 .. index:: Namespaces (Test cases)
 .. _test-case-namespaces:
@@ -314,9 +313,7 @@ if not already specified by the response of the simulated actor's handler. The b
     </testcase>
 
 .. note::
-    **GITB software support:** Currently the actor ID and name must be identical. Providing a different name will result in the test case not 
-    being considered for the actor's conformance statements. Note in addition that the "MONITOR" value for the actor ``role`` is currently
-    not supported.
+    **GITB software support:** The "MONITOR" value for the actor ``role`` is currently not supported.
 
 .. index:: Variables (Test cases)
 .. _test-case-variables:

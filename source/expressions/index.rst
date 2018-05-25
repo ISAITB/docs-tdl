@@ -102,6 +102,8 @@ are using in the expression is unknown and may give unexpected results. In these
 
     <assign to="$result"><![CDATA[string-length($input) >= 10]]></assign>
 
+.. _test-case-referring-to-variables:
+
 Referring to variables
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -264,6 +266,46 @@ And the "config_test_1" test case is defined as follows:
         </steps>
     </testcase>
 
+.. index:: DOMAIN
+.. _test-case-expressions-domain:
+
+Referring to domain configuration parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In certain cases configuration parameters need to be defined at a higher level than individual actors. This would either apply for
+domain-specific configuration that is common for all specifications and test cases, or for configuration that is much more technical 
+in nature. As an example consider a :ref:`tdl-step-verify` step that makes use of an external validation service (see :ref:`handlers`)
+to validate content. It could be interesting to define the address of the validation service endpoint in configuration rather than in 
+each test case. This approach allows for more flexibility in terms of:
+
+* **Portability:** Allowing test cases to automatically switch from local development settings to production settings or to point to a different
+  service instance.
+* **Implementation flexibility:** Allowing the actual implementation of a service handler to change without impacting test cases.
+* **Maintainability:** Specifying and reusing values that can be changed transparently to test cases.
+* **Sensitivity:** Allowing sensitive properties such as passwords to be used without including them in the GITB TDL content.
+
+Using such domain-level configuration properties finds an obvious use case in service handler definitions but is not 
+restricted to that. Such configuration can be used anywhere a value needs to be used that remains largely unchanged across all test cases.
+
+Domain-level configuration properties are made available to test sessions in a ``map`` named **DOMAIN** that contains key-value pairs matching
+the configured parameters. This ``map`` can be used in expressions in exactly the same way other variables and configuration entries are used
+as illustrated in the following examples:
+
+.. code-block:: xml
+    :emphasize-lines: 2,6
+
+    <!-- Validation service URL configured at domain level as "handlerURL". -->
+    <verify desc="Validate content" handler="$DOMAIN{handlerURL}">
+        <input name="content">$theContentToValidate</input>
+    </verify>
+    <!-- Use the "domainLevelValue" constant configured at domain level in calculations. -->
+    <assign to="$result">$aValue + $DOMAIN{domainLevelValue}</assign>
+
+.. note::
+    **GITB software support:** The use of the **DOMAIN** map with domain-level configuration is specific to the GITB software. Using it 
+    requires that the expected values have been specified through the GITB software interface. Otherwise, these values would need to be 
+    provided in a ``map`` defined within the test case itself.
+
 Expressions and template files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -352,13 +394,16 @@ The following table provides an overview of the places where expressions can be 
     :header: "Use", "Description"
 
     Step :ref:`tdl-step-interact`, Used in the values displayed to (``instruct``) or requested from (``request``) users.
-    Step :ref:`tdl-step-send`, Used to determine ``input`` values.
-    Step :ref:`tdl-step-receive`, Used to determine ``input`` values.
-    Step :ref:`tdl-step-listen`, Used to determine ``input`` values.
+    Step :ref:`tdl-step-btxn`, Variable references can be used to set ``config`` element values.
+    Step :ref:`tdl-step-bptxn`, Variable references can be used to set ``config`` element values.
+    Step :ref:`tdl-step-send`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
+    Step :ref:`tdl-step-receive`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
+    Step :ref:`tdl-step-listen`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-process`, Used to determine ``input`` values.
     Step :ref:`tdl-step-if`, Used to define and evaluate the if condition (``cond``).
     Step :ref:`tdl-step-while`, Used to define and evaluate the loop condition (``cond``).
     Step :ref:`tdl-step-repuntil`, Used to define and evaluate the repeat condition (``cond``).
+    Step :ref:`tdl-step-foreach`, Variable references can be used to evaluate the loop boundaries (``start`` and ``end``).
     Step :ref:`tdl-step-assign`, Used as the expression to apply. Also a pure variable reference is used in the ``to`` and ``source`` elements.
-    Step :ref:`tdl-step-verify`, Used to determine ``input`` values.
+    Step :ref:`tdl-step-verify`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-call`, Used to determine ``input`` values.

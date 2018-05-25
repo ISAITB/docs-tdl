@@ -1,4 +1,5 @@
 .. index:: Service handlers
+.. _handlers:
 
 Service handlers
 ================
@@ -43,8 +44,12 @@ handler implementation is achieved by specifying as the ``handler`` value the ad
 located. The test bed will automatically detect in this case that the handler is external and will internally replace local method
 invocations with web service calls.
 
-The following example shows two validation steps taking place, one using an embedded :ref:`handlers-XSDValidator` and the other using 
-an external validation service:
+The value provided for the ``handler`` attribute can also be provided with a pure variable reference (see :ref:`test-case-referring-to-variables`)
+allowing the actual value to be determined from configuration or even dynamically based on the test session context. In such a case the variable
+reference is first evaluated to a ``string`` that is then considered to determine whether the handler is a remote or embedded one.
+
+The following example shows three validation steps taking place, the first one using an embedded :ref:`handlers-XSDValidator`, the second one using 
+an external validation service, and the third one using an external validation service whose address is configurable:
 
 .. code-block:: xml
 
@@ -59,6 +64,13 @@ an external validation service:
         Call a remote validation service handler
     -->
     <verify handler="https://serviceaddress?wsdl" desc="Validate content remote">
+        <input name="xmldocument">$docToValidate</input>
+        <input name="xsddocument">$schemaFile</input>
+    </verify>
+    <!-- 
+        Call a remote validation service handler (address in configuration)
+    -->
+    <verify handler="$DOMAIN{validationHandlerAddress}" desc="Validate content remote">
         <input name="xmldocument">$docToValidate</input>
         <input name="xsddocument">$schemaFile</input>
     </verify>
@@ -98,6 +110,7 @@ as follows:
 * **Actor configuration:** These are configuration properties that will be automatically set for simulated actors using this handler.
 * **Receive configuration:** These are configuration properties expected by the ``receive`` step.
 * **Send configuration:** These are configuration properties expected by the ``send`` step.
+* **Transaction configuration:** These are configuration properties defined in the ``btxn`` or ``bptxn`` step.
 
 The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
 
@@ -127,6 +140,7 @@ Used to send or receive an arbitrary byte stream over TCP.
     <etxn txnId="t1"/>
 
 .. index:: SoapMessaging
+.. _handlers-soapmessaging:
 
 SoapMessaging
 +++++++++++++
@@ -154,6 +168,7 @@ Used to send or receive payloads via SOAP web service calls.
     soap.version, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
     soap.encoding, Send configuration, No, ``string``, Character set encoding.
     http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
+    http.ssl, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
 
 .. code-block:: xml
 
@@ -162,8 +177,42 @@ Used to send or receive payloads via SOAP web service calls.
         <config name="soap.version">1.2</config>
         <input name="soap_message">$soapMessage</input>
     </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+        <config name="soap.version">1.2</config>
+    </receive>
     <etxn txnId="t1"/>
+
+**Using HTTPS**
+
+The ``SoapMessaging`` handler can be used both over an HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
+HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
+is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
+step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+
+The following example illustrates its use:
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">true</config>
+    </btxn>
+    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
+        <config name="soap.version">$soapVersion</config>
+        <input name="soap_message">$soapMessage</input>
+    </send>
+
+Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
+if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
+test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">$sutInfo{isHTTPS}</config>
+    </btxn>
 
 .. index:: HttpMessaging
 
@@ -414,6 +463,92 @@ Used to validate an XML document against a Schematron file.
     <verify handler="SchematronValidator" desc="Validate content">
         <input name="xmldocument">$docToValidate</input>
         <input name="schematron">$schematronFile</input>
+    </verify>
+
+.. index:: Handler authentication
+.. index:: HTTP Basic
+.. index:: UsernameToken
+.. index:: WS-Security
+.. _handlers-authentication:
+
+Authentication for external handlers
+------------------------------------
+
+Handlers defined as external service implementations may need to be protected with access control. To support such protected services,
+the GITB software foresees the possibility to authenticate as part of each service call. Authentication information needs to be configured
+before any exchanges take place with the service and as such, cannot use the ``config`` and ``input`` elements otherwise used to pass information. 
+Authentication configuration is handled with ``property`` elements that are used as part of the handler setup in:
+
+* The :ref:`tdl-step-btxn` step for messaging services.
+* The :ref:`tdl-step-bptxn` step for processing services.
+* The :ref:`tdl-step-verify` step for messaging services.
+
+The authentication possibilities currently supported are:
+
+* **Basic HTTP authentication** for all calls to the service's HTTP/HTTPS endpoint. This is authentication at the transport layer.
+* Authentication using the **WS-Security UsernameToken profile** (see `here`_), supporting text and digest password transmission with timestamps and nonces. This is authentication at the SOAP application layer.
+
+.. _here: https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm
+
+The properties that are supported in the ``property`` elements are listed in the following table:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Property name", "Value", "Description"
+
+    auth.basic.username, Any ``string``, The username to provide when prompted for basic HTTP authentication.
+    auth.basic.password, Any ``string``, The password to provide when prompted for basic HTTP authentication.
+    auth.token.username, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
+    auth.token.password, Any ``string``, The password to include in the SOAP header as the UsernameToken's password.
+    auth.token.password.type, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
+
+Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
+where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
+of a UsernameToken. Combining both approaches is rare but possible. The following example illustrates use of these authentication properties
+calling various test services:
+
+.. code-block:: xml
+
+    <!--
+        Messaging service authentication with UsernameToken (DIGEST).
+    -->
+    <btxn from="Sender" to="Receiver1" txnId="t1" handler="$messagingServiceURL">
+        <property name="auth.token.username">$DOMAIN{serviceUsername1}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword1}</property>
+        <property name="auth.token.password.type">DIGEST</property>
+    </btxn>
+    <send id="dataSend" desc="Send message" from="Sender" to="Receiver1" txnId="t1"/>
+    <etxn txnId="t1"/>
+    <!--
+        Validation service authentication with UsernameToken (DIGEST - the default) and HTTP basic authentication.
+    -->
+    <verify handler="$validationService1" desc="Validate content">
+        <property name="auth.basic.username">$DOMAIN{serviceUsername2}</property>
+        <property name="auth.basic.password">$DOMAIN{servicePassword2}</property>
+        <property name="auth.token.username">$DOMAIN{serviceUsername3}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword3}</property>
+        <input name="content">$contentToValidate</input>
+    </verify>
+    <!--
+        Processing service authentication with HTTP basic authentication.
+    -->
+    <bptxn txnId="t1" handler="$processingServiceURL">
+        <property name="auth.basic.username">$DOMAIN{serviceUsername4}</property>
+        <property name="auth.basic.password">$DOMAIN{servicePassword4}</property>
+    </bptxn>
+    <process id="result" txnId="t1">
+        <operation>action</operation>
+        <input name="anInput">$aValue</input>
+    </process>
+    <eptxn txnId="t1"/>
+    <!--
+        Validation service authentication with UsernameToken (TEXT) authentication.
+    -->
+    <verify handler="$validationService2" desc="Validate content">
+        <property name="auth.token.username">$DOMAIN{serviceUsername5}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword5}</property>
+        <property name="auth.token.password.type">TEXT</property>
+        <input name="content">$contentToValidate</input>
     </verify>
 
 .. index:: Handler inputs and outputs

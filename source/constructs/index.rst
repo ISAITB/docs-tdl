@@ -39,8 +39,9 @@ encountered to end it. The structure of the ``btxn`` element is as follows:
     @txnid, yes, A string ID for the transaction.
     @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`).
-    @handler, yes, A string value identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
+    @handler, yes, A string value or variable reference identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
+    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 Executing the ``btxn`` step results in a call to the messaging handler specified by the ``handler`` attribute. This gives it an 
 opportunity to take any actions needed for the upcoming transaction and apply specific configurations for its related ``send``
@@ -106,7 +107,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 The ``send`` step results in the transaction's messaging handler to be notified that it needs to send content. Recall that the actual
@@ -141,29 +142,46 @@ of the ``receive`` element is as follows:
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
+    @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
+    @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
+    config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
 
 When the test bed executes the ``receive`` step it performs two actions:
 
 #. It signals the transaction's messaging handler that content is expected to be received.
-#. It blocks waiting for a call-back from the messaging handler that will contain the received data.
+#. It blocks waiting for a call-back from the messaging handler that will contain the received data, or until the configured timeout has elapsed.
 
 Regarding the ``input`` elements provided these act as information provided to the messaging handler that are relevant to the
-message's reception. They act as a counterpart to ``config`` elements to allow evaluated expressions (e.g. variable values) to 
-be passed considering that ``config`` elements may only contain static strings. The ``output`` elements provided are optional
-and serve only to restrict the messaging handler's output (returned via its call-back to the test bed) to the specified values.
-If not specified all available output values are returned.
+message's reception. They act as a counterpart to ``config`` elements whose purpose is more to signal parameters for the communication
+setup rather than the involved message. The ``output`` elements provided are optional and serve only to restrict the messaging handler's
+output (returned via its call-back to the test bed) to the specified values. If not specified all available output values are returned.
 
 .. code-block:: xml
-    :emphasize-lines: 2,3,4
+    :emphasize-lines: 2,3,4,8,9,10,18
 
     <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
         <config name="soap.version">1.2</config>
     </receive>
+    <!--
+        Example using timeouts (that are considered as an error).
+    -->
+    <receive 
+      id="dataReceiveTimeout" desc="Receive data with timeout" from="Actor2" to="Actor1" txnId="t1"
+      timeout="$maxWaitTime" timeoutFlag="timeoutOccurred" timeoutIsError="true">
+        <config name="soap.version">1.2</config>
+    </receive>
     <etxn txnId="t1"/>
+    <!--
+        Check to see if timeout took place or not and inform the user.
+    -->
+    <interact desc="Check timeout status">
+        <instruct desc="Timeout occurred:" with="Actor2">$dataReceiveTimeout{timeoutOccurred}</instruct>
+    </interact>
+    
 
 .. index:: listen
 .. _tdl-step-listen:
@@ -183,7 +201,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content as value.
+    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
 
@@ -220,8 +238,9 @@ The structure of the ``bptxn`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @txnid, yes, A string identifier for the transaction.
-    @handler, yes, A string value identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content as value.
+    @handler, yes, A string value or variable reference identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the processing handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
+    config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
 The ``bptxn`` step results in a call to the configured processing handler to signal that a new transaction is going to 
 start.
@@ -471,8 +490,8 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the loop.
-    @start, yes, A number to initialise the iteration index to.
-    @end, yes, A number that is considered as the maximum iteration count plus 1.
+    @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
+    @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
@@ -493,11 +512,16 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
             </interact>
         </do>
     </foreach>
-
-.. note::
-    **Variables for foreach indexes:** The ``foreach`` step currently expects that the ``start`` and ``end`` indexes are provided 
-    as fixed numbers. Considering that variable references can't be used this diminishes the effectiveness of this construct. 
-    This will likely be addressed in a future version of GITB TDL to allow pure variable references to be used as well.
+    <!-- In the following case the loop's boundaries are set dynamically. -->
+    <assign to="$start">5</assign>
+    <assign to="$end">$start + 2</assign>
+    <foreach desc="Do iteration" counter="currentIndex" start="$start" end="$end">
+        <do>
+            <interact desc="Message to user" with="User">
+                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            </interact>
+        </do>
+    </foreach>	
 
 .. index:: flow
 .. _tdl-step-flow:
@@ -697,8 +721,9 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :header: "Name", "Required?", "Description"
 
     @desc, yes, The description for the validation.
-    @handler, yes, A string value identifying the the validation handler (see :ref:`handlers-implementation`).
-    config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content as value.
+    @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
+    config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other calling a remote validation service:
@@ -790,9 +815,9 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
 
     @desc~ yes~ The label to display to the user.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this needs to be defined in the ``interact`` parent element.
-    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`).
-    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI").
-    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider (default is "UTF-8").
+    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`). The default is "string".
+    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
+    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
 
 .. note::
     **with:** The purpose of the ``with`` attribute is to identify the actor with role SUT to which this interaction needs to be presented. Currently 
@@ -816,23 +841,24 @@ Concerning ``request`` elements, the content of the expression is expected to be
 will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
 
 * Specifying "BASE64" results in a file upload presented to the user.
-* Specifying "STRING" or "URI" results in a simple text input.
+* Specifying "STRING" (the default) or "URI" results in a simple text input.
 
 The following example illustrates a user interaction presenting instructions and also requesting information:
 
 .. code-block:: xml
 
 	<interact desc="Some information and inputs" with="User">
-		<instruct desc="A text value:" type="string">concat("A text value ", $aTextValue)</instruct>
+        <!-- type="string" ommitted as default -->
+        <instruct desc="This is a simple message"/>
+		<instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
 		<instruct desc="A file to download:" type="binary">$schemaFile</instruct>
-		<request desc="Enter a text value:" contentType="STRING">$inputValue</request>
+        <!-- contentType="STRING" ommitted as default -->
+		<request desc="Enter a text value:">$inputValue</request>
 		<request desc="Upload a file:" contentType="BASE64">$document</request>
-		<instruct desc="A final message:" type="string">"Final message"</instruct>
+        <!-- type="string" ommitted as default -->
+		<instruct desc="A final message:">"Final message"</instruct>
 	</interact>
 
 .. note::
     **GITB software support:** Downloading binary content through ``instruct`` elements is currenty not supported. The binary
-    content is either displayed as BASE64 or as a string. In addition the ``type`` attribute needs to always be provided (even
-    though optional in the specification). Finally, ``instruct`` elements that don't need to evaluate an expression to present
-    a message (i.e. the label from the ``desc`` would be sufficient) need nonetheless to specify an empty message ``""``
-    with the ``type`` set to ``string``.
+    content is either displayed as BASE64 or as a string.
