@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'GITB TDL Documentation'
-copyright = '2018, European Commission, DIGIT ISA'
-author = 'European Commission, DIGIT ISA'
+copyright = '2018, European Commission, DIGIT ISA²'
+author = 'European Commission, DIGIT ISA²'
 
 # The short X.Y version
 version = 'GITB TDL version 1.3.0'
@@ -134,7 +134,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'GITBTDL.tex', 'GITB TDL Documentation',
-     'DIGIT ISA', 'manual'),
+     'DIGIT ISA²', 'manual'),
 ]
 
 

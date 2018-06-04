@@ -59,7 +59,7 @@ How is it maintained?
 ~~~~~~~~~~~~~~~~~~~~~
 
 Following the initial work from the CEN GITB workgroup, the maintenance and evolution of GITB TDL has been taken over 
-by the European Commission, specifically the `Interoperability Test Bed Action`_ of DIGIT ISA. The Action foresees the 
+by the European Commission, specifically the `Interoperability Test Bed Action`_ of DIGIT ISA². The Action foresees the 
 maintenance of the GITB software and specification based on the needs of the testing community and carries out evolutive
 maintenance with regular releases. Regarding GITB TDL in particular, introduced changes are always done in a backwards-compatible manner, adding 
 capabilities rather than changing existing ones. Releases of GITB TDL and its version numbers currently follow the 
