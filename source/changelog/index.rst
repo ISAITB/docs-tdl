@@ -7,8 +7,12 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.3.0 
+What's new in release 1.4.0 
 ---------------------------
+
+.. note::
+    **Maintenance release:** Release 1.4.0 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    in this section correspond to the latest release that did introduce changes, i.e. release 1.3.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -43,4 +47,5 @@ link its access link.
     :header: "Release", "Key highlights", "Documentation link"
     :stub-columns: 1
 
+    1.3.0, Release 1.3.0 for the GITB TDL documentation, https://www.itb.ec.europa.eu/docs/tdl/1.3.0/
     1.2.0, First release for the GITB TDL documentation, https://www.itb.ec.europa.eu/docs/tdl/1.2.0/
