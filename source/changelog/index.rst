@@ -40,8 +40,7 @@ for more information.
 Previous documentation versions
 -------------------------------
 
-The following table provides the main highlights introduced in each previous documentation release as well as the 
-link its access link.
+The following table provides the main highlights introduced in each previous documentation release as well as its access link.
 
 .. csv-table::
     :header: "Release", "Key highlights", "Documentation link"
