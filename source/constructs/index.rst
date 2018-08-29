@@ -860,5 +860,5 @@ The following example illustrates a user interaction presenting instructions and
 	</interact>
 
 .. note::
-    **GITB software support:** Downloading binary content through ``instruct`` elements is currenty not supported. The binary
+    **GITB software support:** Downloading binary content through ``instruct`` elements is currently not supported. The binary
     content is either displayed as BASE64 or as a string.

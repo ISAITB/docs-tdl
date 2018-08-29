@@ -18,7 +18,7 @@ of the GITB test bed software. The focus of these specifications and software is
 (e.g. performance, regression, penetration) but rather conformance and interoperability testing. Simply
 put, *conformance testing* verifies that the requirements of a given specification are met, whereas
 *interoperability testing* comes as a second step to verify that two or more parties can interact as expected.
-Furthermore the focus here is on technical specifications related to e.g. messaging protocols or content,
+Furthermore, the focus here is on technical specifications related to e.g. messaging protocols or content,
 whereas the parties previously mentioned would typically be software components.
 
 A key element of the GITB specifications is the **GITB Test Description Language** (GITB TDL) that is used to 
@@ -116,7 +116,7 @@ The test session context can be viewed as a map or keys to values, where each ke
 any type supported by GITB, including additional nested maps.
 
 .. index:: Actor
-.. index:: SUT *System Under Test)
+.. index:: SUT (System Under Test)
 
 Actor
 ~~~~~
