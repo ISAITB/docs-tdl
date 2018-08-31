@@ -847,17 +847,17 @@ The following example illustrates a user interaction presenting instructions and
 
 .. code-block:: xml
 
-	<interact desc="Some information and inputs" with="User">
+    <interact desc="Some information and inputs" with="User">
         <!-- type="string" ommitted as default -->
         <instruct desc="This is a simple message"/>
-		<instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
-		<instruct desc="A file to download:" type="binary">$schemaFile</instruct>
+        <instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
+        <instruct desc="A file to download:" type="binary">$schemaFile</instruct>
         <!-- contentType="STRING" ommitted as default -->
-		<request desc="Enter a text value:">$inputValue</request>
-		<request desc="Upload a file:" contentType="BASE64">$document</request>
+        <request desc="Enter a text value:">$inputValue</request>
+        <request desc="Upload a file:" contentType="BASE64">$document</request>
         <!-- type="string" ommitted as default -->
-		<instruct desc="A final message:">"Final message"</instruct>
-	</interact>
+        <instruct desc="A final message:">"Final message"</instruct>
+    </interact>
 
 .. note::
     **GITB software support:** Downloading binary content through ``instruct`` elements is currently not supported. The binary
