@@ -78,7 +78,7 @@ Test case
 ~~~~~~~~~
 
 A **test case** represents a set of steps and assertions that form a cohesive scenario for testing purposes. 
-These are captured as as a single XML file authored using GITB TDL constructs.
+These are captured as a single XML file authored using GITB TDL constructs.
 
 .. index:: Test suite
 
