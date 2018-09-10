@@ -214,7 +214,12 @@ the system's configuration, as in the following example (assuming an endpoint na
         <config name="http.ssl">$sutInfo{isHTTPS}</config>
     </btxn>
 
+.. note::
+    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
+    session communications when receiving data. Check it's documentation on what is needed to achieve this.
+
 .. index:: HttpMessaging
+.. _handlers-httpmessaging:
 
 HttpMessaging
 +++++++++++++
@@ -255,6 +260,15 @@ Used to send or receive content over HTTP.
     </receive>
     <etxn txnId="t1"/>
 
+.. note::
+    **Isolating communications:** When using a ``HttpMessaging`` handler to receive communication from a SUT, the test bed dynamically starts listening on 
+    a new port for incoming traffic. This port (along with the host) are presented to the test bed user upon test initiation so that he/she can configure
+    the SUT accordingly. To avoid unwanted communication being received on this port that is unrelated to the test session, the test bed will only 
+    listen to requests originating from the SUT's address, ignoring others originating from other sources. To achieve this, the test bed uses the 
+    ``network.host`` parameter configured for the SUT that needs to be provided by the tester as part of the SUT's configuration before starting a test.
+
+    The value for the ``network.host`` parameter must be set with the **public IP Address** of the SUT endpoint.
+
 .. index:: HttpsMessaging
 
 HttpsMessaging
@@ -293,6 +307,10 @@ Used to send or receive content over HTTPS.
         <config name="status.code">"200"</input>
     </receive>
     <etxn txnId="t1"/>
+
+.. note::
+    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
+    session communications when receiving data. Check it's documentation on what is needed to achieve this.
 
 .. index:: HttpProxyMessaging
 .. _handlers-HttpProxyMessaging:

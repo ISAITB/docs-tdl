@@ -160,6 +160,12 @@ The following examples illustrate ``assign`` steps that showcase the possible as
     <assign to="$k1">"key1"</assign>
     <assign to="$k2">"key2"</assign>
     <assign to="$myMap{$k1}" type="string">$anotherMap{$k2}</assign>
+    <!-- 
+        Assume that "myMap" is a map that contains a nested map named "myNestedMap" that itself 
+        contains a nested map named "myFurtherNestedMap". Set key "myKey" of "myFurtherNestedMap"
+        a the string "A value".
+    -->
+    <assign to="$myMap{myNestedMap}{myFurtherNestedMap}{myKey}" type="string">"A value"</assign>
 
 List variable elements
 ++++++++++++++++++++++
