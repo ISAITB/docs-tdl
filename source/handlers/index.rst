@@ -233,11 +233,13 @@ Used to send or receive content over HTTP.
     http_version, Input, No, ``string``, The HTTP version to consider.
     http_headers, Input, No, ``map``, The ``map`` of HTTP headers to send.
     http_body, Input, No, ``binary``, The HTTP request body's bytes.
+    http_parts, Input, No, ``map``, A ``map`` including the definition of the parts (see description below).
     http_method, Output, No, ``string``, The HTTP method.
     http_version, Output, No, ``string``, The HTTP version.
     http_path, Output, No, ``string``, The HTTP request path.
     http_headers, Output, No, ``map``, The ``map`` of received headers.
     http_body, Output, No, ``binary``, The bytes of the received body.
+    http_parts, Output, No, ``map``, A ``map`` including the received parts (see description below).
     network.host, Actor configuration, Yes, ``string``, The host of the actor.
     network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
     http.uri, Actor configuration, No, ``string``, The request path for the request.
@@ -246,6 +248,7 @@ Used to send or receive content over HTTP.
     http.uri, Send configuration, No, ``string``, The request path URI to send to.
     http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
     status.code, Send configuration, No, ``string``, Status for responses.
+    http.ssl, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
 
 .. code-block:: xml
 
@@ -269,12 +272,124 @@ Used to send or receive content over HTTP.
 
     The value for the ``network.host`` parameter must be set with the **public IP Address** of the SUT endpoint.
 
+**Using HTTPS**
+
+The ``HttpMessaging`` handler can be used both for HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
+HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
+is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
+step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+
+The following example illustrates its use:
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
+        <config name="http.ssl">true</config>
+    </btxn>
+    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
+        <config name="http.method">POST</config>
+        <input name="http_body">$content</input>
+    </send>
+
+Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
+if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
+test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
+        <config name="http.ssl">$sutInfo{isHTTPS}</config>
+    </btxn>
+
+**Support for sending and receiving multipart form data**
+
+When **receiving**, a multipart message is detected if the ``ContentType`` header contains a boundary part. The ``http_parts`` output is a ``map`` that contains:
+
+    * ``http_parts{parts}``: A list of all parts in sequence.
+    * ``http_parts{parts}{0}{header}``: The part's header as a string.
+    * ``http_parts{parts}{0}{content}``: The part's content as a binary.
+    * ``http_parts{partsByName}``: A map of parts by name (for easy lookup of named parts):
+    * ``http_parts{partsByName}{NAME}{header}``: The part's header as a string.
+    * ``http_parts{partsByName}{NAME}{content}``: The part's content as a binary.
+
+When **sending**, if a ``http_body`` input is present this takes precedence. If not, and a ``http_parts`` input is provided, then a multipart request is created. The 
+``http_parts`` input is a ``list`` of ``maps`` (one map per part). To send a part as a file the ``file_name`` property needs to be passed. Specifically the information 
+on a part is as follows:
+
+    * ``http_parts{0}{name}``: The name of the part.
+    * ``http_parts{0}{content_type}``: The mime type of the part (text/plain for simple text).
+    * ``http_parts{0}{file_name}``: The name of the file to set for the part if this is a file/binary p
+
+The following TDL example illustrates how to populate and send a multipart request with three parts (two file parts and one
+test part):
+
+.. code-block:: xml
+
+    <imports>
+        <artifact type="schema" encoding="UTF-8" name="file1">testSuite1/artifacts/file1.xml</artifact>
+        <artifact type="binary" encoding="UTF-8" name="file2">testSuite1/artifacts/file2.zip</artifact>
+    </imports>
+    <variables>
+        <var name="parts" type="list[map]"/>
+        <var name="filePartInfo1" type="map"/>
+        <var name="filePartInfo2" type="map"/>
+        <var name="textPartInfo1" type="map"/>
+    </variables>
+    <actors>
+        ...
+    </actors>
+    <steps>
+        <!--
+            Define first file part.
+        -->
+        <assign to="$filePartInfo1{name}" type="string">"file1"</assign>
+        <assign to="$filePartInfo1{content_type}" type="string">"text/xml"</assign>
+        <assign to="$filePartInfo1{file_name}" type="string">"file1.xml"</assign>
+        <assign to="$filePartInfo1{content}" type="binary">$file1</assign>
+        <!--
+            Define second file part.
+        -->
+        <assign to="$filePartInfo2{name}" type="string">"file2"</assign>
+        <assign to="$filePartInfo2{content_type}" type="string">"application/zip"</assign>
+        <assign to="$filePartInfo2{file_name}" type="string">"file2.zip"</assign>
+        <assign to="$filePartInfo2{content}" type="binary">$file2</assign>
+        <!--
+            Define a third text part.
+        -->
+        <assign to="$textPartInfo1{name}" type="string">"text1"</assign>
+        <assign to="$textPartInfo1{content_type}" type="string">"text/plain"</assign>
+        <assign to="$textPartInfo1{content}" type="string">"A simple text value"</assign>
+        <!--
+            Put all parts in a list.
+        -->
+        <assign to="$parts" append="true">$filePartInfo1</assign>
+        <assign to="$parts" append="true">$filePartInfo2</assign>
+        <assign to="$parts" append="true">$textPartInfo1</assign>
+        <!--
+            Send the request.
+        -->
+        <btxn from="Sender" to="Receiver" txnId="t1" handler="HttpMessaging"/>
+        <send desc="Send file" from="Sender" to="Receiver" txnId="t1">
+            <config name="http.method">POST</config>
+            <input name="http_parts">$parts</input>
+        </send>
+        <etxn txnId="t1"/>
+    </steps>
+
 .. index:: HttpsMessaging
 
 HttpsMessaging
 ++++++++++++++
 
 Used to send or receive content over HTTPS.
+
+.. note::
+    **Deprecation of HttpsMessaging:** As of release 1.4.1 handler ``HttpsMessaging`` is deprecated in favour of the more flexible :ref:`handlers-httpmessaging`
+    which can now be configured to support HTTPS.
 
 .. csv-table::
     :stub-columns: 1
