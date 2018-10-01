@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.4.1 
+What's new in release 1.5.0
 ---------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,7 +19,9 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: ~
 
-    The ``HttpMessaging`` handler now supports HTTPS via configuration as well as handling of multipart forms~ GITB software~ :ref:`handlers-httpmessaging`
+    The ``XPathValidator`` is now updated to support XPath 3.0 expressions (from the previous limitation to XPath 1.0)~ GITB software~ :ref:`handlers-XPathValidator`
+    Support for any type of input that can be converted to ``string``s can now be passed to the ``XPathValidator`` and ``StringValidator``~ GITB software~ :ref:`handlers-XPathValidator`, :ref:`handlers-StringValidator`
+    Added a new ``RegExpValidator`` to test text against a regular expression~ GITB software~ :ref:`handlers-RegExpValidator`
 
 Previous documentation versions
 -------------------------------
@@ -31,6 +33,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: ~
 
+    1.4.1~ Extensions to HttpMessaging capabilities~ https://www.itb.ec.europa.eu/docs/tdl/1.4.1/
     1.4.0~ Significant configuration and parameterisation extensions, improved SOAP support and introduced timeouts~ https://www.itb.ec.europa.eu/docs/tdl/1.4.0/
     1.3.0~ Release 1.3.0 for the GITB TDL documentation~ https://www.itb.ec.europa.eu/docs/tdl/1.3.0/
     1.2.0~ First release for the GITB TDL documentation~ https://www.itb.ec.europa.eu/docs/tdl/1.2.0/

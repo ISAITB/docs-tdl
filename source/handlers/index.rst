@@ -496,6 +496,7 @@ Used to verify that a provided ``number`` matches an expected value.
     </verify>
 
 .. index:: StringValidator
+.. _handlers-StringValidator:
 
 StringValidator
 +++++++++++++++
@@ -516,13 +517,35 @@ Used to verify that a provided ``string`` matches an expected value.
         <input name="expectedstring">'expected_string'</input>
     </verify>
 
+.. index:: RegExpValidator
+.. _handlers-RegExpValidator:
+
+RegExpValidator
++++++++++++++++
+
+Used to verify that a provided ``string`` matches a regular expression.
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Input name", "Required?", "Type", "Description"
+
+    input, Yes, ``string``, The value to check.
+    expression, Yes, ``string``, The expression to match.
+
+.. code-block:: xml
+
+    <verify handler="RegExpValidator" desc="Check string">
+        <input name="input">$aString</input>
+        <input name="expression">'^REF\-\d+$'</input>
+    </verify>
+
 .. index:: XPathValidator
 .. _handlers-XPathValidator:
 
 XPathValidator
 ++++++++++++++
 
-Used to evaluate an XPath 1.0 expression against a provided XML document. The result of the expression
+Used to evaluate an XPath 3.0 expression against a provided XML document. The result of the expression
 needs to evaluate to a boolean (i.e. true for success or false for failure).
 
 .. csv-table::
@@ -530,7 +553,7 @@ needs to evaluate to a boolean (i.e. true for success or false for failure).
     :header: "Input name", "Required?", "Type", "Description"
 
     xmldocument, Yes, ``object``, The XML document upon which the XPath expression will be evaluated.
-    xpathexpression, Yes, ``string``, The XPath 1.0 expression passed as a string.
+    xpathexpression, Yes, ``string``, The XPath 3.0 expression passed as a string.
 
 An important note here is that the XPath expression passed in ``xpathexpression`` is meant to be a string.
 This means that to run an expression as-is you need to wrap it in quotes. This is because the content of
