@@ -22,6 +22,8 @@ for more information.
     The ``XPathValidator`` is now updated to support XPath 3.0 expressions (from the previous limitation to XPath 1.0)~ GITB software~ :ref:`handlers-XPathValidator`
     Support for any type of input that can be converted to ``string``s can now be passed to the ``XPathValidator`` and ``StringValidator``~ GITB software~ :ref:`handlers-XPathValidator`, :ref:`handlers-StringValidator`
     Added a new ``RegExpValidator`` to test text against a regular expression~ GITB software~ :ref:`handlers-RegExpValidator`
+    Improved default handling of the ``with``, ``type`` and ``contentType`` properties linked to user interactions~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
+    Allowed user interactions to present binary content for download~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
 
 Previous documentation versions
 -------------------------------

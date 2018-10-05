@@ -209,6 +209,7 @@ path specified suggests that this test case is part of a test suite with name "U
     step's ``handler`` attribute for validators) without previously importing it.
 
 .. index:: Preliminary (Test cases)
+.. _test-case-preliminary:
 
 Preliminary
 ~~~~~~~~~~~
