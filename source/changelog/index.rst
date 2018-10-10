@@ -24,6 +24,7 @@ for more information.
     Added a new ``RegExpValidator`` to test text against a regular expression~ GITB software~ :ref:`handlers-RegExpValidator`
     Improved default handling of the ``with``, ``type`` and ``contentType`` properties linked to user interactions~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
     Allowed user interactions to present binary content for download~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
+    The test suite name can now be ommitted in the value provided for test case ``import`` elements~ GITB software~ :ref:`test-case-imports`
 
 Previous documentation versions
 -------------------------------
