@@ -27,6 +27,8 @@ for more information.
     The test suite name can now be ommitted in the value provided for test case ``import`` elements~ GITB software~ :ref:`test-case-imports`
     It is now possible to define an actor as the specification's default to have it automatically selected for new conformance statements~ GITB TDL~ :ref:`test-suite-actors`
     The display order of actors in test execution diagrams can now be set at test suite and test case level~ GITB TDL~ :ref:`test-suite-actors` (test suite), :ref:`test-case-actors` (test case)
+    The ``exit`` step is now correctly reflected on the user interface and can be set to be either a success or a failure~ GITB TDL~ :ref:`tdl-step-exit`
+    The ``if`` step now considers the ``else`` block as optional~ GITB TDL~ :ref:`tdl-step-if`
 
 Previous documentation versions
 -------------------------------

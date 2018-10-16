@@ -374,7 +374,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     @desc, yes, A description to display to the user on the purpose of the check.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
-    else, yes, Contains as children any sequence of steps to execute if the condition results to false.
+    else, no, Contains as children any sequence of steps to execute if the condition results to false.
 
 .. code-block:: xml
 
@@ -391,11 +391,6 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
             <assign to="$formatType">'CSV'</assign>
         </else>
     </if>
-
-.. note::
-    **IF without ELSE:** The TDL specification currently requires that an ``else`` element is always defined for an ``if``. This means that
-    even if you don't need to specify an ``else`` block you need to, even if it means adding a step that is not meaningful (e.g. an ``assign``
-    that has no effect. This is expected to be adapted in a future version of the specification to skip the ``else`` if not needed.
 
 .. index:: while
 .. _tdl-step-while:
@@ -586,16 +581,16 @@ The following example sends a SOAP request to two actors in parallel and proceed
 exit
 ~~~~
 
-The ``exit`` step is used to immediately exit the test case from any execution branch. Triggering this step will result in the 
-test session having an ``UNDEFINED`` result. The structure of the ``exit`` element is as follows:
+The ``exit`` step is used to immediately exit the test case from any execution branch. The structure of the ``exit`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display for the ``exit`` step.
-    
-The following example shows a test case that exits based on the user's input:
+    @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
+
+The following example shows a test case that exits as a success based on the user's input:
 
 .. code-block:: xml
     :emphasize-lines: 8
@@ -607,7 +602,7 @@ The following example shows a test case that exits based on the user's input:
     <if>
         <cond>$inputValue = 'YES'</cond>
         <then>
-            <exit desc="Terminate test"/>
+            <exit desc="Terminate test" success="true"/>
         </then>
         <else>
             <interact desc="You chose to continue" with="User">
@@ -620,10 +615,15 @@ The following example shows a test case that exits based on the user's input:
         </else>
     </if>
 
-.. note::
-    **GITB software support:** The ``exit`` step currently successfully terminates a test session but this is not reflected on the
-    user interface. The session appears still running with the ``exit`` step pending. The user has to manually select to stop
-    the session.
+The result type of the ``exit`` step can also be determined via variable reference. The example that follows exits as a success or failure depending
+on whether or not the user provides a "true" of "false" input:
+
+.. code-block:: xml
+
+    <interact desc="Decide outcome">
+        <request desc="Succeed?">$choice</request>
+    </interact>
+    <exit desc="Finished" success="$choice"/>
 
 .. index:: Support steps
 
