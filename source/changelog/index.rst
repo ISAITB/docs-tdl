@@ -25,6 +25,8 @@ for more information.
     Improved default handling of the ``with``, ``type`` and ``contentType`` properties linked to user interactions~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
     Allowed user interactions to present binary content for download~ GITB software~ :ref:`tdl-step-interact`, :ref:`test-case-preliminary`
     The test suite name can now be ommitted in the value provided for test case ``import`` elements~ GITB software~ :ref:`test-case-imports`
+    It is now possible to define an actor as the specification's default to have it automatically selected for new conformance statements~ GITB TDL~ :ref:`test-suite-actors`
+    The display order of actors in test execution diagrams can now be set at test suite and test case level~ GITB TDL~ :ref:`test-suite-actors` (test suite), :ref:`test-case-actors` (test case)
 
 Previous documentation versions
 -------------------------------

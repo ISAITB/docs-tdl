@@ -94,12 +94,22 @@ contains one or more ``actor`` elements with structure as follows:
     :header: "Name", "Required?", "Description"
 
     @id, yes, The unique identifier for the actor.
+    @default, no, Whether or not the actor is to be considered as the specification's default actor (``false`` by default).
+    @displayOrder, no, A number indicating the relative positioning that needs to be respected when displaying the actor in test execution diagrams.
     name, yes, A user-friendly name for the actor.
     desc, no, A description to provide additional information on the purpose of this actor in the specification.
     endpoint, no, Zero or more ``endpoint`` elements that capture an actor's configuration. 
 
 The value for the ``id`` attribute is very important as it is used internally to link the test suite and its test cases to the relevant actor in the specification.
 The ``name`` and ``desc`` elements are present as metadata when displaying a test case to a user but are not important with respect to test case steps and logic. 
+The ``default`` attribute can be useful in cases where a specification defines multiple actors but only one is ever expected to be used as the SUT. Setting this to 
+``true`` indicates that this actor should be preselected when creating new conformance statements. 
+
+The ``displayOrder`` attribute provides an indication on how the actor should be positioned in test execution diagrams relevant to other actors. This could be useful
+to set if you want an actor to always appear first in diagrams regardless of the TDL steps that a test case defines (e.g. to always show the SUT first). When the 
+``displayOrder`` attribute for an actor is smaller relevant to others, or if no ``displayOrder`` is specified for other actors, the actor will appear first. Note that
+this ordering applies to actors defined in the specification, not special-purpose actor lifelines that could signify the test bed or the user. Finally, note that any 
+setting that is made for an actor at test suite level is considered as a default and can be overridden at test case level (see :ref:`test-case-actors`).
 
 Actors used in test suites may need to have configuration properties related to them that have meaning for the given specification or that are required to run 
 test cases. Examples of such configuration properties could be a Member State country code, an IP address or a certificate used to produce and verify signatures

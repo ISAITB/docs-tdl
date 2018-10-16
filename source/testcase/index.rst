@@ -257,6 +257,7 @@ one or more ``actor`` children with the following structure:
     @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
     @name~ yes~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case.
     @role~ yes~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
+    @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
 The ``endpoint`` elements require a bit more explanation to understand their use. A specification may foresee actors that are all valid
