@@ -21,8 +21,8 @@ The following example represents a complete, simple test case for the validation
             <gitb:description>Test case to verify the correctness of a UBL invoice. The invoice is provided manually through user upload.</gitb:description>
         </metadata>
         <imports>
-            <artifact type="schema" encoding="UTF-8" name="UBL_Invoice_Schema_File">UBL_invoice_validation/artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
-            <artifact type="object" encoding="UTF-8" name="BII_CORE_Invoice_Schematron_File">UBL_invoice_validation/artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
+            <artifact type="schema" encoding="UTF-8" name="UBL_Invoice_Schema_File">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
+            <artifact type="object" encoding="UTF-8" name="BII_CORE_Invoice_Schematron_File">artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
         </imports>
         <variables>
             <var name="file_content" type="object"/>
@@ -180,16 +180,15 @@ being loaded, the types that can be used are:
 * ``object``: Load the artefact as a XML Document Object Model. In this case it is best to also explicitly provide the ``encoding`` to consider.
 * ``schema``: Load the artefact as a XML Schema. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
 
-Regarding the path to the resource, this considers as the root the name of the test suite, followed by the resource's path within the test suite archive. As an 
+Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite name as a prefix). As an 
 example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable of type ``schema`` that is named "ublSchema". The
-path specified suggests that this test case is part of a test suite with name "UBL_invoice_validation" (the path root) and the file itself is named 
-"UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources".
+path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources".
 
 .. code-block:: xml
 
     <testcase>
         <imports>
-            <artifact type="schema" encoding="UTF-8" name="ublSchema">UBL_invoice_validation/resources/UBL-Invoice-2.1.xsd</artifact>
+            <artifact type="schema" encoding="UTF-8" name="ublSchema">resources/UBL-Invoice-2.1.xsd</artifact>
         </imports>
         <steps>
             <verify handler="XSDValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
@@ -209,6 +208,7 @@ path specified suggests that this test case is part of a test suite with name "U
     step's ``handler`` attribute for validators) without previously importing it.
 
 .. index:: Preliminary (Test cases)
+.. _test-case-preliminary:
 
 Preliminary
 ~~~~~~~~~~~
@@ -257,6 +257,7 @@ one or more ``actor`` children with the following structure:
     @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
     @name~ yes~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case.
     @role~ yes~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
+    @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
 The ``endpoint`` elements require a bit more explanation to understand their use. A specification may foresee actors that are all valid

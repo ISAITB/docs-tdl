@@ -374,7 +374,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     @desc, yes, A description to display to the user on the purpose of the check.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
-    else, yes, Contains as children any sequence of steps to execute if the condition results to false.
+    else, no, Contains as children any sequence of steps to execute if the condition results to false.
 
 .. code-block:: xml
 
@@ -391,11 +391,6 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
             <assign to="$formatType">'CSV'</assign>
         </else>
     </if>
-
-.. note::
-    **IF without ELSE:** The TDL specification currently requires that an ``else`` element is always defined for an ``if``. This means that
-    even if you don't need to specify an ``else`` block you need to, even if it means adding a step that is not meaningful (e.g. an ``assign``
-    that has no effect. This is expected to be adapted in a future version of the specification to skip the ``else`` if not needed.
 
 .. index:: while
 .. _tdl-step-while:
@@ -586,16 +581,16 @@ The following example sends a SOAP request to two actors in parallel and proceed
 exit
 ~~~~
 
-The ``exit`` step is used to immediately exit the test case from any execution branch. Triggering this step will result in the 
-test session having an ``UNDEFINED`` result. The structure of the ``exit`` element is as follows:
+The ``exit`` step is used to immediately exit the test case from any execution branch. The structure of the ``exit`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display for the ``exit`` step.
-    
-The following example shows a test case that exits based on the user's input:
+    @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
+
+The following example shows a test case that exits as a success based on the user's input:
 
 .. code-block:: xml
     :emphasize-lines: 8
@@ -607,7 +602,7 @@ The following example shows a test case that exits based on the user's input:
     <if>
         <cond>$inputValue = 'YES'</cond>
         <then>
-            <exit desc="Terminate test"/>
+            <exit desc="Terminate test" success="true"/>
         </then>
         <else>
             <interact desc="You chose to continue" with="User">
@@ -620,10 +615,15 @@ The following example shows a test case that exits based on the user's input:
         </else>
     </if>
 
-.. note::
-    **GITB software support:** The ``exit`` step currently successfully terminates a test session but this is not reflected on the
-    user interface. The session appears still running with the ``exit`` step pending. The user has to manually select to stop
-    the session.
+The result type of the ``exit`` step can also be determined via variable reference. The example that follows exits as a success or failure depending
+on whether or not the user provides a "true" of "false" input:
+
+.. code-block:: xml
+
+    <interact desc="Decide outcome">
+        <request desc="Succeed?">$choice</request>
+    </interact>
+    <exit desc="Finished" success="$choice"/>
 
 .. index:: Support steps
 
@@ -801,8 +801,9 @@ The structure of the ``interact`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @desc, yes, A description for the user interaction.
-    @with, no, The ID of the actor this interaction refers to. If not specified this needs to be specified in the individual ``instruct`` and/or ``request`` elements.
+    @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
 
@@ -814,18 +815,11 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
     :header: "Name", "Required?", "Description"
 
     @desc~ yes~ The label to display to the user.
-    @with~ no~ The ID of the actor this interaction refers to. If not specified this needs to be defined in the ``interact`` parent element.
+    @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
     @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`). The default is "string".
     @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
     @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
-
-.. note::
-    **with:** The purpose of the ``with`` attribute is to identify the actor with role SUT to which this interaction needs to be presented. Currently 
-    tests with more than one SUTs are not supported so this attribute should not be needed. Based on the specification's requirements it however needs
-    to be specified. Secondly, having the ``with`` attribute both on the parent ``interact`` element and the specific ``instruct`` and ``request`` elements
-    would suggest that if all interactions are meant for the same actor it is enough to specify the ``with`` on the ``interact``. This is implemented as
-    such in the GITB test bed software however the specification currently requires that it is also specified on the ``instruct`` and ``request`` elements.
-    This is an issue likely to be corrected in future GITB TDL versions (i.e. making it optional everywhere and dynamically evaluated).
+    @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download. In case of ``request`` elements this is the name of the map entry to hold the provided data.
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
 meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
@@ -834,7 +828,7 @@ attributes are not used and are ignored if specified. What is important is the `
 result is to be interpreted (see :ref:`test-case-types`):
 
 * A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. This will be rendered as a
-  download link for the user to download the content as a file.
+  download button for the user to download the content as a file.
 * All other cases result in the value being displayed as text.
 
 Concerning ``request`` elements, the content of the expression is expected to be a pure variable reference that identifies the variable that
@@ -843,22 +837,29 @@ will receive the input. In addition the ``type`` is ignored but the ``contentTyp
 * Specifying "BASE64" results in a file upload presented to the user.
 * Specifying "STRING" (the default) or "URI" results in a simple text input.
 
-The following example illustrates a user interaction presenting instructions and also requesting information:
+The ``contentType`` can also be ommitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
+``schema`` a type of ``binary`` with ``contentType`` "BASE64" will be considered.
+
+The following examples illustrate a user interactions presenting instructions and also requesting information:
 
 .. code-block:: xml
 
-    <interact desc="Some information and inputs" with="User">
-        <!-- type="string" ommitted as default -->
+    <interact desc="Some information and inputs">
+        <!-- type="string" ommitted as default. Displays the text as a message to the user. -->
         <instruct desc="This is a simple message"/>
         <instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
-        <instruct desc="A file to download:" type="binary">$schemaFile</instruct>
-        <!-- contentType="STRING" ommitted as default -->
-        <request desc="Enter a text value:">$inputValue</request>
-        <request desc="Upload a file:" contentType="BASE64">$document</request>
-        <!-- type="string" ommitted as default -->
-        <instruct desc="A final message:">"Final message"</instruct>
+        <!-- Present a download button for file "schema.xsd" (not specifying a name would produce a "downloadedFile" file). -->
+        <instruct name="schema.xsd" desc="A file to download:">$schemaFile</instruct>
+        <!-- Present a text input field storing the result in variable aStringInputValue. -->
+        <request desc="Enter a text value:">$aStringInputValue</request>
+        <!-- Present a file upload storing the result in variable aBinaryVariable. -->
+        <request desc="Upload a file:">$aBinaryVariable</request>
     </interact>
 
-.. note::
-    **GITB software support:** Downloading binary content through ``instruct`` elements is currently not supported. The binary
-    content is either displayed as BASE64 or as a string.
+    <!-- Example storing all provided input in a map. This uses the "id" and "name" attributes. -->
+    <interact id="userInput" desc="Some information and inputs">
+        <!-- Present a text input field storing the result in variable userInput{text} (a type of "string" is assumed as the default). -->
+        <request name="text" desc="Enter a text value:"/>
+        <!-- Present a file upload storing the result in variable userInput{file}. -->
+        <request name="file" desc="Upload a file:" type="binary"/>
+    </interact>
