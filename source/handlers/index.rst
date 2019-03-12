@@ -139,6 +139,32 @@ Used to send or receive an arbitrary byte stream over TCP.
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
 
+.. index:: UDPMessaging
+.. _handlers-udpmessaging:
+
+UDPMessaging
+++++++++++++
+
+Used to send or receive arbitrary bytes over UDP.
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    content, Input, Yes, ``binary``, The stream of bytes to send.
+    content, Output, Yes, ``binary``, The stream of bytes received.
+    network.host, Actor configuration, Yes, ``string``, The host of the actor.
+    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="UDPMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <input name="content">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <etxn txnId="t1"/>
+
 .. index:: SoapMessaging
 .. _handlers-soapmessaging:
 
