@@ -298,7 +298,6 @@ element is as follows:
     :header: "Name", "Required?", "Description"
 
     @txnid, yes, The ID of the transaction to which this processing step belongs.
-    @desc, yes, A description for the action taking place within the processing step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
