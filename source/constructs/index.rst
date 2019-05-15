@@ -719,6 +719,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @id, no, The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
     @desc, yes, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.

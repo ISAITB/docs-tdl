@@ -20,6 +20,7 @@ for more information.
     :delim: ~
 
     Documented the embedded ``UDPMessaging`` messaging handler~ GITB TDL~ :ref:`handlers-udpmessaging`
+    Introduced a new ``STEP_SUCCESS`` ``map`` variable to record the status of executed steps~ GITB TDL~ :ref:`test-case-expressions-step-success`
 
 Previous documentation versions
 -------------------------------
