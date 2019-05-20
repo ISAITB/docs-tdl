@@ -1,3 +1,5 @@
+.. _tdl-steps:
+
 TDL step constructs
 ===================
 
@@ -683,7 +685,7 @@ related validations.
 .. code-block:: xml
 
     <group desc="Validate document">
-		<verify handler="XSDValidator" desc="Against schema">
+        <verify handler="XSDValidator" desc="Against schema">
             <input name="xmldocument">$document</input>
             <input name="xsddocument">$schema"</input>
         </verify>
@@ -807,7 +809,7 @@ The structure of the ``interact`` element is as follows:
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
 
-The ``instruct`` and ``request`` elements in turn define what is going to presented to the user. They share the same structure as follows:
+The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
 .. csv-table::
     :stub-columns: 1
@@ -816,10 +818,23 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
 
     @desc~ yes~ The label to display to the user.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
-    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`). The default is "string".
-    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
-    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
-    @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download. In case of ``request`` elements this is the name of the map entry to hold the provided data.
+    @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
+
+The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
+
+    @desc~ yes~ The label to display to the user.
+    @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
+    @contentType~ no~ Defines how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
+    @encoding~ no~ Used in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
+    @name~ no~ In case of ``request`` elements this name is the key to be used for the map entry to hold the provided data.
+    @options~ no~ Used to render a dropdown list by providing the option values to consider (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings).
+    @optionLabels~ no~ Used as the labels for the option values (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings). If provided the number of values needs to match the options. If not provided the option values are used.
+    @multiple~ no~ A ``boolean`` value to determine whether the dropdown list (if the ``options`` attribute is defined) shall be a single or multiple selection list (default is ``false`` for single selection).
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
 meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
@@ -835,7 +850,7 @@ Concerning ``request`` elements, the content of the expression is expected to be
 will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
 
 * Specifying "BASE64" results in a file upload presented to the user.
-* Specifying "STRING" (the default) or "URI" results in a simple text input.
+* Specifying "STRING" (the default) or "URI" results in a simple text input. Note that only "STRING" can be used in case the request is defined as a dropdown list (i.e. the ``options`` attribute is defined).
 
 The ``contentType`` can also be ommitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
 ``schema`` a type of ``binary`` with ``contentType`` "BASE64" will be considered.
@@ -852,6 +867,8 @@ The following examples illustrate a user interactions presenting instructions an
         <instruct name="schema.xsd" desc="A file to download:">$schemaFile</instruct>
         <!-- Present a text input field storing the result in variable aStringInputValue. -->
         <request desc="Enter a text value:">$aStringInputValue</request>
+        <!-- Present a single selection dropdown list storing the result in variable aSelectedInputValue. -->
+        <request desc="Enter a text value:" options="v1, v2" optionLabels="Value 1, Value 2">$aSelectedInputValue</request>
         <!-- Present a file upload storing the result in variable aBinaryVariable. -->
         <request desc="Upload a file:">$aBinaryVariable</request>
     </interact>
@@ -863,3 +880,45 @@ The following examples illustrate a user interactions presenting instructions an
         <!-- Present a file upload storing the result in variable userInput{file}. -->
         <request name="file" desc="Upload a file:" type="binary"/>
     </interact>
+
+To better illustrate how dropdown selections can be define, the following code sample presents the different ways to define them:
+
+.. code-block:: xml
+
+    <variables>
+        <var name="input1" type="string"/>
+        <var name="input2" type="string"/>
+        <var name="input3" type="string"/>
+        <var name="input4" type="string"/>
+        <var name="input3_options" type="string"/>
+        <var name="input3_labels" type="string"/>
+        <var name="input4_options" type="list[string]"/>
+        <var name="input4_labels" type="list[string]"/>
+    </variables>
+    ...
+    <steps>
+        <assign to="$input3_options">"v1, v2, v3"</assign>
+        <assign to="$input3_labels">"Value 1, Value 2, Value 3"</assign>
+        <assign to="$input4_options" append="true">"x1"</assign>
+        <assign to="$input4_options" append="true">"x2"</assign>
+        <assign to="$input4_options" append="true">"x3"</assign>
+        <assign to="$input4_labels" append="true">"VAL 1"</assign>
+        <assign to="$input4_labels" append="true">"VAL 2"</assign>
+        <assign to="$input4_labels" append="true">"VAL 3"</assign>
+	
+        <interact desc="Enter data">
+            <!-- Single selection with options provided in the attribute values. -->
+            <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3">$input1</request>
+            <!-- Multiple selection with options provided in the attribute values. -->
+            <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true">$input2</request>
+            <!-- Single selection with options provided by referring to string variables. -->
+            <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels">$input3</request>
+            <!-- Single selection with options provided by referring to list variables. -->
+            <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels">$input4</request>
+        </interact>
+    </steps>
+
+.. note::
+    The value received from a ``request`` element defined as a multiple selection list will be a comma-separated string in which the individual
+    parts match the selected values. This value is recorded in the test session context as a variable of type ``string`` that can be passed as
+    input to handlers or be processed with relevant XPath functions.

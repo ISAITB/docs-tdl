@@ -21,6 +21,8 @@ for more information.
 
     Documented the embedded ``UDPMessaging`` messaging handler~ GITB TDL~ :ref:`handlers-udpmessaging`
     Introduced a new ``STEP_SUCCESS`` ``map`` variable to record the status of executed steps~ GITB TDL~ :ref:`test-case-expressions-step-success`
+    Step attributes now allow definition of text values including spaces, and numbers that are signed or floating point~ GITB TDL~ :ref:`tdl-steps`
+    Support for single and multiple selection lists to receive input in user interaction steps~ GITB TDL~ :ref:`tdl-step-interact`
 
 Previous documentation versions
 -------------------------------
