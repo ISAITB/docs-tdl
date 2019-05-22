@@ -25,6 +25,7 @@ for more information.
     Support for single and multiple selection lists to receive input in user interaction steps.~ GITB TDL~ :ref:`tdl-step-interact`
     Processing transactions are now optional allowing for simpler use of stateless processing steps.~ GITB TDL~ :ref:`tdl-step-bptxn`, :ref:`tdl-step-process`
     New embedded ``TokenGenerator`` processing handler to generate text tokens.~ GITB TDL~ :ref:`handlers-TokenGenerator`
+    New embedded ``XmlMatchValidator`` validation handler for template-based matching of XML documents.~GITB TDL~ :ref:`handlers-XmlMatchValidator`
 
 Previous documentation versions
 -------------------------------
