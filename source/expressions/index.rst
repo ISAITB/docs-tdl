@@ -346,6 +346,8 @@ The following example illustrates use of this feature to conditionally present a
     For ``verify`` steps (see :ref:`tdl-step-verify`) the step ID is directly set in the test session context with a ``boolean`` flag to match the validation result. The
     **STEP_SUCCESS** ``map`` makes this possible for any other step as well (including ``verify`` steps).
 
+.. _test-case-expressions-template-files:
+
 Expressions and template files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -19,10 +19,12 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: ~
 
-    Documented the embedded ``UDPMessaging`` messaging handler~ GITB TDL~ :ref:`handlers-udpmessaging`
-    Introduced a new ``STEP_SUCCESS`` ``map`` variable to record the status of executed steps~ GITB TDL~ :ref:`test-case-expressions-step-success`
-    Step attributes now allow definition of text values including spaces, and numbers that are signed or floating point~ GITB TDL~ :ref:`tdl-steps`
-    Support for single and multiple selection lists to receive input in user interaction steps~ GITB TDL~ :ref:`tdl-step-interact`
+    Documented the embedded ``UDPMessaging`` messaging handler.~ GITB TDL~ :ref:`handlers-udpmessaging`
+    Introduced a new ``STEP_SUCCESS`` ``map`` variable to record the status of executed steps.~ GITB TDL~ :ref:`test-case-expressions-step-success`
+    Step attributes now allow definition of text values including spaces, and numbers that are signed or floating point.~ GITB TDL~ :ref:`tdl-steps`
+    Support for single and multiple selection lists to receive input in user interaction steps.~ GITB TDL~ :ref:`tdl-step-interact`
+    Processing transactions are now optional allowing for simpler use of stateless processing steps.~ GITB TDL~ :ref:`tdl-step-bptxn`, :ref:`tdl-step-process`
+    New embedded ``TokenGenerator`` processing handler to generate text tokens.~ GITB TDL~ :ref:`handlers-TokenGenerator`
 
 Previous documentation versions
 -------------------------------

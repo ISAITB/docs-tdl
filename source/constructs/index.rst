@@ -231,9 +231,21 @@ bptxn
 
 Similar to :ref:`tdl-messaging-steps`, processing occurs in the context of a transaction that acts as a grouping mechanism
 over related operations. The ``bptxn`` step (the name stands for "Begin processing transaction") is the construct used to
-signal that a processing transaction should be considered as started as is assigned an identifier. Subsequent relevant 
+signal that a processing transaction should be considered as started and is assigned an identifier. Subsequent relevant 
 operations will be accompanied by this transaction ID to allow their processing handler to carry them out accordingly.
-The structure of the ``bptxn`` element is as follows:
+
+Use of a processing transaction is not always required. For processing steps that are simple in nature and don't require
+state to be maintained across calls, you may skip the definition of a transaction and simply refer to the processing handler
+from the ``process`` step itself (see :ref:`tdl-step-process` for details). Whether or not skipping a transaction's definition is 
+supported depends on the specific processing handler; typically however, even if a processing handler doesn't require a transaction
+and is signalled to create one this will simply be ignored. In terms of whether you need or not to define a processing transaction 
+you can consider this rule of thumb:
+
+* **Transaction needed:** When the processing handler is expected to maintain state across individual ``process`` calls and eventually 
+  perform some clean up operations.
+* **Transaction not needed:** When the processing handler is stateless.
+
+The structure of the ``bptxn`` element (defined when a processing transaction is needed) is as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -291,16 +303,20 @@ completed and proceed with any needed actions such as resource clean-up.
 process
 ~~~~~~~
 
-The ``process`` step is where the actual processing work takes place. This needs to be defined within the context of a
-processing transaction started by a ``bptxn`` step, the ID of which is referenced. The structure of the ``process``
-element is as follows:
+The ``process`` step is where the actual processing work takes place. This may be defined within the context of a
+processing transaction started by a ``bptxn`` step, the ID of which is referenced. Alternatively, if a transaction 
+is not required by the underlying processing handler, the transaction ID reference can be skipped and the handler
+can be defined on the ``process`` step itself (see also :ref:`tdl-step-bptxn` for additional details).
+
+The structure of the ``process`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnid, yes, The ID of the transaction to which this processing step belongs.
+    @txnId, no, The ID of the transaction to which this processing step belongs. Can be ommitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is ommitted in favour of the ``txnId`` in case a transaction is referenced.
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
@@ -308,15 +324,15 @@ The ``operation`` attribute is relevant for processing handlers that can support
 the same transaction renders processing services quite powerful in that they can perform any number of related operations
 and be extended with additional ones if needed.
 
-Carrying out processing operations in a transaction is important as it gives the handler an opportunity to manage
-correctly its resources. Moreover, for processing handlers supporting more than one operation, a transaction provides
+For a processing handler that retains state, carrying out operations in a transaction is important as it provides an opportunity to manage
+correctly its resources. Moreover, for processing handlers supporting more than one operation for the same data, a transaction provides
 much needed context to logically connect operations. As an example consider a processing service that is used to read the 
 contents from a ZIP archive. If the test case needs to read multiple files at different points in its execution it would be 
 possible but very inefficient to pass the ZIP archive in each call. Defining a transaction allows the test case to pass the 
 archive once allowing the processing handler to cache it and ultimately remove it upon transaction end. In addition, the 
 presence of a transaction provides context and makes operations such as "initialize" (to pass the archive to consider),
 "extract" (to get a file's contents), "checkExistence" (to check if a file exists but not return it) possible. Use of such a 
-processing service is illustrated in the following example:
+transaction-aware processing service is illustrated in the following example:
 
 .. code-block:: xml
 
@@ -351,6 +367,27 @@ processing service is illustrated in the following example:
         The service handler can remove the archive.
     -->
     <eptxn txnId="t1"/>
+
+For cases where processing operations are simple, one-off actions, defining a transaction results in superfluous 
+and unnecessary test steps. A good example of such a case is the :ref:`handlers-TokenGenerator` embedded processing handler
+that is used to generate text tokens such as a random UUID. In this case, although possible, defining a processing transaction
+is not needed, and is skipped in favour of simplification. In this case however, the ``handler`` attribute must be defined
+on the ``process`` step itself (replacing the ``txnId`` reference) as illustrated in the following example:
+
+.. code-block:: xml
+
+    <!--
+        Generate a UUID. The handler is defined without referencing a transaction ID.
+    -->
+    <process id="uuid" handler="TokenGenerator">
+        <operation>uuid</operation>
+    </process>
+    <!--
+        Display to the user the generated UUID.
+    -->
+    <interact desc="Generated UUID">
+        <instruct desc="Value:">$uuid{value}</instruct>
+    </interact>
 
 .. index:: Flow steps
 

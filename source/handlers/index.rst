@@ -100,7 +100,7 @@ in the GITB test bed software.
 .. index:: Embedded messaging handlers
 
 Embedded messaging handlers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each following section defines a table with the information expected by each messaging handler. The meaning of this information is
 as follows:
@@ -492,7 +492,111 @@ the initial parameters received.
 Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-No processing handlers currently exist as predefined and embedded in the test bed software.
+.. index:: TokenGenerator
+.. index:: string
+.. index:: timestamp
+.. index:: uuid
+.. _handlers-TokenGenerator:
+
+TokenGenerator
+++++++++++++++
+
+Used to generate tokens that can be used as data in test cases. This processing handler supports but does not require a processing 
+transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+
+    ``uuid``, Generate a random UUID text value matching a Java UUID (e.g. "123e4567-e89b-12d3-a456-556642440000"). This is a value that can be considered as unique for test purposes., No, A ``string`` named ``value`` in the resulting step's ``map``.
+    ``timestamp``, Generate a timestamp for the current or a provided time based on a format string., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
+    ``string``, Generate a text token with potentially fixed and/or random parts to match a provided regular expression., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :stub-columns: 2
+    :header: "Operation", "Input name", "Required?", "Description"
+
+    ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified a default of ``dd/MM/yyyy'T'HH:mm:ss:SSS`` is applied.
+    ``timestamp``, ``time``, No, A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
+    ``string``, ``format``, Yes, A regular expression acting as a template to determine the generated token's format.
+
+A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
+e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
+The ``uuid`` operation provides a random and unique identifier where special formatting is not required, whereas the ``timestamp`` operation generates a timestamp
+string that includes date/time values but can also have fixed parts (e.g. if you need to generate a text token with a fixed part and a variable part based on the
+current date/time). Finally, the ``string`` operation is noteworthy as it can be used to generate any kind of text token with both fixed and random parts. The template
+to consider for the output is provided as a regular expression with the value to be returned being a random string to match it.
+
+The examples that follow illustrate use of these operations to generate a series of tokens that are then presented to the user by means
+of an :ref:`tdl-step-interact` step. Note in all cases how the produced value is retrieved from the ``map`` resulting from the ``process`` step
+that is named based on the steps' ``id``. The value itself is retrieved from within each ``map`` under the ``value`` key:
+
+.. code-block:: xml
+
+    <!--
+        Generate a UUID.
+    -->
+    <process id="uuid" handler="TokenGenerator">
+        <operation>uuid</operation>
+    </process>
+    <!--
+        Generate a timestamp for the current time using default formatting ("dd/MM/yyyy'T'HH:mm:ss:SSS").
+        Example output would be "22/05/2019T11:48:06:129".
+    -->
+    <process id="defaultTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+    </process>
+    <!--
+        Generate a timestamp for the current time with provided formatting.
+        Example output would be "DATE[2019-05-22] TIME[11:48:06]".
+    -->
+    <process id="formattedTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="format">"'DATE['yyyy-MM-dd'] TIME['HH:mm:ss']'"</input>
+    </process>
+    <!-- 
+        Generate a timestamp for the provided time and formatting.
+        The output would be "2014-05-11".
+    -->
+    <process id="formattedTimestampProvidedTime" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="time">'1399792366000'</input>
+        <input name="format">"yyyy-MM-dd"</input>
+    </process>
+    <!--
+        Generate a random string with 2 characters followed by 10 digits.
+        Example output would be "cD6723820231".
+    -->
+    <process id="stringRandom" handler="TokenGenerator">
+        <operation>string</operation>
+        <input name="format">"[a-zA-Z]{2}\d{10}"</input>
+    </process>
+    <!--
+        Generate a random string:
+        - Starting with "PREFIX" and ending with "POSTFIX".
+        - With random parts of (a) 5 digits, (b) 5 occurences of 'a', 'b' or 'c', and (c) 2 digits.
+        - With hyphens between all fixed and random parts.
+        Example output would be "PREFIX-32145-abcaa-02-POSTFIX".
+    -->
+    <process id="stringRandomAndFixed" handler="TokenGenerator">
+        <operation>string</operation>
+        <input name="format">"PREFIX-\d{5}-[abc]{5}-\d{2}-POSTFIX"</input>
+    </process>
+    <!--
+        Display all generated tokens to the user.
+    -->
+    <interact desc="Generated tokens">
+        <instruct desc="UUID:">$uuid{value}</instruct>
+        <instruct desc="The default timestamp:">$defaultTimestamp{value}</instruct>
+        <instruct desc="A formatted timestamp:">$formattedTimestamp{value}</instruct>
+        <instruct desc="A formatted timestamp for provided time:">$formattedTimestampProvidedTime{value}</instruct>
+        <instruct desc="A random string:">$stringRandom{value}</instruct>
+        <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
+    </interact>
+
+.. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 
 .. index:: Embedded validation handlers
 .. _handlers-predefined-validation-handlers:
