@@ -397,10 +397,6 @@ type. The following example illustrates setting values for different variable ty
     need to specify the ``type`` attribute as ``list[INTERNAL_TYPE]``. For example a ``list`` of ``string`` elements is defined as
     ``<var name="myList" type="list[string]"/>``.
 
-.. note::
-    **GITB software support:** Currently values for variables are defined in a fixed manner. Using expressions to set variable values
-    is not supported.
-
 .. index:: Steps (Test cases)
 .. _test-case-steps:
 

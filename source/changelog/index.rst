@@ -26,6 +26,7 @@ for more information.
     Processing transactions are now optional allowing for simpler use of stateless processing steps.~ GITB TDL~ :ref:`tdl-step-bptxn`, :ref:`tdl-step-process`
     New embedded ``TokenGenerator`` processing handler to generate text tokens.~ GITB TDL~ :ref:`handlers-TokenGenerator`
     New embedded ``XmlMatchValidator`` validation handler for template-based matching of XML documents.~GITB TDL~ :ref:`handlers-XmlMatchValidator`
+    Test case variable values now correctly allow the definition only of a type and name.~ GITB TDL~ :ref:`test-case-variables`
 
 Previous documentation versions
 -------------------------------
