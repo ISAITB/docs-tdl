@@ -1,3 +1,5 @@
+.. _tdl-steps:
+
 TDL step constructs
 ===================
 
@@ -229,9 +231,21 @@ bptxn
 
 Similar to :ref:`tdl-messaging-steps`, processing occurs in the context of a transaction that acts as a grouping mechanism
 over related operations. The ``bptxn`` step (the name stands for "Begin processing transaction") is the construct used to
-signal that a processing transaction should be considered as started as is assigned an identifier. Subsequent relevant 
+signal that a processing transaction should be considered as started and is assigned an identifier. Subsequent relevant 
 operations will be accompanied by this transaction ID to allow their processing handler to carry them out accordingly.
-The structure of the ``bptxn`` element is as follows:
+
+Use of a processing transaction is not always required. For processing steps that are simple in nature and don't require
+state to be maintained across calls, you may skip the definition of a transaction and simply refer to the processing handler
+from the ``process`` step itself (see :ref:`tdl-step-process` for details). Whether or not skipping a transaction's definition is 
+supported depends on the specific processing handler; typically however, even if a processing handler doesn't require a transaction
+and is signalled to create one this will simply be ignored. In terms of whether you need or not to define a processing transaction 
+you can consider this rule of thumb:
+
+* **Transaction needed:** When the processing handler is expected to maintain state across individual ``process`` calls and eventually 
+  perform some clean up operations.
+* **Transaction not needed:** When the processing handler is stateless.
+
+The structure of the ``bptxn`` element (defined when a processing transaction is needed) is as follows:
 
 .. csv-table::
     :stub-columns: 1
@@ -289,17 +303,20 @@ completed and proceed with any needed actions such as resource clean-up.
 process
 ~~~~~~~
 
-The ``process`` step is where the actual processing work takes place. This needs to be defined within the context of a
-processing transaction started by a ``bptxn`` step, the ID of which is referenced. The structure of the ``process``
-element is as follows:
+The ``process`` step is where the actual processing work takes place. This may be defined within the context of a
+processing transaction started by a ``bptxn`` step, the ID of which is referenced. Alternatively, if a transaction 
+is not required by the underlying processing handler, the transaction ID reference can be skipped and the handler
+can be defined on the ``process`` step itself (see also :ref:`tdl-step-bptxn` for additional details).
+
+The structure of the ``process`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnid, yes, The ID of the transaction to which this processing step belongs.
-    @desc, yes, A description for the action taking place within the processing step.
+    @txnId, no, The ID of the transaction to which this processing step belongs. Can be ommitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is ommitted in favour of the ``txnId`` in case a transaction is referenced.
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
@@ -307,15 +324,15 @@ The ``operation`` attribute is relevant for processing handlers that can support
 the same transaction renders processing services quite powerful in that they can perform any number of related operations
 and be extended with additional ones if needed.
 
-Carrying out processing operations in a transaction is important as it gives the handler an opportunity to manage
-correctly its resources. Moreover, for processing handlers supporting more than one operation, a transaction provides
+For a processing handler that retains state, carrying out operations in a transaction is important as it provides an opportunity to manage
+correctly its resources. Moreover, for processing handlers supporting more than one operation for the same data, a transaction provides
 much needed context to logically connect operations. As an example consider a processing service that is used to read the 
 contents from a ZIP archive. If the test case needs to read multiple files at different points in its execution it would be 
 possible but very inefficient to pass the ZIP archive in each call. Defining a transaction allows the test case to pass the 
 archive once allowing the processing handler to cache it and ultimately remove it upon transaction end. In addition, the 
 presence of a transaction provides context and makes operations such as "initialize" (to pass the archive to consider),
 "extract" (to get a file's contents), "checkExistence" (to check if a file exists but not return it) possible. Use of such a 
-processing service is illustrated in the following example:
+transaction-aware processing service is illustrated in the following example:
 
 .. code-block:: xml
 
@@ -350,6 +367,27 @@ processing service is illustrated in the following example:
         The service handler can remove the archive.
     -->
     <eptxn txnId="t1"/>
+
+For cases where processing operations are simple, one-off actions, defining a transaction results in superfluous 
+and unnecessary test steps. A good example of such a case is the :ref:`handlers-TokenGenerator` embedded processing handler
+that is used to generate text tokens such as a random UUID. In this case, although possible, defining a processing transaction
+is not needed, and is skipped in favour of simplification. In this case however, the ``handler`` attribute must be defined
+on the ``process`` step itself (replacing the ``txnId`` reference) as illustrated in the following example:
+
+.. code-block:: xml
+
+    <!--
+        Generate a UUID. The handler is defined without referencing a transaction ID.
+    -->
+    <process id="uuid" handler="TokenGenerator">
+        <operation>uuid</operation>
+    </process>
+    <!--
+        Display to the user the generated UUID.
+    -->
+    <interact desc="Generated UUID">
+        <instruct desc="Value:">$uuid{value}</instruct>
+    </interact>
 
 .. index:: Flow steps
 
@@ -684,7 +722,7 @@ related validations.
 .. code-block:: xml
 
     <group desc="Validate document">
-		<verify handler="XSDValidator" desc="Against schema">
+        <verify handler="XSDValidator" desc="Against schema">
             <input name="xmldocument">$document</input>
             <input name="xsddocument">$schema"</input>
         </verify>
@@ -720,6 +758,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @id, no, The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
     @desc, yes, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -807,7 +846,7 @@ The structure of the ``interact`` element is as follows:
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
 
-The ``instruct`` and ``request`` elements in turn define what is going to presented to the user. They share the same structure as follows:
+The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
 .. csv-table::
     :stub-columns: 1
@@ -816,10 +855,23 @@ The ``instruct`` and ``request`` elements in turn define what is going to presen
 
     @desc~ yes~ The label to display to the user.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
-    @type~ no~ Applicable for ``instruct`` elements to specify how the provided variable should be handled (see :ref:`test-case-types`). The default is "string".
-    @contentType~ no~ Applicable for ``request`` elements to define how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
-    @encoding~ no~ Applicable for ``request`` elements in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
-    @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download. In case of ``request`` elements this is the name of the map entry to hold the provided data.
+    @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
+
+The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
+
+    @desc~ yes~ The label to display to the user.
+    @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
+    @contentType~ no~ Defines how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
+    @encoding~ no~ Used in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
+    @name~ no~ In case of ``request`` elements this name is the key to be used for the map entry to hold the provided data.
+    @options~ no~ Used to render a dropdown list by providing the option values to consider (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings).
+    @optionLabels~ no~ Used as the labels for the option values (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings). If provided the number of values needs to match the options. If not provided the option values are used.
+    @multiple~ no~ A ``boolean`` value to determine whether the dropdown list (if the ``options`` attribute is defined) shall be a single or multiple selection list (default is ``false`` for single selection).
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
 meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
@@ -835,7 +887,7 @@ Concerning ``request`` elements, the content of the expression is expected to be
 will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
 
 * Specifying "BASE64" results in a file upload presented to the user.
-* Specifying "STRING" (the default) or "URI" results in a simple text input.
+* Specifying "STRING" (the default) or "URI" results in a simple text input. Note that only "STRING" can be used in case the request is defined as a dropdown list (i.e. the ``options`` attribute is defined).
 
 The ``contentType`` can also be ommitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
 ``schema`` a type of ``binary`` with ``contentType`` "BASE64" will be considered.
@@ -852,6 +904,8 @@ The following examples illustrate a user interactions presenting instructions an
         <instruct name="schema.xsd" desc="A file to download:">$schemaFile</instruct>
         <!-- Present a text input field storing the result in variable aStringInputValue. -->
         <request desc="Enter a text value:">$aStringInputValue</request>
+        <!-- Present a single selection dropdown list storing the result in variable aSelectedInputValue. -->
+        <request desc="Enter a text value:" options="v1, v2" optionLabels="Value 1, Value 2">$aSelectedInputValue</request>
         <!-- Present a file upload storing the result in variable aBinaryVariable. -->
         <request desc="Upload a file:">$aBinaryVariable</request>
     </interact>
@@ -863,3 +917,45 @@ The following examples illustrate a user interactions presenting instructions an
         <!-- Present a file upload storing the result in variable userInput{file}. -->
         <request name="file" desc="Upload a file:" type="binary"/>
     </interact>
+
+To better illustrate how dropdown selections can be define, the following code sample presents the different ways to define them:
+
+.. code-block:: xml
+
+    <variables>
+        <var name="input1" type="string"/>
+        <var name="input2" type="string"/>
+        <var name="input3" type="string"/>
+        <var name="input4" type="string"/>
+        <var name="input3_options" type="string"/>
+        <var name="input3_labels" type="string"/>
+        <var name="input4_options" type="list[string]"/>
+        <var name="input4_labels" type="list[string]"/>
+    </variables>
+    ...
+    <steps>
+        <assign to="$input3_options">"v1, v2, v3"</assign>
+        <assign to="$input3_labels">"Value 1, Value 2, Value 3"</assign>
+        <assign to="$input4_options" append="true">"x1"</assign>
+        <assign to="$input4_options" append="true">"x2"</assign>
+        <assign to="$input4_options" append="true">"x3"</assign>
+        <assign to="$input4_labels" append="true">"VAL 1"</assign>
+        <assign to="$input4_labels" append="true">"VAL 2"</assign>
+        <assign to="$input4_labels" append="true">"VAL 3"</assign>
+	
+        <interact desc="Enter data">
+            <!-- Single selection with options provided in the attribute values. -->
+            <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3">$input1</request>
+            <!-- Multiple selection with options provided in the attribute values. -->
+            <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true">$input2</request>
+            <!-- Single selection with options provided by referring to string variables. -->
+            <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels">$input3</request>
+            <!-- Single selection with options provided by referring to list variables. -->
+            <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels">$input4</request>
+        </interact>
+    </steps>
+
+.. note::
+    The value received from a ``request`` element defined as a multiple selection list will be a comma-separated string in which the individual
+    parts match the selected values. This value is recorded in the test session context as a variable of type ``string`` that can be passed as
+    input to handlers or be processed with relevant XPath functions.

@@ -100,7 +100,7 @@ in the GITB test bed software.
 .. index:: Embedded messaging handlers
 
 Embedded messaging handlers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each following section defines a table with the information expected by each messaging handler. The meaning of this information is
 as follows:
@@ -133,6 +133,32 @@ Used to send or receive an arbitrary byte stream over TCP.
 .. code-block:: xml
 
     <btxn from="Actor1" to="Actor2" txnId="t1" handler="TCPMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <input name="content">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <etxn txnId="t1"/>
+
+.. index:: UDPMessaging
+.. _handlers-udpmessaging:
+
+UDPMessaging
+++++++++++++
+
+Used to send or receive arbitrary bytes over UDP.
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    content, Input, Yes, ``binary``, The stream of bytes to send.
+    content, Output, Yes, ``binary``, The stream of bytes received.
+    network.host, Actor configuration, Yes, ``string``, The host of the actor.
+    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="UDPMessaging"/>
     <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
         <input name="content">$binaryContent</input>
     </send>
@@ -466,7 +492,111 @@ the initial parameters received.
 Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-No processing handlers currently exist as predefined and embedded in the test bed software.
+.. index:: TokenGenerator
+.. index:: string
+.. index:: timestamp
+.. index:: uuid
+.. _handlers-TokenGenerator:
+
+TokenGenerator
+++++++++++++++
+
+Used to generate tokens that can be used as data in test cases. This processing handler supports but does not require a processing 
+transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+
+    ``uuid``, Generate a random UUID text value matching a Java UUID (e.g. "123e4567-e89b-12d3-a456-556642440000"). This is a value that can be considered as unique for test purposes., No, A ``string`` named ``value`` in the resulting step's ``map``.
+    ``timestamp``, Generate a timestamp for the current or a provided time based on a format string., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
+    ``string``, Generate a text token with potentially fixed and/or random parts to match a provided regular expression., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :stub-columns: 2
+    :header: "Operation", "Input name", "Required?", "Description"
+
+    ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified a default of ``dd/MM/yyyy'T'HH:mm:ss:SSS`` is applied.
+    ``timestamp``, ``time``, No, A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
+    ``string``, ``format``, Yes, A regular expression acting as a template to determine the generated token's format.
+
+A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
+e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
+The ``uuid`` operation provides a random and unique identifier where special formatting is not required, whereas the ``timestamp`` operation generates a timestamp
+string that includes date/time values but can also have fixed parts (e.g. if you need to generate a text token with a fixed part and a variable part based on the
+current date/time). Finally, the ``string`` operation is noteworthy as it can be used to generate any kind of text token with both fixed and random parts. The template
+to consider for the output is provided as a regular expression with the value to be returned being a random string to match it.
+
+The examples that follow illustrate use of these operations to generate a series of tokens that are then presented to the user by means
+of an :ref:`tdl-step-interact` step. Note in all cases how the produced value is retrieved from the ``map`` resulting from the ``process`` step
+that is named based on the steps' ``id``. The value itself is retrieved from within each ``map`` under the ``value`` key:
+
+.. code-block:: xml
+
+    <!--
+        Generate a UUID.
+    -->
+    <process id="uuid" handler="TokenGenerator">
+        <operation>uuid</operation>
+    </process>
+    <!--
+        Generate a timestamp for the current time using default formatting ("dd/MM/yyyy'T'HH:mm:ss:SSS").
+        Example output would be "22/05/2019T11:48:06:129".
+    -->
+    <process id="defaultTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+    </process>
+    <!--
+        Generate a timestamp for the current time with provided formatting.
+        Example output would be "DATE[2019-05-22] TIME[11:48:06]".
+    -->
+    <process id="formattedTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="format">"'DATE['yyyy-MM-dd'] TIME['HH:mm:ss']'"</input>
+    </process>
+    <!-- 
+        Generate a timestamp for the provided time and formatting.
+        The output would be "2014-05-11".
+    -->
+    <process id="formattedTimestampProvidedTime" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="time">'1399792366000'</input>
+        <input name="format">"yyyy-MM-dd"</input>
+    </process>
+    <!--
+        Generate a random string with 2 characters followed by 10 digits.
+        Example output would be "cD6723820231".
+    -->
+    <process id="stringRandom" handler="TokenGenerator">
+        <operation>string</operation>
+        <input name="format">"[a-zA-Z]{2}\d{10}"</input>
+    </process>
+    <!--
+        Generate a random string:
+        - Starting with "PREFIX" and ending with "POSTFIX".
+        - With random parts of (a) 5 digits, (b) 5 occurences of 'a', 'b' or 'c', and (c) 2 digits.
+        - With hyphens between all fixed and random parts.
+        Example output would be "PREFIX-32145-abcaa-02-POSTFIX".
+    -->
+    <process id="stringRandomAndFixed" handler="TokenGenerator">
+        <operation>string</operation>
+        <input name="format">"PREFIX-\d{5}-[abc]{5}-\d{2}-POSTFIX"</input>
+    </process>
+    <!--
+        Display all generated tokens to the user.
+    -->
+    <interact desc="Generated tokens">
+        <instruct desc="UUID:">$uuid{value}</instruct>
+        <instruct desc="The default timestamp:">$defaultTimestamp{value}</instruct>
+        <instruct desc="A formatted timestamp:">$formattedTimestamp{value}</instruct>
+        <instruct desc="A formatted timestamp for provided time:">$formattedTimestampProvidedTime{value}</instruct>
+        <instruct desc="A random string:">$stringRandom{value}</instruct>
+        <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
+    </interact>
+
+.. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 
 .. index:: Embedded validation handlers
 .. _handlers-predefined-validation-handlers:
@@ -626,6 +756,55 @@ Used to validate an XML document against a Schematron file.
 .. index:: UsernameToken
 .. index:: WS-Security
 .. _handlers-authentication:
+
+.. index:: XmlMatchValidator
+.. _handlers-XmlMatchValidator:
+
+XmlMatchValidator
++++++++++++++++++
+
+Used to validate an XML document by matching it against a provided template.
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Input name", "Required?", "Type", "Description"
+
+    xml, Yes, ``object``, The XML file to validate.
+    template, Yes, ``object``, The XML file to consider as the validation's template.
+    ignoredPaths, No, ``list[string]``, An optional list of paths provided as XPath expressions identifying sections of the XML to ignore.
+
+The matching process takes place by normalising whitespace, ignoring comments and tolerating naming differences in namespace prefixes. In addition,
+texts of elements or attributes in the provided ``template`` can be specified with the special value ``?``. This means that any value will be allowed
+for this element or attribute and will be ignored as part of the matching (e.g. to ignore random tokens, timestamps, or texts with no expected value).
+
+In case you want to ignore complete XML sections you may use the ``ignoredPaths`` attribute. This allows you to define one or more paths that identify 
+elements that will, themselves and for all children, be ignored. For each provided path the following constraints apply:
+
+* It must be formed as a namespace-aware XPath expression considering the namespace prefixes of the provided ``template``.
+* It must identify a specific element, rather than a set of elements, a text node or an attribute.
+* It must be a simple element-based path with no functions, selectors or wildcards.
+
+The following example illustrates how this validator can be used:
+
+.. code-block:: xml
+
+    <!--
+        Validate an XML file based on a provided template.
+    -->
+    <verify handler="XmlMatchValidator" desc="Validate content">
+        <input name="xml">$docToValidate</input>
+        <input name="template">$templateFile</input>
+    </verify>
+    <!--
+        Another validation that also defines a set of paths to ignore.
+        Variable "pathsToSkip" is of type list[string].
+    -->
+    <assign to="$pathsToSkip" append="true">"/x:Invoice/x:BillingInformation/y:Comments"</assign>
+    <verify handler="XmlMatchValidator" desc="Validate content">
+        <input name="xml">$docToValidate</input>
+        <input name="template">$templateFile</input>
+        <input name="ignoredPaths">$pathsToSkip</input>
+    </verify>
 
 Authentication for external handlers
 ------------------------------------

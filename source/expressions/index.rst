@@ -312,6 +312,42 @@ as illustrated in the following examples:
     requires that the expected values have been specified through the GITB software interface. Otherwise, these values would need to be 
     provided in a ``map`` defined within the test case itself.
 
+.. index:: STEP_SUCCESS
+.. _test-case-expressions-step-success:
+
+Checking the result of test steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+During the course of a test case you may want to check on the result of a previous step. A typical scenario would be to avoid showing 
+an information popup to the user in case a previous step failed (e.g. via a :ref:`tdl-step-interact` step). Whether or not a step has
+succeeded is recorded in a special purpose ``map`` named **STEP_SUCCESS** that contains one key per step identifier mapping to a ``boolean``
+value. This value is initially set to ``false`` and, if the step completes successfully, is set to ``true``.
+
+The following example illustrates use of this feature to conditionally present a message if a ``receive`` (see :ref:`tdl-step-receive`) step has succeeded:
+
+.. code-block:: xml
+    :emphasize-lines: 7
+
+    <!-- Receive a request in step "dataReceive". -->
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+    <etxn txnId="t1"/>
+    <!-- Check the step result before showing an information message. -->
+    <if desc="Check success">
+        <cond>$STEP_SUCCESS{dataReceive}</cond>
+        <then>
+            <interact desc="Show success message">
+                <instruct desc="Messaging was completed successfully!"/>
+            </interact>
+        </then>
+    </if>
+
+.. note::
+    For ``verify`` steps (see :ref:`tdl-step-verify`) the step ID is directly set in the test session context with a ``boolean`` flag to match the validation result. The
+    **STEP_SUCCESS** ``map`` makes this possible for any other step as well (including ``verify`` steps).
+
+.. _test-case-expressions-template-files:
+
 Expressions and template files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
