@@ -426,6 +426,19 @@ replacement occurs as follows:
         </steps>
     </testcase>
 
+You are not limited to using simple variables from within your templates. You can provide any valid variable reference expression, for example:
+
+    * Variables of type ``map`` or ``list`` (e.g. ``<val>${myMap{myMapKey}}</val>``).
+    * Domain variables (e.g. ``<val>${DOMAIN{myParameter}}</val>``. See :ref:`test-case-expressions-domain`).
+    * System configuration provided by the user (e.g. ``<val>${Sender_AS2{Receiver_AS2}{network.host}}</val>``. See :ref:`test-case-expressions-domain`).
+
+.. note::
+    **Parameter placeholders in templates:** In the examples presented you may have noticed that a template parameter placeholder is contained
+    within a ``${...}`` construct. Within this you are expected to provide a variable expression but **without** the leading ``$`` sign.
+
+    For example, to use variable ``$map{key}`` in a template you would define the placeholder as ``${map{key}}``. Apart from the initial ``$`` sign
+    in the expression you should still define any further ones as usual (e.g. if the map's key is also a variable reference such as ``${map{$dynamicKeyValue}}``.
+
 Where can expressions be used?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
