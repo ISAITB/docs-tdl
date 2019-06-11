@@ -518,8 +518,9 @@ The input parameters expected by the different operations are as follows:
     :stub-columns: 2
     :header: "Operation", "Input name", "Required?", "Description"
 
-    ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified a default of ``dd/MM/yyyy'T'HH:mm:ss:SSS`` is applied.
+    ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
     ``timestamp``, ``time``, No, A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
+    ``timestamp``, ``diff``, No, A ``number`` representing the milliseconds to consider as a diff from the considered ``time``. This value (default 0) is added to the considered ``time`` before formatting (i.e. a negative value signals an earlier time).
     ``string``, ``format``, Yes, A regular expression acting as a template to determine the generated token's format.
 
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
@@ -542,8 +543,8 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <operation>uuid</operation>
     </process>
     <!--
-        Generate a timestamp for the current time using default formatting ("dd/MM/yyyy'T'HH:mm:ss:SSS").
-        Example output would be "22/05/2019T11:48:06:129".
+        Generate a timestamp for the current time without specifying formatting.
+        Example output would be "1560238501040".
     -->
     <process id="defaultTimestamp" handler="TokenGenerator">
         <operation>timestamp</operation>
@@ -564,6 +565,35 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <operation>timestamp</operation>
         <input name="time">'1399792366000'</input>
         <input name="format">"yyyy-MM-dd"</input>
+    </process>
+    <!-- 
+        Generate a timestamp for the current time minus one minute (600000 milliseconds) using the provided formatting.
+        Example output would be "2019-06-11 10:23:10".
+    -->
+    <process id="formattedTimestampDiff" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="diff">-600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
+    </process>    
+    <!-- 
+        Obtain the current time (T) and then generate two timestamps:
+        - T minus one hour.
+        - T plus one hour.
+    -->
+    <process id="now" handler="TokenGenerator">
+        <operation>timestamp</operation>
+    </process>    
+    <process id="nowMinusOneHour" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="time">$now{value}</input>
+        <input name="diff">-3600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
+    </process>
+    <process id="nowPlusOneHour" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="time">$now{value}</input>
+        <input name="diff">3600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
     </process>
     <!--
         Generate a random string with 2 characters followed by 10 digits.
@@ -592,6 +622,9 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <instruct desc="The default timestamp:">$defaultTimestamp{value}</instruct>
         <instruct desc="A formatted timestamp:">$formattedTimestamp{value}</instruct>
         <instruct desc="A formatted timestamp for provided time:">$formattedTimestampProvidedTime{value}</instruct>
+        <instruct desc="A timestamp using a diff:">$formattedTimestampDiff{value}</instruct>
+        <instruct desc="Now minus one hour:">$nowMinusOneHour{value}</instruct>
+        <instruct desc="Now plus one hour:">$nowPlusOneHour{value}</instruct>
         <instruct desc="A random string:">$stringRandom{value}</instruct>
         <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
     </interact>
