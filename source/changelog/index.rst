@@ -20,7 +20,7 @@ for more information.
     :delim: ~
 
     Additional documentation for the use of templates.~ GITB TDL~ :ref:`test-case-expressions-template-files`
-    Extensions to the ``TokenGenerator`` handler to finetune timestamp generation.~ GITB TDL~ :ref:`handlers-TokenGenerator`
+    Extensions to the ``TokenGenerator`` handler to fine-tune timestamp generation.~ GITB TDL~ :ref:`handlers-TokenGenerator`
 
 Previous documentation versions
 -------------------------------
