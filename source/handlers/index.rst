@@ -464,14 +464,15 @@ Used to proxy HTTP requests and responses between two actors.
 .. csv-table::
     :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :delim: ~
 
-    request_data, Input, No, ``map``, The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
-    http_method, Output, No, ``string``, The HTTP method.
-    http_version, Output, No, ``string``, The HTTP version.
-    http_path, Output, No, ``string``, The HTTP request path.
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
-    proxy.address, Send configuration, No, ``string``, Address of the proxied service.
+    request_data~ Input~ No~ ``map``~ The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
+    http_method~ Output~ No~ ``string``~ The HTTP method.
+    http_version~ Output~ No~ ``string``~ The HTTP version.
+    http_path~ Output~ No~ ``string``~ The HTTP request path.
+    network.host~ Actor configuration~ Yes~ ``string``~ The host of the actor.
+    network.port~ Actor configuration~ Yes~ ``number``~ The listen port for the actor.
+    proxy.address~ Send configuration~ No~ ``string``~ Address of the proxied service.
 
 In this case the ``request_data`` input ``map`` is defined as a convenience considering that we will always be receiving
 a call that we want to proxy to a final destination. The HTTP-related parameters to send to the destination need to match
