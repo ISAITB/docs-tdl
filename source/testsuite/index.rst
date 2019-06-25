@@ -20,13 +20,15 @@ The following is an example test suite that defines a single actor and two inclu
             <gitb:version>0.1</gitb:version>
             <gitb:description>A test suite to validate UBL invoices uploaded by a user</gitb:description>
         </metadata>
-        <gitb:actor id="User">
-            <gitb:name>User</gitb:name>
-            <gitb:desc>User to upload a UBL invoice for validation</gitb:desc>
-            <gitb:endpoint name="userInfo">
-                <gitb:config name="id" kind="SIMPLE"/>
-            </gitb:endpoint>
-        </gitb:actor>
+        <actors>
+            <gitb:actor id="User">
+                <gitb:name>User</gitb:name>
+                <gitb:desc>User to upload a UBL invoice for validation</gitb:desc>
+                <gitb:endpoint name="userInfo">
+                    <gitb:config name="id" kind="SIMPLE"/>
+                </gitb:endpoint>
+            </gitb:actor>
+        </actors>
         <testcase id="UBL_invoice_validation_test_1"/>
         <testcase id="UBL_invoice_validation_test_2"/>
     </testsuite>
