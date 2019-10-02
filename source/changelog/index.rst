@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.6.1
+What's new in release 1.7.0
 ---------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -17,10 +17,12 @@ for more information.
 
 .. csv-table::
     :header: "Description", "Type", "Relevant sections"
-    :delim: ~
+    :delim: |
 
-    Additional documentation for the use of templates.~ GITB TDL~ :ref:`test-case-expressions-template-files`
-    Extensions to the ``TokenGenerator`` handler to fine-tune timestamp generation.~ GITB TDL~ :ref:`handlers-TokenGenerator`
+    Support for organisation and system level configuration parameters.| GITB TDL| :ref:`test-case-configuration`
+    Support for ``binary`` values in all levels of configuration parameters.| GITB TDL| :ref:`test-case-configuration`
+    Support for endpoint configuration parameters to be defined as editable only by administrators (``adminOnly``) and make their inclusion in test sessions optional (``notForTests``).| :ref:`test-suite-actors`
+    Endpoint configuration parameters can now have secret values.| GITB TDL| :ref:`test-suite-actors`
 
 Previous documentation versions
 -------------------------------
@@ -30,11 +32,12 @@ The following table provides the main highlights introduced in each previous doc
 .. csv-table::
     :header: "Release", "Key highlights", "Documentation link"
     :stub-columns: 1
-    :delim: ~
+    :delim: |
 
-    1.6.0~ New ``TokenGenerator`` and ``XmlMatchValidator`` handlers, optional processing transactions, and selection lists for the ``interact`` step.~ https://www.itb.ec.europa.eu/docs/tdl/1.6.0/
-    1.5.0~ Improved and new embedded validation handlers (``XPathValidator``, ``RegExpValidator``), improvements to steps (``exit``, ``if``) and management of reasonable defaults.~ https://www.itb.ec.europa.eu/docs/tdl/1.5.0/
-    1.4.1~ Extensions to HttpMessaging capabilities.~ https://www.itb.ec.europa.eu/docs/tdl/1.4.1/
-    1.4.0~ Significant configuration and parameterisation extensions, improved SOAP support and introduced timeouts.~ https://www.itb.ec.europa.eu/docs/tdl/1.4.0/
-    1.3.0~ Release 1.3.0 for the GITB TDL documentation.~ https://www.itb.ec.europa.eu/docs/tdl/1.3.0/
-    1.2.0~ First release for the GITB TDL documentation.~ https://www.itb.ec.europa.eu/docs/tdl/1.2.0/
+    1.6.1| Extensions to the ``TokenGenerator`` to better handle timestamps and documentation on template file use.| https://www.itb.ec.europa.eu/docs/tdl/1.6.1/
+    1.6.0| New ``TokenGenerator`` and ``XmlMatchValidator`` handlers, optional processing transactions, and selection lists for the ``interact`` step.| https://www.itb.ec.europa.eu/docs/tdl/1.6.0/
+    1.5.0| Improved and new embedded validation handlers (``XPathValidator``, ``RegExpValidator``), improvements to steps (``exit``, ``if``) and management of reasonable defaults.| https://www.itb.ec.europa.eu/docs/tdl/1.5.0/
+    1.4.1| Extensions to HttpMessaging capabilities.| https://www.itb.ec.europa.eu/docs/tdl/1.4.1/
+    1.4.0| Significant configuration and parameterisation extensions, improved SOAP support and introduced timeouts.| https://www.itb.ec.europa.eu/docs/tdl/1.4.0/
+    1.3.0| Release 1.3.0 for the GITB TDL documentation.| https://www.itb.ec.europa.eu/docs/tdl/1.3.0/
+    1.2.0| First release for the GITB TDL documentation.| https://www.itb.ec.europa.eu/docs/tdl/1.2.0/
