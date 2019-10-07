@@ -202,8 +202,163 @@ and assign list values:
     <assign to="$index2">2</assign>
     <assign to="$myList{$index1}">$anotherList{$index2}</assign>
 
-Referring to actor configuration parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _test-case-configuration:
+
+Referring to configuration parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test cases can leverage externally provided configuration parameters as part of the test session scope. Doing so 
+adds a level of customisation and parameterisation that can accommodate various external input at different levels.
+Such input is typically provided by testers but can also be supplied by administrators or externally scripted
+tooling.
+
+GITB TDL, as implemented in the GITB test bed software, offers four levels of such configuration, with a 
+progressively narrower scope to address all potential needs:
+
+.. figure:: images/configuration_scopes.png
+  :align: center
+
+The following table provides a summary overview of the available configuration levels.
+
+.. csv-table::
+    :header: "Level", "Description", "Provided by", "Map variable name", "Predefined map entries"
+    :stub-columns: 1
+    :delim: |
+
+    :ref:`Domain<test-case-expressions-domain>`| Relates to a complete domain and applies to any and all test cases. Such values are typically treated as high-level constant configuration values to ensure portable test cases. | Administrators.| ``DOMAIN`` | 
+    :ref:`Organisation<test-case-expressions-organisation>`| Relates to an organisation as a whole and applies to all its systems and their conformance statements. | Users and administrators.| ``ORGANISATION`` | ``shortName``, ``fullName``
+    :ref:`System<test-case-expressions-system>`| Relates to a system as a whole and applies to all test cases defined for it in its linked conformance statements. | Users and administrators.| ``SYSTEM`` | ``shortName``, ``fullName``, ``version``
+    :ref:`Actor<test-case-expressions-actor>`| Relates to a specific conformance statement, i.e. a specific system testing as an actor of a selected specification. This is most fine-grained level of configuration.| Users and administrators. |  | 
+
+The type of value defined by each parameter, regardless of its level, can be:
+
+    * Simple texts as ``string`` values.
+    * Secret texts as ``string`` values (not communicated to users or client systems).
+    * Files as ``binary`` values. 
+
+.. note::
+    **Administrator-provided values:** Configuration parameters can also be set to be editable only by administrators
+    by defining them as "admin only". In the case of actor-level configuration this is done via the ``adminOnly`` attribute 
+    (see :ref:`here<test-suite-actors>` for details).
+
+.. index:: DOMAIN
+.. _test-case-expressions-domain:
+
+Domain configuration parameters
++++++++++++++++++++++++++++++++
+
+Domain configuration parameters apply to all its specifications and actors, as well as the organisations and their systems that define
+relevant conformance statements. Such parameters typically relate to cross-cutting values or configuration of a much more technical 
+nature. As an example consider a :ref:`tdl-step-verify` step that makes use of an external validation service (see :ref:`handlers`)
+to validate content. It could be interesting to define the address of the validation service endpoint in configuration rather than
+in each test case. This approach allows for more flexibility in terms of:
+
+* **Portability:** Allowing test cases to automatically switch from local development settings to production settings or to point to a different
+  service instance.
+* **Implementation flexibility:** Allowing the actual implementation of a service handler to change without impacting test cases.
+* **Maintainability:** Specifying and reusing values that can be changed transparently to test cases.
+* **Sensitivity:** Allowing sensitive properties such as passwords to be used without including them in the GITB TDL content.
+
+Using such domain-level configuration properties finds an obvious use case in service handler definitions but is not 
+restricted to that. Such configuration can be used anywhere a value needs to be used that is common across all test cases.
+
+Domain-level configuration properties are made available to test sessions in a ``map`` named **DOMAIN** that contains key-value pairs matching
+the configured parameters. This ``map`` can be used in expressions in exactly the same way other variables and configuration entries are used
+as illustrated in the following examples:
+
+.. code-block:: xml
+    :emphasize-lines: 2,6
+
+    <!-- Validation service URL configured at domain level as "handlerURL". -->
+    <verify desc="Validate content" handler="$DOMAIN{handlerURL}">
+        <input name="content">$theContentToValidate</input>
+    </verify>
+    <!-- Use the "domainLevelValue" constant configured at domain level in calculations. -->
+    <assign to="$result">$aValue + $DOMAIN{domainLevelValue}</assign>
+
+.. note::
+    **GITB software support:** Use of the **DOMAIN** map is specific to the GITB software. If running on different 
+    software it would need to be defined and populated within the test case itself.
+
+.. index:: ORGANISATION
+.. _test-case-expressions-organisation:
+
+Organisation configuration parameters
++++++++++++++++++++++++++++++++++++++
+
+Organisation parameters relate to an organisation as a whole and apply to all its systems and their configured conformance statements.
+An example case of using such a parameter would be to define a Member State ISO country code in a community where its participating
+organisations are the individual EU Member States. To avoid specifying this in each test case an organisation-level configuration
+parameter could be defined to provide this only once.
+
+Organisation parameters are made accessible in test cases through a ``map`` named **ORGANISATION**. This contains key-value pairs for
+each configured parameter that can be used in expressions in exactly the same way other variables and configuration entries are used.
+
+Apart from custom properties, the **ORGANISATION** map also contains certain predefined values, specifically:
+
+    * ``shortName``: The ``string`` value of the organisation's name (short form).
+    * ``fullName``: The ``string`` value of the organisation's name (full form).
+
+The following example illustrates use of this map to pass a Member State country code (key ``msCode``) to a validator to apply
+country-specific validation rules:
+
+.. code-block:: xml
+    :emphasize-lines: 4
+
+    <!-- Validation service URL configured at domain level as "handlerURL". -->
+    <verify desc="Validate content" handler="$DOMAIN{handlerURL}">
+        <!-- Country code retrieved from organisation-level as "msCode". -->
+        <input name="country">$ORGANISATION{msCode}</input>
+        <input name="content">$theContentToValidate</input>
+    </verify>
+
+.. note::
+    **GITB software support:** Use of the **ORGANISATION** map is specific to the GITB software. If running on different 
+    software it would need to be defined and populated within the test case itself.
+
+.. index:: SYSTEM
+.. _test-case-expressions-system:
+
+System configuration parameters
++++++++++++++++++++++++++++++++
+
+System parameters relate to a system and apply to all test cases defined in its linked conformance statements. An example case
+of a system parameter would be one where an organisation's systems are mapped to distinct IT services that are expected to be individually tested.
+Each such service may have an API endpoint address that would be used within all test cases to make API calls. Defining such a
+configuration property at this level avoids repeating and redefining it in every linked conformance statement.
+
+System parameters are made accessible in test cases through a ``map`` named **SYSTEM**. This contains key-value pairs for
+each configured parameter that can be used in expressions in exactly the same way other variables and configuration entries are used.
+
+Apart from custom properties, the **SYSTEM** map also contains certain predefined values, specifically:
+
+    * ``shortName``: The ``string`` value of the system's name (short form).
+    * ``fullName``: The ``string`` value of the system's name (full form).
+    * ``version``: The ``string`` value of the system's version.
+
+The following example illustrates use of this map to pass a API endpoint address (key ``endpointAddress``), specific to the system, 
+as part of a messaging step (see :ref:`handlers` and :ref:`tdl-step-send`). This can then be used by the messaging service to define the destination of its outgoing calls:
+
+.. code-block:: xml
+    :emphasize-lines: 4
+
+    <!-- Messaging service URL configured at domain level as "handlerURL". -->
+    <send id="sendStep" desc="Send message" handler="$DOMAIN{handlerURL}">
+        <!-- Endpoint address retrieved from system-level as "endpointAddress". -->
+        <input name="destination">$SYSTEM{endpointAddress}</input>
+        <input name="content">$theContentToSend</input>
+    </send>
+
+.. note::
+    **GITB software support:** Use of the **SYSTEM** map is specific to the GITB software. If running on different 
+    software it would need to be defined and populated within the test case itself.
+
+
+.. index:: actor, endpoint
+.. _test-case-expressions-actor:
+
+Actor configuration parameters
+++++++++++++++++++++++++++++++
 
 Configuration relating to specific actors is defined by means of endpoints and parameters. These can be declared in the following ways:
 
@@ -271,46 +426,6 @@ And the "config_test_1" test case is defined as follows:
             <assign to="$temp">$Sender{Receiver}{address}</assign>
         </steps>
     </testcase>
-
-.. index:: DOMAIN
-.. _test-case-expressions-domain:
-
-Referring to domain configuration parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In certain cases configuration parameters need to be defined at a higher level than individual actors. This would either apply for
-domain-specific configuration that is common for all specifications and test cases, or for configuration that is much more technical 
-in nature. As an example consider a :ref:`tdl-step-verify` step that makes use of an external validation service (see :ref:`handlers`)
-to validate content. It could be interesting to define the address of the validation service endpoint in configuration rather than in 
-each test case. This approach allows for more flexibility in terms of:
-
-* **Portability:** Allowing test cases to automatically switch from local development settings to production settings or to point to a different
-  service instance.
-* **Implementation flexibility:** Allowing the actual implementation of a service handler to change without impacting test cases.
-* **Maintainability:** Specifying and reusing values that can be changed transparently to test cases.
-* **Sensitivity:** Allowing sensitive properties such as passwords to be used without including them in the GITB TDL content.
-
-Using such domain-level configuration properties finds an obvious use case in service handler definitions but is not 
-restricted to that. Such configuration can be used anywhere a value needs to be used that remains largely unchanged across all test cases.
-
-Domain-level configuration properties are made available to test sessions in a ``map`` named **DOMAIN** that contains key-value pairs matching
-the configured parameters. This ``map`` can be used in expressions in exactly the same way other variables and configuration entries are used
-as illustrated in the following examples:
-
-.. code-block:: xml
-    :emphasize-lines: 2,6
-
-    <!-- Validation service URL configured at domain level as "handlerURL". -->
-    <verify desc="Validate content" handler="$DOMAIN{handlerURL}">
-        <input name="content">$theContentToValidate</input>
-    </verify>
-    <!-- Use the "domainLevelValue" constant configured at domain level in calculations. -->
-    <assign to="$result">$aValue + $DOMAIN{domainLevelValue}</assign>
-
-.. note::
-    **GITB software support:** The use of the **DOMAIN** map with domain-level configuration is specific to the GITB software. Using it 
-    requires that the expected values have been specified through the GITB software interface. Otherwise, these values would need to be 
-    provided in a ``map`` defined within the test case itself.
 
 .. index:: STEP_SUCCESS
 .. _test-case-expressions-step-success:

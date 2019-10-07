@@ -134,11 +134,30 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
+    :delim: |
 
-    @name, yes, The name of the parameter that must be unique for the endpoint.
-    @desc, no, A description to explain the purpose of this parameter.
-    @use, yes, Whether this is a required (value "R" - the default) or optional ("O") parameter. 
-    @kind, yes, Whether this is a simple text (value "SIMPLE" - the default) or a file (value "BINARY"). 
+    @name| yes| The name of the parameter that must be unique for the endpoint.
+    @desc| no| A description to explain the purpose of this parameter.
+    @use| no| Whether this is a required (value "R" - the default) or optional ("O") parameter. 
+    @kind| no| Whether this is a simple text (value "SIMPLE" - the default), file (value "BINARY") or a secret value (value "SECRET").
+    @adminOnly| no| A boolean value (by default "false") indicating whether this parameter can only be edited by administrators.
+    @notForTests| no| A boolean value (by default "false") indicating whether this parameter is included as a test session context variable.
+
+In terms of the ``kind`` attribute, the values "SIMPLE" and "SECRET" both represent text values. The difference is that ones 
+defined as "SECRET" are never presented to users nor are they ever transferred to client software. The two attributes ``adminOnly``
+and ``notForTests`` are used to increase the options available in defining a flexible and complete conformance testing strategy.
+
+Setting the ``adminOnly`` flag to "true" would typically be used for required parameters (i.e. ``use`` set to "R") as 
+doing so allows community or test bed administrators to verify and adapt a system's setup before allowing it to
+execute tests. This could either be done as a simple eligibility check or to actually provide required information
+that is needed for the tests (e.g. a generated identifier or certificate). If a required parameter that is set as 
+``adminOnly`` is not configured, the system in question is prevented from executing tests.
+
+The ``notForTests`` flag on the other hand would be set to "true" for information that is strictly administrative
+in nature and is not actually needed during test sessions. An example of this would be to record a flag set by administrators that, if
+missing, would prevent test sessions to be started (i.e. combined with the ``adminOnly`` flag as explained above).
+Otherwise such attributes could also be used to enable general data collection for testing organisations pertinent
+to specific conformance statements. 
 
 Endpoints and their parameters are used in two main scenarios:
 
