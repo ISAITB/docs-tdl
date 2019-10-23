@@ -856,6 +856,7 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @desc~ yes~ The label to display to the user.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
     @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
+    @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -881,7 +882,7 @@ result is to be interpreted (see :ref:`test-case-types`):
 
 * A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. This will be rendered as a
   download button for the user to download the content as a file.
-* All other cases result in the value being displayed as text.
+* All other cases result in the value being displayed as text. This is also the default case if the ``type`` attribute is not specified.
 
 Concerning ``request`` elements, the content of the expression is expected to be a pure variable reference that identifies the variable that
 will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
