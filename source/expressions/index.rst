@@ -461,13 +461,15 @@ The following example illustrates use of this feature to conditionally present a
     For ``verify`` steps (see :ref:`tdl-step-verify`) the step ID is directly set in the test session context with a ``boolean`` flag to match the validation result. The
     **STEP_SUCCESS** ``map`` makes this possible for any other step as well (including ``verify`` steps).
 
+.. index:: Templates
+.. index:: asTemplate
 .. _test-case-expressions-template-files:
 
-Expressions and template files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Expressions and templates
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All expression processing handles an input expression using the GITB expression processor. This processor is capable of detecting
-variable references in the input to an expression so that it can proceed with appropriate variable lookup and their replacement in 
+Expression processing handles input expressions using the GITB expression processor. This processor is capable of detecting
+variable references in expressions so that it can proceed with appropriate variable lookup and their replacement in 
 the resulting output. In simple terms this means that if the input to an expression includes variable references, these will be replaced
 if they match variables already present in the test session context at the time of the expression's evaluation. Using this feature,
 text content (either imported as an artefact, received from a service call or constructed in the test case itself) can act as a template
@@ -541,11 +543,101 @@ replacement occurs as follows:
         </steps>
     </testcase>
 
-You are not limited to using simple variables from within your templates. You can provide any valid variable reference expression, for example:
+The above example considers a template as a static resource that is bundled within the test suite archive and imported in the test case. When the variable corresponding to the
+imported file is referenced (``$SMP_Metadata_Template`` in our example), this will always be considered as a template and will be processed to make variable replacements. The only
+exception here is if the import type is defined with a ``type`` of ``binary`` in which case the default approach is to use it as-is without variable replacements.
+
+As mentioned earlier, templates don't need to be static files included in the test suite. Any text or text-based file that is recorded in the test session's context can also be used.
+Examples of such cases could be (full listing :ref:`here<test-case-expressions-where>`):
+
+    * Variables created, populated and/or modified during the course of the test session.
+    * Values received from :ref:`processing steps<tdl-processing-steps>` or :ref:`messaging steps<tdl-messaging-steps>`.
+    * External configuration properties (:ref:`domain parameters<test-case-expressions-domain>`, 
+      :ref:`organisation properties<test-case-expressions-organisation>`, :ref:`system properties<test-case-expressions-system>`
+      or :ref:`actor configuration<test-case-expressions-actor>`).
+
+Processing of a variable as a template (i.e. checking it for placeholders and populating them from the context to produce the result) can take place wherever expressions are supported.
+This includes :ref:`assignments<tdl-step-assign>`, :ref:`providing inputs<handlers-inputs-outputs>`, :ref:`conditions<tdl-step-if>` and receiving or providing information through :ref:`user interactions<tdl-step-interact>`.
+By default expressions don't perform template processing (i.e. the expression's result is returned as-is). To make an expression treat its result as a template for placeholder replacement
+you need to specify the ``asTemplate`` attribute with a value of ``true``. The following examples illustrate use of templates within various expressions:
+
+.. code-block:: xml
+
+    <testcase>
+        <steps>
+            <!-- Define a template text. -->
+            <assign to="$templateContent">'The value is ${placeholderValue}'</assign>
+
+            <!-- Set the value to replace the placeholder. -->
+            <assign to="$placeholderValue">'REPLACED'</assign>
+
+            <!-- Process $templateContent as a template. -->
+            <assign to="$output1" source="$templateContent" asTemplate="true"/>
+            <!-- Process $templateContent as-is. -->
+            <assign to="$output2" source="$templateContent"/>
+
+            <interact desc="Resulting values">
+                <!-- Displays "The value is REPLACED". -->
+                <instruct desc="Output1">$output1</instruct>
+                <!-- Displays "The value is ${placeholderValue}". -->
+                <instruct desc="Output2">$templateContent</instruct>
+                <!-- Displays "The value is REPLACED". -->
+                <instruct desc="Output3" asTemplate="true">$templateContent</instruct>
+                <!-- Displays "The value is ${placeholderValue}". -->
+                <instruct desc="Output4">$output2</instruct>
+                <!-- Displays "The value is REPLACED". -->
+                <instruct desc="Output5" asTemplate="true">$output2</instruct>
+            </interact>
+
+            <!-- Input "smp_metadata" is set using a template from an organisation property. -->
+            <send desc="Return AP metadata" from="ServiceMetadataPublisher" to="Sender_AS2" txnId="t1">
+                <input name="smp_metadata" source="$ORGANISATION{template}" asTemplate="true"/>
+            </send>
+
+        </steps>
+    </testcase>
+
+Template processing in expressions is done over the result of the expression. This means that both the expression's content and ``source`` attribute are
+considered to produce the result, which is then processed as a template if ``asTemplate`` is set to ``true``. This is illustrated in the following example:
+
+.. code-block:: xml
+
+    <testcase>
+        <steps>
+            <!-- Define a XML template (this would usually be imported or provided however). -->
+            <assign to="$templateXML"><![CDATA['<root><element>${placeholderValue}</element></root>']]></assign>
+
+            <!-- Set the value to replace the placeholder. -->
+            <assign to="$placeholderValue">'REPLACED'</assign>
+
+            <!-- 
+               Process $templateXML as a template and use also an XPath expression:
+               1. The content from "templateXML" is considered as the source.
+               2. Upon the content of "templateXML" we apply the provided XPath expression.
+               3. The result of the XPath expression ("${placeholderValue}") is then further processed as a template.
+            -->
+            <assign to="$output1" source="$templateXML" asTemplate="true">//*[local-name() = 'element']/text()</assign>
+
+            <interact desc="Resulting values">
+                <!-- Displays "REPLACED". -->
+                <instruct desc="Output1">$output1</instruct>
+                <!-- Displays "<root><element>${placeholderValue}</element></root>". -->
+                <instruct desc="Output2">$templateXML</instruct>
+                <!-- Displays "<root><element>REPLACED</element></root>". -->
+                <instruct desc="Output3" asTemplate="true">$templateXML</instruct>
+                <!-- Displays "REPLACED". -->
+                <instruct desc="Output4" asTemplate="true" source="$templateXML">//*[local-name() = 'element']/text()</instruct>
+            </interact>
+        </steps>
+    </testcase>
+
+In terms of the placeholders used within templates, you are not limited to using simple variables. You can provide any valid variable reference expression, for example:
 
     * Variables of type ``map`` or ``list`` (e.g. ``<val>${myMap{myMapKey}}</val>``).
-    * Domain variables (e.g. ``<val>${DOMAIN{myParameter}}</val>``. See :ref:`test-case-expressions-domain`).
-    * System configuration provided by the user (e.g. ``<val>${Sender_AS2{Receiver_AS2}{network.host}}</val>``. See :ref:`test-case-expressions-domain`).
+    * :ref:`Domain parameters<test-case-expressions-domain>` (e.g. ``<val>${DOMAIN{myParameter}}</val>``).
+    * :ref:`Organisation properties<test-case-expressions-organisation>` (e.g. ``<val>${ORGANISATION{myParameter}}</val>``).
+    * :ref:`System properties<test-case-expressions-system>` (e.g. ``<val>${SYSTEM{myParameter}}</val>``).
+    * :ref:`Actor configuration<test-case-expressions-actor>` (e.g. ``<val>${myActor{aValue}}</val>``).
 
 .. note::
     **Parameter placeholders in templates:** In the examples presented you may have noticed that a template parameter placeholder is contained
@@ -553,6 +645,8 @@ You are not limited to using simple variables from within your templates. You ca
 
     For example, to use variable ``$map{key}`` in a template you would define the placeholder as ``${map{key}}``. Apart from the initial ``$`` sign
     in the expression you should still define any further ones as usual (e.g. if the map's key is also a variable reference such as ``${map{$dynamicKeyValue}}``.
+
+.. _test-case-expressions-where:
 
 Where can expressions be used?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

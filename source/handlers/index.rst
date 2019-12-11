@@ -936,6 +936,7 @@ They share the following structure:
     @name, no, The name of the input or output element.
     @lang, no, The expression language that should be considered when evaluating its contained expression (see :ref:`test-case-expressions`).
     @source, no, A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
+    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The text content of the element is considered to be an expression (see :ref:`test-case-expressions`). In the case a ``source`` attribute is provided
 the contained expression is evaluated on the variable identified by ``source`` to produce the value. If no ``source`` attribute is present the value

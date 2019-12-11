@@ -690,6 +690,7 @@ The element's structure is as follows:
     @type, no, Used to specify the type of variable to create if the ``to`` is an entry in a ``map``.
     @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
+    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The following example illustrates assigning a value to a ``number`` variable and also counting the nodes in an XML document:
 
@@ -857,6 +858,8 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
     @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
     @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
+    @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
+    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -873,6 +876,7 @@ The ``request`` elements define how information shall be requested from the user
     @options~ no~ Used to render a dropdown list by providing the option values to consider (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings).
     @optionLabels~ no~ Used as the labels for the option values (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings). If provided the number of values needs to match the options. If not provided the option values are used.
     @multiple~ no~ A ``boolean`` value to determine whether the dropdown list (if the ``options`` attribute is defined) shall be a single or multiple selection list (default is ``false`` for single selection).
+    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
 meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
