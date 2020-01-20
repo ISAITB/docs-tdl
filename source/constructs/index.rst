@@ -983,3 +983,69 @@ To better illustrate how dropdown selections can be define, the following code s
     The value received from a ``request`` element defined as a multiple selection list will be a comma-separated string in which the individual
     parts match the selected values. This value is recorded in the test session context as a variable of type ``string`` that can be passed as
     input to handlers or be processed with relevant XPath functions.
+
+.. _tdl-steps-common:
+
+Common step concepts 
+--------------------
+
+The following section documents common concepts that apply to all test steps.
+
+.. index:: documentation
+.. _tdl-steps-common-documentation:
+
+Rich documentation per step
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test steps that are meant to be presented to users can be defined with an additional ``documentation`` element. This complements the limited label
+attached to each step (via attribute ``desc``), allowing further instructions, context and references to be provided. The content supplied is treated
+as rich text and supports several HTML features:
+
+    * Structure elements (e.g. headings, text blocks, lists).
+    * In-line styling.
+    * Tables.
+    * Links.
+    * Images.
+
+The simplest way to provide such information is to enclose the HTML content in a ``CDATA`` section to ensure the test case XML remains well-formed. The
+example that follows illustrates two examples, one defining a simple additional text, and another with more comprehensive HTML content.
+
+.. code-block:: xml
+
+    <!-- Additional documentation as simple text. -->
+    <verify handler="XSDValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
+        <documentation>This is an extra documentation item.</documentation>
+        <input name="xmldocument">$file_content</input>
+        <input name="xsddocument" source="$UBL_Invoice_Schema_File"/>
+    </verify>
+    <!-- Additional documentation as rich HTML content. -->
+    <verify handler="SchematronValidator" desc="Validate invoice against BII RULES" level="WARNING">
+        <documentation><![CDATA[
+        <p>This is <b>important information!</b> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
+        <div style="width:100%; text-align:center"><img src="https://www.itb.ec.europa.eu/docs/services/latest/_images/ValidationService.png"/></div>
+        <b><u>Steps for testing:</u></b>
+        <p>
+            <ol>
+                <li>Prepare correctly</li>
+                <li>Submit the correct file</li>
+                <li>Validate results</li>
+            </ol>
+        </p>
+        <p>
+            <table style="border: 1px solid black; width:100%">
+                <tr style="border: 1px solid black; font-weight: bold;">
+                    <td>COL1</td><td>COL2</td><td>COL3</td><td>COL4</td><td>COL5</td>
+                </tr>
+                <tr>
+                    <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+                </tr>
+                <tr>
+                    <td>test1</td><td>test2</td><td>test3</td><td>test4</td><td>test5</td>
+                </tr>
+            </table>
+        </p>
+        <p>After this make sure to check the docs <a href="https://www.itb.ec.europa.eu/docs/tdl/latest">here</a>.</p>
+        ]]></documentation>
+        <input name="xmldocument">$file_content</input>
+        <input name="schematron" source="$BII_RULES_Invoice_Schematron_File"/>
+    </verify>

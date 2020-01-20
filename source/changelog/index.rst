@@ -21,7 +21,7 @@ for more information.
 
     Actors can now be set as ``hidden`` to prevent them from being used in new conformance statements.| GITB TDL| :ref:`test-suite-actors`
     Support for different severity levels for the validation carried out by ``verify`` steps.| GITB TDL| :ref:`tdl-step-verify`
-    Rich text documentation can now be set for test steps via the ``documentation`` element to provide further information or instructions. | GITB TDL| :ref:`tdl-steps`
+    Rich text documentation can now be set for test steps via the ``documentation`` element to provide further information or instructions. | GITB TDL| :ref:`tdl-steps`, :ref:`tdl-steps-common-documentation`
 
 Previous documentation versions
 -------------------------------
