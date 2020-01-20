@@ -109,6 +109,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
 
@@ -147,6 +148,7 @@ of the ``receive`` element is as follows:
     @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
     @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
     @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
+    documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
@@ -203,6 +205,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
@@ -410,6 +413,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the check.
+    documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
     else, no, Contains as children any sequence of steps to execute if the condition results to false.
@@ -444,6 +448,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the loop.
+    documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
     do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
 
@@ -487,6 +492,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the loop.
+    documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
     cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
 
@@ -526,6 +532,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
+    documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
 The ``start`` and ``end`` values define the number of iterations to perform. Specifically, the loop will continue as long as
@@ -571,6 +578,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     :header: "Name", "Required?", "Description"
 
     @desc, yes, A description to display to the user on the purpose of the forking.
+    documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
 
 The following example sends a SOAP request to two actors in parallel and proceeds to send a third one when both actors have replied.
@@ -627,6 +635,7 @@ The ``exit`` step is used to immediately exit the test case from any execution b
 
     @desc, yes, A description to display for the ``exit`` step.
     @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
+    documentation, no, Rich text content that provides further information on the current step.
 
 The following example shows a test case that exits as a success based on the user's input:
 
@@ -716,6 +725,7 @@ a visual grouping and label to the display. Its structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @desc, yes, The description for the group.
+    documentation, no, Rich text content that provides further information on the current step.
 
 The children of the ``group`` element can be any number of steps supported by GITB TDL. The following example creates a group around a set of 
 related validations.
@@ -762,11 +772,19 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     @id, no, The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
     @desc, yes, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    @level, no, The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``.
+    documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
-The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other calling a remote validation service:
+A ``verify`` step that is set at warning level (through attribute ``level``) will never result in an overall failure for the test session. If validation fails,
+the result will be indicated as a warning but without further impact. Note that a validation service returning a detailed validation report for a ``verify`` step 
+at warning level may have its resulting report adapted accordingly. The report will be set as ``WARNING`` (if it was ``FAILURE``) and any error-level report 
+items will be listed as warnings.
+
+The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other set at warning level and calling a remote
+validation service:
 
 .. code-block:: xml
 
@@ -778,9 +796,9 @@ The following example illustrates use of two ``verify`` steps, one using an :ref
         <input name="xsddocument">$schema"</input>
     </verify>
     <!-- 
-        Validation using a remote validation service.
+        Warning-level validation using a remote validation service.
     -->
-    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" desc="Validate against remote service">
+    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="WARNING" desc="Validate against remote service">
         <input name="aDocument">$document</input>
     </verify>
 
@@ -844,6 +862,7 @@ The structure of the ``interact`` element is as follows:
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @desc, yes, A description for the user interaction.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
+    documentation, no, Rich text content that provides further information on the current step.
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
 

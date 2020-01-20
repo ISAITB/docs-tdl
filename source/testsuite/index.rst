@@ -97,6 +97,7 @@ contains one or more ``actor`` elements with structure as follows:
 
     @id, yes, The unique identifier for the actor.
     @default, no, Whether or not the actor is to be considered as the specification's default actor (``false`` by default).
+    @hidden, no, Whether or not the actor will be unavailable for use in conformance statements (``false`` by default).
     @displayOrder, no, A number indicating the relative positioning that needs to be respected when displaying the actor in test execution diagrams.
     name, yes, A user-friendly name for the actor.
     desc, no, A description to provide additional information on the purpose of this actor in the specification.
@@ -105,7 +106,13 @@ contains one or more ``actor`` elements with structure as follows:
 The value for the ``id`` attribute is very important as it is used internally to link the test suite and its test cases to the relevant actor in the specification.
 The ``name`` and ``desc`` elements are present as metadata when displaying a test case to a user but are not important with respect to test case steps and logic. 
 The ``default`` attribute can be useful in cases where a specification defines multiple actors but only one is ever expected to be used as the SUT. Setting this to 
-``true`` indicates that this actor should be preselected when creating new conformance statements. 
+``true`` indicates that this actor should be preselected when creating new conformance statements.
+
+Another means of managing the actors that are to be used in
+conformance statements is the ``hidden`` attribute which, if set to ``true``, will remove the actor from the ones available to create a conformance statement. This 
+can useful when certain actors are not meant to be selected for testing (but there is no single default actor to otherwise set), or if an actor has been in use
+but should now be deprecated. Setting an actor as ``hidden`` will not affect previous testing history but will make it unavailable for future conformance
+statements.
 
 The ``displayOrder`` attribute provides an indication on how the actor should be positioned in test execution diagrams relevant to other actors. This could be useful
 to set if you want an actor to always appear first in diagrams regardless of the TDL steps that a test case defines (e.g. to always show the SUT first). When the 

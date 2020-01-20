@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.7.2
+What's new in release 1.8.0
 ---------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,7 +19,9 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Any expression can now be set with ``asTemplate`` to be used as a template for placeholder replacement.| GITB TDL| :ref:`test-case-expressions-template-files`
+    Actors can now be set as ``hidden`` to prevent them from being used in new conformance statements.| GITB TDL| :ref:`test-suite-actors`
+    Support for different severity levels for the validation carried out by ``verify`` steps.| GITB TDL| :ref:`tdl-step-verify`
+    Rich text documentation can now be set for test steps via the ``documentation`` element to provide further information or instructions. | GITB TDL| :ref:`tdl-steps`
 
 Previous documentation versions
 -------------------------------
@@ -31,7 +33,8 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
-    1.7.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.7.0/
+    1.7.2| Support for any expression to be used as a template (``asTemplate``).| https://www.itb.ec.europa.eu/docs/tdl/1.7.2/
+    1.7.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.7.1/
     1.7.0| Organisation and system properties and extended configuration options for parameters.| https://www.itb.ec.europa.eu/docs/tdl/1.7.0/
     1.6.1| Extensions to the ``TokenGenerator`` to better handle timestamps and documentation on template file use.| https://www.itb.ec.europa.eu/docs/tdl/1.6.1/
     1.6.0| New ``TokenGenerator`` and ``XmlMatchValidator`` handlers, optional processing transactions, and selection lists for the ``interact`` step.| https://www.itb.ec.europa.eu/docs/tdl/1.6.0/
