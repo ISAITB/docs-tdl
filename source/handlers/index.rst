@@ -520,6 +520,7 @@ The input parameters expected by the different operations are as follows:
     :header: "Operation", "Input name", "Required?", "Description"
 
     ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
+    ``timestamp``, ``zone``, No, The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
     ``timestamp``, ``time``, No, A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
     ``timestamp``, ``diff``, No, A ``number`` representing the milliseconds to consider as a diff from the considered ``time``. This value (default 0) is added to the considered ``time`` before formatting (i.e. a negative value signals an earlier time).
     ``string``, ``format``, Yes, A regular expression acting as a template to determine the generated token's format.
@@ -557,6 +558,21 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
     <process id="formattedTimestamp" handler="TokenGenerator">
         <operation>timestamp</operation>
         <input name="format">"'DATE['yyyy-MM-dd'] TIME['HH:mm:ss']'"</input>
+    </process>
+    <!--
+        Generate an XML timestamp for the current time.
+    -->
+    <process id="formattedTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
+    </process>
+    <!--
+        Generate an XML timestamp for the current time but expressed in the GMT+2 timezone.
+    -->
+    <process id="formattedTimestamp" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
+        <input name="zone">"GMT+2"</input>
     </process>
     <!-- 
         Generate a timestamp for the provided time and formatting.
@@ -630,7 +646,13 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
     </interact>
 
+.. note:: 
+    **Timestamps for use in XML content:** Formatted timestamps generated for use in XML content should match the formatting
+    of the ISO 8601 version of the W3C XML Schema dateTime definition. The pattern to apply to get a XSD-valid timestamp is:
+    ``yyyy-MM-dd'T'HH:mm:ss.SSSXXX``.
+
 .. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
+.. _Timezone codes: https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html#of-java.lang.String-
 
 .. index:: Embedded validation handlers
 .. _handlers-predefined-validation-handlers:
