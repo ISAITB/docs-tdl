@@ -22,6 +22,7 @@ for more information.
     Rich text documentation can now also be set for test suites via the ``documentation`` element. | GITB TDL| :ref:`test-suite-metadata`
     Rich text documentation can now also be set for test cases via the ``documentation`` element. | GITB TDL| :ref:`test-case-metadata`
     ``Assign`` steps can now automatically create variables to store expression output. | GITB TDL| :ref:`tdl-step-assign`, :ref:`test-case-variables`, :ref:`test-case-variables-from-expression-output`
+    New ``Base64Processor`` for the handling of Base64 and data URL encoding in test cases. | GITB TDL| :ref:`handlers-Base64Processor`
 
 Previous documentation versions
 -------------------------------

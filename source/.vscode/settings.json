@@ -6,5 +6,6 @@
         "plaintext",
         "restructuredtext"
     ],
-    "restructuredtext.confPath": "${workspaceFolder}"
+    "restructuredtext.confPath": "${workspaceFolder}",
+    "restructuredtext.linter.disabled": true
 }

@@ -493,6 +493,77 @@ the initial parameters received.
 Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. index:: Base64Processor
+.. index:: encode
+.. index:: decode
+.. _handlers-Base64Processor:
+
+Base64Processor
++++++++++++++++
+
+Used to manipulate Base64-encoded content for use in test cases. This processing handler supports but does not require a processing 
+transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+
+    ``encode``, Receive a ``binary`` input and return a ``string`` with its Base64-encoded representation., Yes, A ``string`` named ``output`` in the resulting step's ``map``.
+    ``decode``, Receive a ``string`` input that is Base64-encoded and return the ``binary`` output it corresponds to., Yes, A ``binary`` value named ``output`` in the resulting step's ``map``.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :stub-columns: 2
+    :header: "Operation", "Input name", "Required?", "Description"
+
+    ``encode``, ``input``, Yes, The ``binary`` value that will be encoded as a Base64 string.
+    ``encode``, ``dataUrl``, No, A ``boolean`` flag that indicates whether or not the output should be formatted as a data URL (default is ``false``).
+    ``decode``, ``input``, Yes, The ``string`` value (expected to be Base64-encoded or formatted as a data URL) that will be processed to return its corresponding ``binary`` value.
+
+Base64 encoding is a technique often used to represent arbitrary byte sequences as text. Using this processing handler you can work with Base64 encoded texts
+that need to be decoded in test cases, but also encode binary content where this is needed. In both the encoding and decoding steps there is support for Base64 
+content and also data URLs. Data URLs are commonly used in web representations for the inline definition of binary resources. A data URL is essentially the 
+Base64-encoded bytes prefixed with the content's mime type as ``data:[mime type],base64,[BASE64 encoded string]`` (e.g. ``data:application/xml;base64,YXNoZGl1cXcgaGRva...``).
+
+The following examples illustrate use of this handler to work with Base64 encoding:
+
+.. code-block:: xml
+
+    <!--
+        Encode the binary variable "aBinaryVariable" and return the encoded string as "data1{output}".
+    -->
+    <process id="data1" handler="Base64Processor">
+        <operation>encode</operation>
+        <input name="input">$aBinaryVariable</input>
+    </process>
+    <!--
+        Encode the binary variable "aBinaryVariable" and return the encoded string as "data2{output}".
+        The result in this case is formatted as a data URL.
+    -->
+    <process id="data2" handler="Base64Processor">
+        <operation>encode</operation>
+        <input name="input">$aBinaryVariable</input>
+        <input name="dataUrl">'true'</input>
+    </process>
+    <!--
+        Decode a Base-64 encoded string to return its binary equivalent as "data3{output}". In this case
+        the result will be identical to the "aBinaryVariable" variable used in the first step.
+    -->
+    <process id="data3" handler="Base64Processor">
+        <operation>decode</operation>
+        <input name="input">$data1{output}</input>
+    </process>    
+    <!--
+        Decode a Base-64 encoded string to return its binary equivalent as "data4{output}". In this example
+        the handler is provided the data URL produced in the second step and will result in the same output
+        as "data3" that matches the original input ("aBinaryVariable").
+    -->
+    <process id="data4" handler="Base64Processor">
+        <operation>decode</operation>
+        <input name="input">$data2{output}</input>
+    </process>
+
 .. index:: TokenGenerator
 .. index:: string
 .. index:: timestamp
