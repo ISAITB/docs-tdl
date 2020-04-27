@@ -74,6 +74,42 @@ manage existing test suites but also for end users to understand the test suite'
     description, no, A string to provide a user-friendly description of the test suite that is displayed to users.
     published, no, A string acting as an indication of the test suite's publishing time.
     lastModified, no, A string acting as an indication of the last modification time for the test suite.
+    documentation, no, Rich text content that provides further information on the current test suite.
+
+.. index:: documentation (test suite)
+
+The ``documentation`` element complements the test suite's ``description`` by allowing the test suite's author to include extended rich text documentation. This documentation can 
+provide further information on the context of the test suite, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
+overall specification. The content supplied supports several HTML features:
+
+    * Structure elements (e.g. headings, text blocks, lists).
+    * In-line styling.
+    * Tables.
+    * Links.
+    * Images.
+
+The simplest way to provide such information is to enclose the HTML content in a CDATA section to ensure the XML remains well-formed. The
+following sample provides an example of this approach:
+
+.. code-block:: xml
+
+    <testsuite id="TS1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test suite to offer a short summary of its purpose.</gitb:description>
+            <gitb:documentation><![CDATA[
+                <p>Extended documentation for test suite <b>TS1</b></p>
+                <p>This is an example to support the <a href="https://www.itb.ec.europa.eu/docs/tdl/latest">GITB TDL docs</a>.</p>
+            ]]></gitb:documentation>
+        </metadata>    
+        ...
+    </testsuite>
+
+Note that documentation such as this is also supported for:
+
+    * The :ref:`test cases<test-case-metadata>` included in the test suite.
+    * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
 .. note::
     **GITB software support:** The ``name`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 

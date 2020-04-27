@@ -202,6 +202,49 @@ and assign list values:
     <assign to="$index2">2</assign>
     <assign to="$myList{$index1}">$anotherList{$index2}</assign>
 
+.. _test-case-variables-from-expression-output:
+
+Defining variables from expressions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When using :ref:`assign<tdl-step-assign>` steps the goal is to use an expression to produce an output value. This value
+will be stored as a variable in the test session context and used in subsequent steps. The variables to hold such values 
+can either be predetermined in the test case's :ref:`variables<test-case-variables>` section, or can be defined dynamically
+during the test session execution. In the latter case, the type of the variable is determined from the output of the
+expression.
+
+As examples consider the following cases, where determining the output of expressions result in corresponding variables:
+
+.. code-block:: xml
+
+    <!-- 
+        This results in a variable of type number named "result1".
+    -->
+    <assign to="$result1"><![CDATA[string-length($input)]]></assign>
+    <!-- 
+        This results in a variable of type string named "result2".
+    -->
+    <assign to="$result2">'This is a text value'</assign>
+
+Automatic creation of variables also applies for container types (``map`` and ``list``) based on the target variable
+expressions and additional TDL constructs that are used:
+
+.. code-block:: xml
+
+    <!-- 
+        In this case the expression's result is a number, however the expression provided in the 
+        assign step's "to" indicates that this is the value "aKey" of a map named "result3". Both the
+        key and the map will be automatically created if not already defined.
+    -->
+    <assign to="$result3{aKey}"><![CDATA[string-length($input)]]></assign>
+    <!-- 
+        In this case the expression results in a string that will be stored in a list named "result4".
+        The fact that this is a list is determined from the "append" attribute that is used to signal that
+        the value is to be added to a list. If the "result4" list is missing it will be created as a result
+        of this step.
+    -->
+    <assign to="$result4" append="true">'This is a text value'</assign>
+
 .. _test-case-configuration:
 
 Referring to configuration parameters

@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.8.0
+What's new in release 1.9.0
 ---------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,9 +19,9 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Actors can now be set as ``hidden`` to prevent them from being used in new conformance statements.| GITB TDL| :ref:`test-suite-actors`
-    Support for different severity levels for the validation carried out by ``verify`` steps.| GITB TDL| :ref:`tdl-step-verify`
-    Rich text documentation can now be set for test steps via the ``documentation`` element to provide further information or instructions. | GITB TDL| :ref:`tdl-steps`, :ref:`tdl-steps-common-documentation`
+    Rich text documentation can now also be set for test suites via the ``documentation`` element. | GITB TDL| :ref:`test-suite-metadata`
+    Rich text documentation can now also be set for test cases via the ``documentation`` element. | GITB TDL| :ref:`test-case-metadata`
+    ``Assign`` steps can now automatically create variables to store expression output. | GITB TDL| :ref:`tdl-step-assign`, :ref:`test-case-variables`, :ref:`test-case-variables-from-expression-output`
 
 Previous documentation versions
 -------------------------------
@@ -33,6 +33,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.8.0| Support for hidden actors, warning-level verifications and extended test step documentation.| https://www.itb.ec.europa.eu/docs/tdl/1.8.0/
     1.7.2| Support for any expression to be used as a template (``asTemplate``).| https://www.itb.ec.europa.eu/docs/tdl/1.7.2/
     1.7.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.7.1/
     1.7.0| Organisation and system properties and extended configuration options for parameters.| https://www.itb.ec.europa.eu/docs/tdl/1.7.0/

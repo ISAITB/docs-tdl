@@ -685,8 +685,9 @@ Support steps are those that perform specific actions not related to messaging, 
 assign
 ~~~~~~
 
-The ``assign`` step is a frequently used construct in GITB TDL. It is used to assign values to variables but also as a means of 
-performing simple processing on the data stored in the session's context or conversion between data types (see :ref:`test-case-types-type-conversions`). 
+The ``assign`` step is a frequently used construct in GITB TDL. It is a step that is not visible to the user, used for the manipulation 
+of data in the test session's context. It can be used to assign values to variables but also as a means of 
+performing simple processing or conversion between data types (see :ref:`test-case-types-type-conversions`). 
 The processing and assignment result is determined by an expression provided as the text content of the ``assign`` element (see :ref:`test-case-expressions`). 
 The element's structure is as follows:
 
@@ -708,8 +709,23 @@ The following example illustrates assigning a value to a ``number`` variable and
     <assign to="$value">1</assign>
     <assign to="$nodeCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
 
-Multiple further examples per variable type are provided in the documentation of :ref:`test-case-expressions`. Note that ``assign`` steps are not presented 
-to the user.
+The ``to`` attribute of an ``assign`` step determines the target variable to which the expression's output will be assigned to. This can be:
+
+    * An **existing variable**, defined as part of the test case's :ref:`variables<test-case-variables>` section or from previous steps.
+    * A **new variable** that will be created once this step completes.
+
+When defining a new variable its type is determined based on the result of the expression. This can also be affected by additional context information
+from the way the ``assign`` step is used, specifically the ``append`` attribute that would suggest a ``list``, as well as the ``to`` expression that 
+could suggest a ``map`` (e.g. if this defines ``$myMap{myKey}``).
+
+Numerous examples of the ``assign`` step can be found in the documentation on :ref:`expressions<test-case-expressions>`. Examples are also provided 
+here on how variables are :ref:`dynamically created<test-case-variables-from-expression-output>` if not already defined.
+
+.. note::
+    **Using '$' to define the assignment target:** In the provided examples the ``to`` attribute of an ``assign`` step is always 
+    prefixed by a ``$`` given that these are :ref:`variable references<test-case-referring-to-variables>`. In the case of ``assign``
+    steps this is optional given that the ``to`` can only ever refer to a variable. As such, a ``to`` value of ``myVariable`` is valid 
+    and considered the same as ``$myVariable``.
 
 .. index:: group
 .. _tdl-step-group:
@@ -991,7 +1007,7 @@ Common step concepts
 
 The following section documents common concepts that apply to all test steps.
 
-.. index:: documentation
+.. index:: documentation (test case step)
 .. _tdl-steps-common-documentation:
 
 Rich documentation per step
@@ -1049,3 +1065,7 @@ example that follows illustrates two examples, one defining a simple additional 
         <input name="xmldocument">$file_content</input>
         <input name="schematron" source="$BII_RULES_Invoice_Schematron_File"/>
     </verify>
+
+Note that documentation such as this is also supported for:
+    * The overall :ref:`test suite<test-suite-metadata>`.
+    * The :ref:`test cases<test-case-metadata>` included in the test suite.

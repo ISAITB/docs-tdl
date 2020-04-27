@@ -93,6 +93,42 @@ about the test case to help users understand its purpose. Its structure is as fo
     description, no, A string to provide a user-friendly description of the test case that is displayed to users.
     published, no, A string acting as an indication of the test case's publishing time.
     lastModified, no, A string acting as an indication of the last modification time for the test case.
+    documentation, no, Rich text content that provides further information on the current test case.
+
+.. index:: documentation (test case)
+
+The ``documentation`` element complements the test case's ``description`` by allowing its author to include extended rich text documentation. This documentation can 
+provide further information on the context of the test case, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
+overall specification. The content supplied supports several HTML features:
+
+    * Structure elements (e.g. headings, text blocks, lists).
+    * In-line styling.
+    * Tables.
+    * Links.
+    * Images.
+
+The simplest way to provide such information is to enclose the HTML content in a CDATA section to ensure the XML remains well-formed. The
+following sample provides an example of this approach:
+
+.. code-block:: xml
+
+    <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
+            <gitb:documentation><![CDATA[
+                <p>Extended documentation for test case <b>TS1-TC1</b></p>
+                <p>This is an example to support the <a href="https://www.itb.ec.europa.eu/docs/tdl/latest">GITB TDL docs</a>.</p>
+            ]]></gitb:documentation>
+        </metadata>    
+        ...
+    </testcase>
+
+Note that documentation such as this is also supported for:
+
+    * The overall :ref:`test suite<test-suite-metadata>`.
+    * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
 .. note::
     **GITB software support:** Contrary to a test suite's ``name``, the ``name`` of the test case is recorded but not otherwise used. Matching of test cases
@@ -338,7 +374,26 @@ variable's definition or dynamically produced values resulting from test steps. 
 language in place. Using the default XPath 1.0 expression language a variable named ``myVar`` is referenced as ``$myVar``. More information on 
 expressions to reference variable values is provided in :ref:`test-case-expressions`.
 
-The following example shows use of two variables, one to store a user-uploaded file and another to store a part of it, extracted via XPath:
+Definition of variables using the ``variables`` element is **optional** given that test steps resulting in output will automatically create 
+variables as needed to store the output in the test session context. Such steps include:
+
+    * :ref:`Assign steps<tdl-step-assign>` that define new values or calculate expressions.
+    * :ref:`User interaction steps<tdl-step-interact>` that request data from the user.
+    * Messaging steps to record the output of a :ref:`send<tdl-step-send>` or a :ref:`receive<tdl-step-receive>`.
+    * :ref:`Processing steps<tdl-step-process>` to record the output of the process.
+
+The type of the automatically created variables in the above cases is inferred from the type of the relevant data or expression result. For example,
+when assigning a string to a variable, this will automatically be set with a ``string`` type. Considering this, you would use the ``variables`` element
+to predefine variables in the following cases:
+
+    * To predefine all variables if you prefer this from the perspective of code organisation.
+    * To explicitly set the type of variables in cases where the automatic determination is not suitable (e.g. force a ``string`` type for a numeric value).
+    * To cover exceptional cases where automatic type determination is not possible.
+    * To provide initial values to variables.
+
+For examples of automatic variable definition refer to the corresponding steps as well as the documentation on :ref:`expressions<test-case-variables-from-expression-output>`.
+Coming back to explicitly defined variables, the following example shows two such cases, one to store a user-uploaded file and another to store a part of it, 
+extracted via XPath:
 
 .. code-block:: xml
 
