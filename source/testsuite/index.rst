@@ -1,3 +1,6 @@
+.. index:: Test suites
+.. _test-suite:
+
 Test Suites
 ===============================
 
@@ -43,11 +46,6 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
     metadata, yes, A block containing the metadata used to describe the test suite.
     actors, yes, The list of actors that relate to the test suite's test cases.
     testcase, yes, One or more test cases that are included in the test suite.
-
-.. note::
-    **GITB software support:** Currently the ``id`` attribute of a test suite is ignored in favour of the test suite's name that is used to uniquelly identify
-    the test suite within a specification. This is likely to be adapted in future versions so it is a good practice to provide meaningful values for the ``id``. 
-    A good approach is to use the same value as for the test suite name.
 
 Elements
 --------

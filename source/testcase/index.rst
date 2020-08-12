@@ -131,8 +131,7 @@ Note that documentation such as this is also supported for:
     * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
 .. note::
-    **GITB software support:** Contrary to a test suite's ``name``, the ``name`` of the test case is recorded but not otherwise used. Matching of test cases
-    and display uses the test case's ``id`` attribute. Regarding the test case ``type`` this must currently be set to "CONFORMANCE" (the default value) as the 
+    **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
     "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
 .. index:: Namespaces (Test cases)
