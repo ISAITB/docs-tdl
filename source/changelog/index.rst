@@ -19,6 +19,8 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
+    New ``log`` step to add arbitrary information to the test session's log output. | GITB TDL | ref:`tdl-step-log`
+    The ``documentation`` content for test suites, test cases and test steps can now be provided via imported resource. | GITB TDL | :ref:`test-suite-metadata`, :ref:`test-case-metadata`, :ref:`tdl-steps-common-documentation`
     The ID of test suites and test cases is now considered in the GITB software for referencing and matching. | GITB software| :ref:`test-suite`, :ref:`test-case`
 
 Previous documentation versions

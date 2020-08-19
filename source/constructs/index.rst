@@ -727,6 +727,55 @@ here on how variables are :ref:`dynamically created<test-case-variables-from-exp
     steps this is optional given that the ``to`` can only ever refer to a variable. As such, a ``to`` value of ``myVariable`` is valid 
     and considered the same as ``$myVariable``.
 
+.. index:: log
+.. _tdl-step-log:
+
+log
+~~~
+
+The ``log`` step is used to add information to the test session's log output. The step itself is not visible on a test case's
+diagram but users can inspect its output in the recorded test session log. This step can be used both as a development utility
+for test case developers and also as a means of providing additional information to testers. The latter case can be valuable
+in providing e.g. technical details to complement a validation step if needed to inspect further details.
+
+The log output is determined by an expression provided as the text content of the ``log`` element (see :ref:`test-case-expressions`).
+The element's structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
+    @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
+    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+
+The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
+user by means of a :ref:`user interaction step<tdl-step-interact>`:
+
+.. code-block:: xml
+
+    <!-- Add a static message to the log. -->
+    <log>'Starting execution of test case'</log>
+    <!-- Request certain information from the user. -->
+    <interact id="input" desc="User input">
+        <request desc="Provide a boolean flag" name="flag" options="true,false"/>
+        <request desc="Provide an XML file" contentType="BASE64" name="file"/>
+    </interact>
+    <!-- Log the provided flag value. -->
+    <log>$input{flag}</log>
+    <!-- Log a message including the provided flag value. -->
+    <log>concat('You selected: ', $input{flag})</log>
+    <!-- Print the id attribute of the XML file's root element. -->
+    <log source="$input{file}">string(/*[local-name() = "myRootElement"]/@id)</log>
+    <!-- Define a template text. -->
+    <assign to="message">'A value of ${input{flag}} was provided.'</assign>
+    <!-- Will process 'message' as a template to produce the log output. -->
+    <log asTemplate="true">$message</log>
+    <!-- Will process 'message' as a simple text and log its contents without replacing placeholders. -->
+    <log>$message</log>
+    <!-- Equivalent to the previous case (template processing is disabled by default). -->
+    <log asTemplate="false">$message</log>
+
 .. index:: group
 .. _tdl-step-group:
 

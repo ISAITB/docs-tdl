@@ -712,5 +712,6 @@ The following table provides an overview of the places where expressions can be 
     Step :ref:`tdl-step-repuntil`, Used to define and evaluate the repeat condition (``cond``).
     Step :ref:`tdl-step-foreach`, Variable references can be used to evaluate the loop boundaries (``start`` and ``end``).
     Step :ref:`tdl-step-assign`, Used as the expression to apply. Also a pure variable reference is used in the ``to`` and ``source`` elements.
+    Step :ref:`tdl-step-log`, Used as the expression to apply when calculating the log output. Also a pure variable reference is used in the ``source`` element.
     Step :ref:`tdl-step-verify`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-call`, Used to determine ``input`` values.
