@@ -194,6 +194,7 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
     @kind| no| Whether this is a simple text (value "SIMPLE" - the default), file (value "BINARY") or a secret value (value "SECRET").
     @adminOnly| no| A boolean value (by default "false") indicating whether this parameter can only be edited by administrators.
     @notForTests| no| A boolean value (by default "false") indicating whether this parameter is included as a test session context variable.
+    @hidden| no| A boolean value (by default "false") indicating whether this parameter can only be viewed by administrators.
 
 In terms of the ``kind`` attribute, the values "SIMPLE" and "SECRET" both represent text values. The difference is that ones 
 defined as "SECRET" are never presented to users nor are they ever transferred to client software. The two attributes ``adminOnly``
@@ -203,7 +204,8 @@ Setting the ``adminOnly`` flag to "true" would typically be used for required pa
 doing so allows community or test bed administrators to verify and adapt a system's setup before allowing it to
 execute tests. This could either be done as a simple eligibility check or to actually provide required information
 that is needed for the tests (e.g. a generated identifier or certificate). If a required parameter that is set as 
-``adminOnly`` is not configured, the system in question is prevented from executing tests.
+``adminOnly`` is not configured, the system in question is prevented from executing tests. Furthermore, such a parameter
+could be also set as ``hidden`` meaning that it is only visible to administrators.
 
 The ``notForTests`` flag on the other hand would be set to "true" for information that is strictly administrative
 in nature and is not actually needed during test sessions. An example of this would be to record a flag set by administrators that, if
