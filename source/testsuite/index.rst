@@ -181,6 +181,15 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
     @desc, no, A description to explain the purpose of this endpoint.
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
+.. index:: config (endpoint parameter)
+.. index:: adminOnly
+.. index:: notForTests
+.. index:: hidden
+.. index:: dependsOn
+.. index:: dependsOnValue
+.. index:: allowedValues
+.. index:: allowedValueLabels
+
 The ``config`` elements defining an endpoint's parameters are structured as follows:
 
 .. csv-table::
@@ -195,6 +204,10 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
     @adminOnly| no| A boolean value (by default "false") indicating whether this parameter can only be edited by administrators.
     @notForTests| no| A boolean value (by default "false") indicating whether this parameter is included as a test session context variable.
     @hidden| no| A boolean value (by default "false") indicating whether this parameter can only be viewed by administrators.
+    @dependsOn| no| A string indicating the name of another parameter within the endpoint that is a prerequisite for the current one.
+    @dependsOnValue| no| In case ``dependsOn`` is defined, this is the value that the prerequisite property should have in order for the current one to be enabled.
+    @allowedValues| no| A comma-separated list of values that are allowed for this parameter.
+    @allowedValueLabels| no| In case ``allowedValues`` is defined, this is a comma-separated list of labels for the provided values (their number must match the values). If not provided, the values themselves are used as labels.
 
 In terms of the ``kind`` attribute, the values "SIMPLE" and "SECRET" both represent text values. The difference is that ones 
 defined as "SECRET" are never presented to users nor are they ever transferred to client software. The two attributes ``adminOnly``
@@ -212,6 +225,28 @@ in nature and is not actually needed during test sessions. An example of this wo
 missing, would prevent test sessions to be started (i.e. combined with the ``adminOnly`` flag as explained above).
 Otherwise such attributes could also be used to enable general data collection for testing organisations pertinent
 to specific conformance statements. 
+
+The ``dependsOn`` attribute can be used to define prerequisites between parameters. Parameters whose prerequisites are not met are
+considered as disabled. Consider for example a parameter named "size" that can set with values "large" or "small". In case "large"
+is selected, a second parameter named "capacity" becomes applicable. These two concepts (providing a set of expected values and
+defining prerequisites) can be achieved as follows:
+
+.. code-block:: xml
+
+    <gitb:actor id="system">
+        <gitb:name>System</gitb:name>
+        <gitb:endpoint name="systemInfo">
+            <!-- Define the allowed values and provide user-friendly labels. -->
+            <gitb:config name="size" kind="SIMPLE" use="R" allowedValues="l,s" allowedValueLabels="Large,Small"/>
+            <!-- Enable this parameter if "size" is set as "l". -->
+            <gitb:config name="capacity" kind="SIMPLE" use="R" depends="size" dependsOnValue="l"/>
+        </gitb:endpoint>
+    </gitb:actor>
+
+Note that a parameter whose prerequisite condition is not met is considered as inactive, even if set as required (i.e. ``use="R"``).
+Such inactive parameters are not requested as input and are not included in test sessions as variables. Prerequisites can
+also be chained, meaning that parameter A can depend on B that can depend on C. Even if a parameter's direct prerequisite is met,
+it will still be considered as inactive if any prerequisites further up in its hierarchy are not.
 
 Endpoints and their parameters are used in two main scenarios:
 
