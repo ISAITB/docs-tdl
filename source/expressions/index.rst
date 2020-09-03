@@ -700,6 +700,7 @@ The following table provides an overview of the places where expressions can be 
     :widths: 30, 70
     :header: "Use", "Description"
 
+    Step :ref:`test-case-imports`, Used for the paths to import artifacts from as an alternative to providing fixed path references.
     Step :ref:`tdl-step-interact`, Used in the values displayed to (``instruct``) or requested from (``request``) users.
     Step :ref:`tdl-step-btxn`, Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-bptxn`, Variable references can be used to set ``config`` element values.

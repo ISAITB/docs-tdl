@@ -19,6 +19,7 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
+    Test case imports can now be defined dynamically using variable references. | GITB TDL | :ref:`test-case-imports`, :ref:`test-case-expressions-where`
     Support for a custom ``title`` for ``if``, ``interact``, ``while``, ``repuntil``, ``foreach`` and ``flow`` steps. | GITB TDL | :ref:`tdl-step-if`, :ref:`tdl-step-interact`, :ref:`tdl-step-while`, :ref:`tdl-step-repuntil`, :ref:`tdl-step-foreach`, :ref:`tdl-step-flow`
     Actors' endpoint parameters can now be defined as ``hidden`` to have them visible only to administrators. | GITB TDL | :ref:`test-suite-actors`
     Actors' endpoint parameters now support the definition of allowed values with optional labels (``allowedValues`` and ``allowedValueLabels``). | GITB TDL | :ref:`test-suite-actors`
