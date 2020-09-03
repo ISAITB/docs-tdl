@@ -412,6 +412,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "decision").
     @desc, yes, A description to display to the user on the purpose of the check.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
@@ -447,6 +448,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -491,6 +493,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
@@ -528,6 +531,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
@@ -577,6 +581,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "flow").
     @desc, yes, A description to display to the user on the purpose of the forking.
     documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
@@ -925,6 +930,7 @@ The structure of the ``interact`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
+    @title, no, A short title to display for this step (default is "interact").
     @desc, yes, A description for the user interaction.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
     documentation, no, Rich text content that provides further information on the current step.
