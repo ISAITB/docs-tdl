@@ -1121,6 +1121,5 @@ example that follows illustrates two examples, one defining a simple additional 
         <input name="schematron" source="$BII_RULES_Invoice_Schematron_File"/>
     </verify>
 
-Finally, note that documentation such as this is also supported for:
-    * The overall :ref:`test suite<test-suite-metadata>`.
-    * The :ref:`test cases<test-case-metadata>` included in the test suite.
+.. note::
+    Documentation such as this is also supported for the overall :ref:`test suite<test-suite-metadata>` and the :ref:`test cases<test-case-metadata>` included in the test suite.
