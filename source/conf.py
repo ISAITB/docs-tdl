@@ -158,3 +158,6 @@ texinfo_documents = [
      author, 'GITB TDL', 'The GITB Test Description Language (TDL)',
      'Miscellaneous'),
 ]
+
+def setup(app):
+    app.add_css_file('css/custom.css')
