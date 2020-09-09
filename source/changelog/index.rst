@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.9.1
----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.9.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.9.0.
+What's new in release 1.10.0
+----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,10 +19,14 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Rich text documentation can now also be set for test suites via the ``documentation`` element. | GITB TDL| :ref:`test-suite-metadata`
-    Rich text documentation can now also be set for test cases via the ``documentation`` element. | GITB TDL| :ref:`test-case-metadata`
-    ``Assign`` steps can now automatically create variables to store expression output. | GITB TDL| :ref:`tdl-step-assign`, :ref:`test-case-variables`, :ref:`test-case-variables-from-expression-output`
-    New ``Base64Processor`` for the handling of Base64 and data URL encoding in test cases. | GITB TDL| :ref:`handlers-Base64Processor`
+    Test case imports can now be defined dynamically using variable references. | GITB TDL | :ref:`test-case-imports`, :ref:`test-case-expressions-where`
+    Support for a custom ``title`` for ``if``, ``interact``, ``while``, ``repuntil``, ``foreach`` and ``flow`` steps. | GITB TDL | :ref:`tdl-step-if`, :ref:`tdl-step-interact`, :ref:`tdl-step-while`, :ref:`tdl-step-repuntil`, :ref:`tdl-step-foreach`, :ref:`tdl-step-flow`
+    Actors' endpoint parameters can now be defined as ``hidden`` to have them visible only to administrators. | GITB TDL | :ref:`test-suite-actors`
+    Actors' endpoint parameters now support the definition of allowed values with optional labels (``allowedValues`` and ``allowedValueLabels``). | GITB TDL | :ref:`test-suite-actors`
+    Actors' endpoint parameters now support defining other parameters as prerequisites (``dependsOn`` and ``dependsOnValue``). | GITB TDL | :ref:`test-suite-actors`
+    New ``log`` step to add arbitrary information to the test session's log output. | GITB TDL | :ref:`tdl-step-log`
+    The ``documentation`` content for test suites, test cases and test steps can now be provided via imported resource. | GITB TDL | :ref:`test-suite-metadata`, :ref:`test-case-metadata`, :ref:`tdl-steps-common-documentation`
+    The ID of test suites and test cases is now considered in the GITB software for referencing and matching. | GITB software| :ref:`test-suite`, :ref:`test-case`
 
 Previous documentation versions
 -------------------------------
@@ -38,6 +38,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.9.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.9.1/
     1.9.0| Automatic variable creation from ``assign`` steps, rich ``documentation`` for test cases and test suites and new ``Base64Processor``.| https://www.itb.ec.europa.eu/docs/tdl/1.9.0/
     1.8.0| Support for hidden actors, warning-level verifications and extended test step documentation.| https://www.itb.ec.europa.eu/docs/tdl/1.8.0/
     1.7.2| Support for any expression to be used as a template (``asTemplate``).| https://www.itb.ec.europa.eu/docs/tdl/1.7.2/

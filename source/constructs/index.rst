@@ -412,6 +412,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "decision").
     @desc, yes, A description to display to the user on the purpose of the check.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
@@ -447,6 +448,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -491,6 +493,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
@@ -528,6 +531,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
@@ -577,6 +581,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "flow").
     @desc, yes, A description to display to the user on the purpose of the forking.
     documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
@@ -727,6 +732,55 @@ here on how variables are :ref:`dynamically created<test-case-variables-from-exp
     steps this is optional given that the ``to`` can only ever refer to a variable. As such, a ``to`` value of ``myVariable`` is valid 
     and considered the same as ``$myVariable``.
 
+.. index:: log
+.. _tdl-step-log:
+
+log
+~~~
+
+The ``log`` step is used to add information to the test session's log output. The step itself is not visible on a test case's
+diagram but users can inspect its output in the recorded test session log. This step can be used both as a development utility
+for test case developers and also as a means of providing additional information to testers. The latter case can be valuable
+in providing e.g. technical details to complement a validation step if needed to inspect further details.
+
+The log output is determined by an expression provided as the text content of the ``log`` element (see :ref:`test-case-expressions`).
+The element's structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
+    @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
+    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+
+The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
+user by means of a :ref:`user interaction step<tdl-step-interact>`:
+
+.. code-block:: xml
+
+    <!-- Add a static message to the log. -->
+    <log>'Starting execution of test case'</log>
+    <!-- Request certain information from the user. -->
+    <interact id="input" desc="User input">
+        <request desc="Provide a boolean flag" name="flag" options="true,false"/>
+        <request desc="Provide an XML file" contentType="BASE64" name="file"/>
+    </interact>
+    <!-- Log the provided flag value. -->
+    <log>$input{flag}</log>
+    <!-- Log a message including the provided flag value. -->
+    <log>concat('You selected: ', $input{flag})</log>
+    <!-- Print the id attribute of the XML file's root element. -->
+    <log source="$input{file}">string(/*[local-name() = "myRootElement"]/@id)</log>
+    <!-- Define a template text. -->
+    <assign to="message">'A value of ${input{flag}} was provided.'</assign>
+    <!-- Will process 'message' as a template to produce the log output. -->
+    <log asTemplate="true">$message</log>
+    <!-- Will process 'message' as a simple text and log its contents without replacing placeholders. -->
+    <log>$message</log>
+    <!-- Equivalent to the previous case (template processing is disabled by default). -->
+    <log asTemplate="false">$message</log>
+
 .. index:: group
 .. _tdl-step-group:
 
@@ -876,6 +930,7 @@ The structure of the ``interact`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
+    @title, no, A short title to display for this step (default is "interact").
     @desc, yes, A description for the user interaction.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
     documentation, no, Rich text content that provides further information on the current step.

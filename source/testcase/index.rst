@@ -131,8 +131,7 @@ Note that documentation such as this is also supported for:
     * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
 .. note::
-    **GITB software support:** Contrary to a test suite's ``name``, the ``name`` of the test case is recorded but not otherwise used. Matching of test cases
-    and display uses the test case's ``id`` attribute. Regarding the test case ``type`` this must currently be set to "CONFORMANCE" (the default value) as the 
+    **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
     "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
 .. index:: Namespaces (Test cases)
@@ -208,8 +207,15 @@ defines one or more ``artifact`` children with the following structure:
     @type, yes, The type as which the artefact needs to be loaded.
     @encoding, no, In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
 
-The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. Regarding the ``type``
-attribute, this needs to refer to an appropriate type from the GITB type system (see :ref:`test-case-types`). Given that in this case we are referring to a file 
+The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. This path may be provided as a
+fixed value or as a :ref:`variable reference<test-case-referring-to-variables>` to determine the imported resource dynamically. In case a variable reference
+is provided this should be one of the following:
+
+* A reference to a configuration value (i.e. a :ref:`domain<test-case-expressions-domain>`, :ref:`organisation<test-case-expressions-organisation>`, :ref:`system<test-case-expressions-system>` or :ref:`actor<test-case-expressions-actor>` parameter).
+* A reference to a :ref:`variable<test-case-variables>` defined in the test case. In this case the value of the variable can even be adapted during the course of the test session resulting in
+  different resources depending on the point at which the import is referenced.
+
+Regarding the ``type`` attribute, this needs to refer to an appropriate type from the GITB type system (see :ref:`test-case-types`). Given that in this case we are referring to a file
 being loaded, the types that can be used are:
 
 * ``binary``: Load the artefact as a set of bytes without additional processing.
@@ -218,13 +224,21 @@ being loaded, the types that can be used are:
 
 Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite name as a prefix). As an 
 example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable of type ``schema`` that is named "ublSchema". The
-path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources".
+path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources". This example also includes
+another input whose referenced resource is defined dynamically based on an external configuration parameter (at organisation level in this case).
 
 .. code-block:: xml
 
     <testcase>
         <imports>
+            <!--
+                The "ublSchema" is loaded from a fixed resource within the test suite.
+            -->
             <artifact type="schema" encoding="UTF-8" name="ublSchema">resources/UBL-Invoice-2.1.xsd</artifact>
+            <!--
+                The "organisationSpecificSchema" is loaded dynamically based on an organisation-level configuration property named "xsdToUseForOrganisation".
+            -->
+            <artifact type="schema" encoding="UTF-8" name="organisationSpecificSchema">$ORGANISATION{xsdToUseForOrganisation}</artifact>
         </imports>
         <steps>
             <verify handler="XSDValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
