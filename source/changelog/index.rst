@@ -7,11 +7,11 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.10.1
+What's new in release 1.10.2
 ----------------------------
 
 .. note::
-    **Maintenance release:** Release 1.10.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    **Maintenance release:** Release 1.10.2 is a global maintenance release that did not change the GITB TDL. The latest features presented
     in this section correspond to the latest release that did introduce changes, i.e. release 1.10.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -42,6 +42,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.10.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.1/
     1.10.0| Dynamic test case imports, custom titles, new ``log`` step, imported documentation and extensions to endpoint parameters.| https://www.itb.ec.europa.eu/docs/tdl/1.10.0/
     1.9.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.9.1/
     1.9.0| Automatic variable creation from ``assign`` steps, rich ``documentation`` for test cases and test suites and new ``Base64Processor``.| https://www.itb.ec.europa.eu/docs/tdl/1.9.0/
