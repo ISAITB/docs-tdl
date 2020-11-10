@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.10.2
+What's new in release 1.11.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.10.2 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.10.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,14 +19,11 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Test case imports can now be defined dynamically using variable references. | GITB TDL | :ref:`test-case-imports`, :ref:`test-case-expressions-where`
-    Support for a custom ``title`` for ``if``, ``interact``, ``while``, ``repuntil``, ``foreach`` and ``flow`` steps. | GITB TDL | :ref:`tdl-step-if`, :ref:`tdl-step-interact`, :ref:`tdl-step-while`, :ref:`tdl-step-repuntil`, :ref:`tdl-step-foreach`, :ref:`tdl-step-flow`
-    Actors' endpoint parameters can now be defined as ``hidden`` to have them visible only to administrators. | GITB TDL | :ref:`test-suite-actors`
-    Actors' endpoint parameters now support the definition of allowed values with optional labels (``allowedValues`` and ``allowedValueLabels``). | GITB TDL | :ref:`test-suite-actors`
-    Actors' endpoint parameters now support defining other parameters as prerequisites (``dependsOn`` and ``dependsOnValue``). | GITB TDL | :ref:`test-suite-actors`
-    New ``log`` step to add arbitrary information to the test session's log output. | GITB TDL | :ref:`tdl-step-log`
-    The ``documentation`` content for test suites, test cases and test steps can now be provided via imported resource. | GITB TDL | :ref:`test-suite-metadata`, :ref:`test-case-metadata`, :ref:`tdl-steps-common-documentation`
-    The ID of test suites and test cases is now considered in the GITB software for referencing and matching. | GITB software| :ref:`test-suite`, :ref:`test-case`
+    Support for stopping a test session immediately upon a step's failure. | GITB TDL | :ref:`tdl-steps-common-stoponerror`, :ref:`test-case-steps`
+    Support for custom output messages as the overall result of a test session's execution. | GITB TDL | :ref:`test-case-output`
+    Allow a ``verify`` step to optionally store its report's context data. | GITB TDL | :ref:`tdl-step-verify`
+    New ``TEST_SUCCESS`` variable used to track the overall status of the test session at any point. | GITB TDL | :ref:`test-case-expressions-step-results`
+    Support for custom titles for the user input popups linked to the ``interact`` step. | GITB TDL | :ref:`tdl-step-interact`
 
 Previous documentation versions
 -------------------------------
@@ -42,6 +35,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.10.2| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.2/
     1.10.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.1/
     1.10.0| Dynamic test case imports, custom titles, new ``log`` step, imported documentation and extensions to endpoint parameters.| https://www.itb.ec.europa.eu/docs/tdl/1.10.0/
     1.9.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.9.1/

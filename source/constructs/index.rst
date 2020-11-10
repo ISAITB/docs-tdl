@@ -42,6 +42,7 @@ encountered to end it. The structure of the ``btxn`` element is as follows:
     @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`).
     @handler, yes, A string value or variable reference identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
@@ -75,6 +76,7 @@ ID. It is structured as follows:
     :header: "Name", "Required?", "Description"
 
     @txnid, yes, The identifier of the transaction to end.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
 
 Executing the ``etxn`` results in a call to the transaction's messaging handler to take necessary actions such as resource clean-up.
 
@@ -109,6 +111,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @desc, yes, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -148,6 +151,7 @@ of the ``receive`` element is as follows:
     @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
     @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
     @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -205,6 +209,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
@@ -256,6 +261,7 @@ The structure of the ``bptxn`` element (defined when a processing transaction is
 
     @txnid, yes, A string identifier for the transaction.
     @handler, yes, A string value or variable reference identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     property, no, Zero or more elements to provide configuration regarding the setup of the processing handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
 
@@ -286,6 +292,7 @@ close a transaction the ID of which it references. The structure of the ``eptxn`
     :header: "Name", "Required?", "Description"
 
     @txnid, yes, A string identifier for the processing transaction to end.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
 
 The ``eptxn`` step results in a call to the transaction's processing handler to signal that it should consider the transaction as
 completed and proceed with any needed actions such as resource clean-up.
@@ -320,6 +327,7 @@ The structure of the ``process`` element is as follows:
     @txnId, no, The ID of the transaction to which this processing step belongs. Can be ommitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is ommitted in favour of the ``txnId`` in case a transaction is referenced.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
@@ -414,6 +422,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
 
     @title, no, A short title to display for this step (default is "decision").
     @desc, yes, A description to display to the user on the purpose of the check.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
@@ -450,6 +459,7 @@ continues to be true. The structure of the ``while`` element is as follows:
 
     @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
     do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
@@ -495,6 +505,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
 
     @title, no, A short title to display for this step (default is "loop").
     @desc, yes, A description to display to the user on the purpose of the loop.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
     cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -536,6 +547,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
@@ -583,6 +595,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
 
     @title, no, A short title to display for this step (default is "flow").
     @desc, yes, A description to display to the user on the purpose of the forking.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
 
@@ -706,6 +719,7 @@ The element's structure is as follows:
     @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
 
 The following example illustrates assigning a value to a ``number`` variable and also counting the nodes in an XML document:
 
@@ -753,6 +767,7 @@ The element's structure is as follows:
     @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
 
 The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
 user by means of a :ref:`user interaction step<tdl-step-interact>`:
@@ -795,6 +810,7 @@ a visual grouping and label to the display. Its structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @desc, yes, The description for the group.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
 
 The children of the ``group`` element can be any number of steps supported by GITB TDL. The following example creates a group around a set of 
@@ -843,6 +859,8 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     @desc, yes, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     @level, no, The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @output, no, A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
     documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -881,6 +899,26 @@ validation service:
     When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
     outside the test bed using any SOAP client.
 
+It may be the case that the ``verify`` step also produces output that needs to be leveraged further on in the test session. This could be interesting in case an 
+:ref:`embedded validation handler<handlers-predefined-validation-handlers>` is used, the inputs of which are determined dynamically via an expression. Usually 
+however you would want to record output if validation is done via a custom service which, apart from returning a validation report, calculates and returns
+additional information. As an example consider a validator that checks the integrity of a provided file and also returns its hash code which is used in further
+processing. Recording a ``verify`` step's output is done by means of the ``output`` attribute which defines the name of the variable to set. Once validation
+completes, this variable will be set to anything returned as the `validation report context`_.
+
+.. code-block:: xml
+
+    <!-- 
+        Validate and return as the report's context a map containing data with the key "identifier".
+        The map is recorded in the session context under "validationOutput".
+    -->
+    <verify output="validationOutput">
+        ...
+    </verify>
+    <log>$validationOutput{identifier}</log>
+
+If no ``output`` attribute is set, the context data from the step's report will be displayed but not recorded in the session context.
+
 .. index:: call
 .. _tdl-step-call:
 
@@ -897,6 +935,7 @@ its required input parameters and receive its output. The structure of the ``cal
 
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @path, yes, The ID of the scriptlet to call.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
 
@@ -933,6 +972,8 @@ The structure of the ``interact`` element is as follows:
     @title, no, A short title to display for this step (default is "interact").
     @desc, yes, A description for the user interaction.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
+    @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction").
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     documentation, no, Rich text content that provides further information on the current step.
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
@@ -1123,3 +1164,82 @@ example that follows illustrates two examples, one defining a simple additional 
 
 .. note::
     Documentation such as this is also supported for the overall :ref:`test suite<test-suite-metadata>` and the :ref:`test cases<test-case-metadata>` included in the test suite.
+
+.. index:: stopOnError
+.. _tdl-steps-common-stoponerror:
+
+Stop a test session upon errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+During the course of a test session you will need to consider step failures and define how these are to affect the overall test execution.
+Such failures can broadly be classified as:
+
+* **Expected** errors resulting from :ref:`validations<tdl-step-verify>` and :ref:`message exchanges<tdl-messaging-steps>` due to violations of the specifications' requirements.
+* **Unexpected** errors due to services being unavailable or unforeseen processing problems.
+
+Any step failure that occurs will ultimately result in the overall test session to fail. However, whether or not you want to continue a test session
+once a failure has occurred depends on the design of your test case. For example, if a test case involves constructing a message, validating it, and then 
+using it to start a series of message exchanges, it is probably meaningless to proceed with messaging steps if the message is invalid to begin with. In such
+a case, any failure when validating the message should immediately fail the test session.
+
+Immediately stopping execution may however not always be desired. Consider a case where you receive a message from a system and then proceed to use it for a series of validations,
+each focusing on a different complementary aspect (e.g. integrity, syntax and business rules). In such a scenario you want any failures to be recorded but not prevent subsequent
+steps so that the user receives a complete validation outcome.
+
+By default a test session will continue processing all steps regardless of failures (allowing the second case described above). If you want to stop test execution upon a failure 
+you can use the ``stopOnError`` flag. This flag expects a ``boolean`` value (true or false) and can be set on:
+
+* **Individual steps**, to stop the test for failures on the step in question, or any nested step.
+* **Step sequences**, to stop the test for failures on any of the sequence's steps (or nested step). Examples of step sequence elements are the ``then`` or ``else`` blocks of an :ref:`if step<tdl-step-if>`.
+* The **complete test case**, to stop the test on any failure. This is done by setting the ``stopOnError`` attribute on the test case's ``steps`` element.
+
+The following GITB TDL snippets illustrates all these cases:
+
+.. code-block:: xml
+
+    <!-- Stop on any failure. -->
+    <steps stopOnError="true">
+        ...
+    </steps>
+
+    <!-- Stop if this step fails -->
+    <verify stopOnError="true">
+        ...
+    </verify>
+
+    <!-- Stop if any step within the "if" fails. -->
+    <if stopOnError="true">
+        ...
+    </if>
+
+    <!-- Stop if any step within the "then" block fails (but continue for failures under the else block). -->
+    <if>
+        <cond>...</cond>
+        <then stopOnError="true">
+            ...
+        </then>
+        <else>
+            ...
+        </else>
+    </if>
+
+It is interesting to note that stopping a test execution could also be achieved by means of the :ref:`if<tdl-step-if>` and 
+:ref:`exit<tdl-step-exit>` steps. The following snippet illustrates such a case:
+
+.. code-block:: xml
+
+    <verify id="check" desc="Make an important validation">
+    ...
+    </verify>
+    <if desc="check to stop the test">
+        <cond>not($STEP_SUCCESS{check})</cond>
+        <then>
+            <exit desc="Stop the test"/>
+        </then>
+    </if>
+
+Doing this simply to prevent subsequent test steps is overly verbose and, moreover is displayed as part of the test execution diagram. It
+could still be interesting to follow this approach however if you want to include additional :ref:`processing<tdl-step-process>` or :ref:`user interaction<tdl-step-interact>` 
+steps before the session ends.
+
+.. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar

@@ -470,13 +470,30 @@ And the "config_test_1" test case is defined as follows:
         </steps>
     </testcase>
 
-.. index:: STEP_SUCCESS
-.. _test-case-expressions-step-success:
+.. _test-case-expressions-step-results:
 
 Checking the result of test steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-During the course of a test case you may want to check on the result of a previous step. A typical scenario would be to avoid showing 
+During the course of a test session you may want to check the result of previous steps. This could be used to determine the flow of execution,
+adapt processing, :ref:`display custom messages to users<tdl-step-interact>`, or determine the :ref:`overall output message<test-case-output>` of the test session.
+
+For this purpose you have two special variables maintained in the test session context:
+
+* **STEP_SUCCESS** to check specific steps.
+* **TEST_SUCCESS** to check the overall test session result.
+
+.. note::
+    **Stopping on failures:** Although its possible to use these variables in combination with :ref:`if<tdl-step-if>` and :ref:`exit<tdl-step-exit>` steps to conditionally stop test sessions,
+    it is not the simplest way to do so. If this is your need it is much simpler to use a step's (or sequence of steps) :ref:`stopOnError<tdl-steps-common-stoponerror>` flag.
+
+.. index:: STEP_SUCCESS
+.. _test-case-expressions-step-success:
+
+Checking the result of a specific step
+++++++++++++++++++++++++++++++++++++++
+
+A typical scenario where you would want to check the result of a specific step would be to avoid showing 
 an information popup to the user in case a previous step failed (e.g. via a :ref:`tdl-step-interact` step). Whether or not a step has
 succeeded is recorded in a special purpose ``map`` named **STEP_SUCCESS** that contains one key per step identifier mapping to a ``boolean``
 value. This value is initially set to ``false`` and, if the step completes successfully, is set to ``true``.
@@ -503,6 +520,32 @@ The following example illustrates use of this feature to conditionally present a
 .. note::
     For ``verify`` steps (see :ref:`tdl-step-verify`) the step ID is directly set in the test session context with a ``boolean`` flag to match the validation result. The
     **STEP_SUCCESS** ``map`` makes this possible for any other step as well (including ``verify`` steps).
+
+.. index:: TEST_SUCCESS
+.. _test-case-expressions-test-success:
+
+Checking the current result of a test session
++++++++++++++++++++++++++++++++++++++++++++++
+
+As a complement to the **STEP_SUCCESS** variable, used to check a specific step's result, the **TEST_SUCCESS** variable can be used to check the overall result of the test 
+session at any given point. This variable is similarly a ``boolean`` flag that you can check in any constructs that support expressions. Revisiting the example of 
+conditionally displaying a user interaction popup, we could use the **TEST_SUCCESS** variable as follows:
+
+.. code-block:: xml
+    :emphasize-lines: 3
+
+    <!-- Check the step result before showing an information message. -->
+    <if desc="Check success">
+        <cond>$TEST_SUCCESS</cond>
+        <then>
+            <interact desc="Show success message">
+                <instruct desc="Messaging was completed successfully!"/>
+            </interact>
+        </then>
+    </if>
+
+Using this variable provides an efficient shorthand in place of separately checking each step's outcome. In addition, it is a useful
+abstraction given that it allows you to ignore steps that were skipped.
 
 .. index:: Templates
 .. index:: asTemplate
@@ -700,8 +743,8 @@ The following table provides an overview of the places where expressions can be 
     :widths: 30, 70
     :header: "Use", "Description"
 
-    Step :ref:`test-case-imports`, Used for the paths to import artifacts from as an alternative to providing fixed path references.
-    Step :ref:`tdl-step-interact`, Used in the values displayed to (``instruct``) or requested from (``request``) users.
+    Section :ref:`test-case-imports`, Used for the paths to import artifacts from as an alternative to providing fixed path references.
+    Section :ref:`test-case-output`, Used to evaluate message match conditions and produce the resulting message texts.
     Step :ref:`tdl-step-btxn`, Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-bptxn`, Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-send`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
@@ -716,3 +759,4 @@ The following table provides an overview of the places where expressions can be 
     Step :ref:`tdl-step-log`, Used as the expression to apply when calculating the log output. Also a pure variable reference is used in the ``source`` element.
     Step :ref:`tdl-step-verify`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-call`, Used to determine ``input`` values.
+    Step :ref:`tdl-step-interact`, Used in the values displayed to (``instruct``) or requested from (``request``) users.
