@@ -189,7 +189,11 @@ output (returned via its call-back to the test bed) to the specified values. If 
     <interact desc="Check timeout status">
         <instruct desc="Timeout occurred:" with="Actor2">$dataReceiveTimeout{timeoutOccurred}</instruct>
     </interact>
-    
+
+.. note::
+    **Parallel receives:** In case you use the ``receive`` step within a :ref:`flow<tdl-step-flow>` step's threads and a
+    :ref:`custom messaging service<handlers>`, you need to make sure your service manages the specific receive call's identifier.
+    Check the `messaging service documentation`_ for details on how to do this.
 
 .. index:: listen
 .. _tdl-step-listen:
@@ -638,6 +642,11 @@ The following example sends a SOAP request to two actors in parallel and proceed
         <input name="soap_message">$soapMessageForC</input>
     </send>
     <etxn txnId="t3"/>
+
+.. note::
+    **Parallel receives:** In case you use the :ref:`receive<tdl-step-receive>` step within a ``flow`` step's threads and a
+    :ref:`custom messaging service<handlers>`, you need to make sure your service manages the specific receive call's identifier.
+    Check the `messaging service documentation`_ for details on how to do this.
 
 .. index:: exit
 .. _tdl-step-exit:
@@ -1243,3 +1252,4 @@ could still be interesting to follow this approach however if you want to includ
 steps before the session ends.
 
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
+.. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive
