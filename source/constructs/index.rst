@@ -1118,9 +1118,21 @@ The following section documents common concepts that apply to all test steps.
 Rich documentation per step
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Test steps that are meant to be presented to users can be defined with an additional ``documentation`` element. This complements the limited label
-attached to each step (via attribute ``desc``), allowing further instructions, context and references to be provided. The content supplied is treated
-as rich text and supports several HTML features:
+Test steps that are meant to be presented to users can be defined with an additional ``documentation`` element to include extended rich text documentation as HTML. This complements the limited label
+attached to each step (via attribute ``desc``), allowing further instructions, context and references to be provided. The structure of this element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    import, no, A reference to a separate file within the test suite archive that defines the documentation content.
+    encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
+
+Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
+typically enclosed within a CDATA section if this includes HTML elements (in which case the ``import`` and ``encoding`` attributes are omitted).
+
+This documentation can provide further information on the context of the test step, diagrams or reference information that are useful to understand how it is to be completed. The content supplied supports
+several HTML features:
 
     * Structure elements (e.g. headings, text blocks, lists).
     * In-line styling.
