@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.11.0
+What's new in release 1.11.1
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,11 +19,7 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Support for stopping a test session immediately upon a step's failure. | GITB TDL | :ref:`tdl-steps-common-stoponerror`, :ref:`test-case-steps`
-    Support for custom output messages as the overall result of a test session's execution. | GITB TDL | :ref:`test-case-output`
-    Allow a ``verify`` step to optionally store its report's context data. | GITB TDL | :ref:`tdl-step-verify`
-    New ``TEST_SUCCESS`` variable used to track the overall status of the test session at any point. | GITB TDL | :ref:`test-case-expressions-step-results`
-    Support for custom titles for the user input popups linked to the ``interact`` step. | GITB TDL | :ref:`tdl-step-interact`
+    Referencing a missing variable evaluates as an empty string. | GITB TDL | :ref:`test-case-referring-to-variables_missing`
 
 Previous documentation versions
 -------------------------------
@@ -35,6 +31,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.11.0| Stop on errors, test case output messages, support for ``verify`` output data, new ``TEST_SUCCESS`` variable, and custom ``interact`` titles.| https://www.itb.ec.europa.eu/docs/tdl/1.11.0/
     1.10.2| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.2/
     1.10.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.1/
     1.10.0| Dynamic test case imports, custom titles, new ``log`` step, imported documentation and extensions to endpoint parameters.| https://www.itb.ec.europa.eu/docs/tdl/1.10.0/

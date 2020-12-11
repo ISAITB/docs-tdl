@@ -113,6 +113,8 @@ an expression consists only of a variable reference without other XPath elements
 As we have discussed in :ref:`test-case-types-type-conversions`, pure variable references are important when we need to convert 
 variables from one type to another in ``assign`` steps.
 
+.. _test-case-referring-to-variables_map:
+
 Map elements
 ++++++++++++
 
@@ -167,6 +169,8 @@ The following examples illustrate ``assign`` steps that showcase the possible as
     -->
     <assign to="$myMap{myNestedMap}{myFurtherNestedMap}{myKey}" type="string">"A value"</assign>
 
+.. _test-case-referring-to-variables_list:
+
 List variable elements
 ++++++++++++++++++++++
 
@@ -201,6 +205,34 @@ and assign list values:
     <assign to="$index1">1</assign>
     <assign to="$index2">2</assign>
     <assign to="$myList{$index1}">$anotherList{$index2}</assign>
+
+.. _test-case-referring-to-variables_missing:
+
+Missing variables
++++++++++++++++++
+
+During a test session is it possible that you refer to a variable that is not defined. Doing so is not always an error
+given that variables may be contributed to the session via external configuration or data received from messaging, processing
+or validation steps. When an expression refers to a missing variable, the value that is assigned is an **empty string**.
+
+A typical scenario where you may want to use this is when you check configuration or data for certain input and, if missing,
+set a default value through the test case. This is illustrated in the following test case snippet:
+
+.. code-block:: xml
+
+    <if desc="Determine validation type">
+        <!-- If "$SYSTEM{validationType}" cannot be determined it is considered as being an empty string.
+        <cond>string-length($SYSTEM{validationType}) = 0</cond>
+        <then>
+            <!-- No value found - set a default. -->
+            <assign to="typeToUse">'defaultValidationType'</assign>
+        </then>
+        <else>
+            <!-- Value found - use it. -->
+            <assign to="typeToUse">$SYSTEM{validationType}</assign>
+        </else>
+    </if>
+    <log>concat('Using validation type: ', $typeToUse)</log>
 
 .. _test-case-variables-from-expression-output:
 

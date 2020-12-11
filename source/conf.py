@@ -24,9 +24,9 @@ copyright = '2020, European Commission, DIGIT ISA'
 author = 'European Commission, DIGIT ISA'
 
 # The short X.Y version
-version = 'GITB TDL version 1.11.0'
+version = 'GITB TDL version 1.11.1'
 # The full version, including alpha/beta/rc tags
-release = 'GITB TDL version 1.11.0'
+release = 'GITB TDL version 1.11.1'
 
 html_show_sourcelink = False
 html_show_sphinx = False
