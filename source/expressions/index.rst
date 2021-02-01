@@ -221,7 +221,7 @@ set a default value through the test case. This is illustrated in the following 
 .. code-block:: xml
 
     <if desc="Determine validation type">
-        <!-- If "$SYSTEM{validationType}" cannot be determined it is considered as being an empty string.
+        <!-- If "$SYSTEM{validationType}" cannot be determined it is considered as being an empty string. -->
         <cond>string-length($SYSTEM{validationType}) = 0</cond>
         <then>
             <!-- No value found - set a default. -->
