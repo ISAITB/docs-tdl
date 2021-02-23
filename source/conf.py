@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'GITB TDL Documentation'
-copyright = '2021, European Commission, DIGIT ISA'
-author = 'European Commission, DIGIT ISA'
+copyright = '2021, European Commission, DIGIT'
+author = 'European Commission, DIGIT'
 
 # The short X.Y version
-version = 'GITB TDL version 1.11.1'
+version = 'GITB TDL version 1.12.0'
 # The full version, including alpha/beta/rc tags
-release = 'GITB TDL version 1.11.1'
+release = 'GITB TDL version 1.12.0'
 
 html_show_sourcelink = False
 html_show_sphinx = False
