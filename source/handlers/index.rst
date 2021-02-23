@@ -564,10 +564,194 @@ The following examples illustrate use of this handler to work with Base64 encodi
         <input name="input">$data2{output}</input>
     </process>
 
+.. index:: CollectionUtils
+.. index:: size
+.. index:: clear
+.. _handlers-CollectionUtils:
+
+CollectionUtils
++++++++++++++++
+
+Used to process collections (maps and lists) in ways not possible otherwise with TDL expressions. This processing handler does not require
+a processing transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :stub-columns: 1
+    :delim: |
+
+    ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
+    ``clear`` | Receive a collection as input and empty it. | Yes | No.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
+
+    ``size`` | ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``size`` | ``list`` | No | The ``list`` of which the elements are to be counted (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``clear`` | ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``clear`` | ``list`` | No | The ``list`` to be cleared (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+
+Collection or *container* variables represent flexible means of recording arbitrary sequences of data or hierarchical data structures. In particular
+``map`` variables are very common as these are used to store results of :ref:`processing<tdl-step-process>`, :ref:`messaging<tdl-messaging-steps>` and :ref:`validation<tdl-step-verify>` operations.
+Adding new elements to collections or replacing existing values is achieved using the :ref:`assign<tdl-step-assign>` step, where the
+expressions used may also :ref:`determine collections<test-case-variables-from-expression-output>` that don't previously exist.
+The ``CollectionUtils`` processing handler complements such operations by allowing further manipulations that cannot be achieved
+through simple :ref:`expressions<test-case-expressions>`.
+
+The ``size`` operation allows a test case to determine a collection's size. This can be particularly useful in the case of
+operations that return an arbitrary number of data items as a ``list`` which we need to iterate over. The following examples
+illustrate how this operation can be used:
+
+.. code-block:: xml
+
+    <!-- Create a map with three elements -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <assign to="aMap{c}">'Value 3'</assign>
+    <!-- Create a list with two elements -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <!-- Calculate the size of the map -->
+    <process id="aMapSize" handler="CollectionUtils">
+        <operation>size</operation>
+        <input name="map">$aMap</input>
+    </process>
+    <!-- Prints "3" -->
+    <log>$aMapSize{output}</log>
+    <!-- Calculate the size of the list -->
+    <process id="aListSize" handler="CollectionUtils">
+        <operation>size</operation>
+        <input name="list">$aList</input>
+    </process>
+    <!-- Prints "2" -->
+    <log>$aListSize{output}</log>
+    <!-- Print each list element. -->
+    <foreach desc="Iterate list" counter="index" start="0" end="$aListSize{output}">
+        <do>
+            <!-- Prints "Value 1" and then "Value 2" -->
+            <log>aList{$index}</log>
+        </do>
+    </foreach>
+
+.. note::
+    **Nested collections:** If a collection structure contains itself further collection structures as elements, the
+    ``size`` operation will only count the collection's top level elements.
+
+The ``clear`` operation on the other hand allows a test case to empty the contents of a given collection if this becomes
+necessary. The following examples illustrate how this works for lists and maps:
+
+.. code-block:: xml
+
+    <!-- Create a map with three elements -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <assign to="aMap{c}">'Value 3'</assign>
+    <!-- Create a list with two elements -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <!-- Empty the map -->
+    <process handler="CollectionUtils">
+        <operation>clear</operation>
+        <input name="map">$aMap</input>
+    </process>
+    <!-- Empty the list -->
+    <process handler="CollectionUtils">
+        <operation>clear</operation>
+        <input name="list">$aList</input>
+    </process>
+
+.. index:: RegExpProcessor
+.. index:: check
+.. index:: collect
+.. index:: input
+.. index:: expression
+.. index:: output
+.. _handlers-RegExpProcessor:
+
+RegExpProcessor
++++++++++++++++
+
+Used to process texts using regular expressions, to verify whether they match a specific pattern or to extract data. This processing handler
+does not require a processing transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :stub-columns: 1
+    :delim: |
+
+    ``check`` | Check to see if a ``string`` matches an expression. | Yes | Yes, a ``boolean`` named ``output`` in the resulting step's ``map``.
+    ``collect`` | Use an expression to collect data from a provided ``string`` based on the expression's capturing groups. | Yes | A ``list`` of ``string`` values, one value per matched group.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
+
+    ``check`` | ``input`` | Yes | The ``string`` to check.
+    ``check`` | ``expression`` | Yes | A ``string`` with the expression that will be used to check the ``input``.
+    ``collect`` | ``input`` | Yes | The ``string`` to process to collect data.
+    ``collect`` | ``expression`` | Yes | A ``string`` with the expression to collect data with. The provided expression must define at least one capturing group.
+
+Regular expressions offer a very powerful means of describing a text's content and extracting from it certain parts for further processing. They can be used
+against any text content, offering a counterpart to the use of XPath in the :ref:`assign<tdl-step-assign>` step that is best adapted, but also limited, to XML structures.
+The regular expressions are expected to be provided using the `syntax used by the Java language`_.
+
+The ``check`` operation can be used to verify whether a given text matches a specific pattern. This may at first appear similar to the
+:ref:`RegExpValidator<handlers-RegExpValidator>`, however there is a subtle difference: using the :ref:`RegExpValidator<handlers-RegExpValidator>`
+constitutes an assertion made by the test case which, if failed, would likely mean that the test session itself is considered failed. The ``check``
+operation doesn't presume anything for the test session's status, but is rather used as an internal check to e.g. determine
+whether an optional set of steps should be followed. The following example illustrates its use:
+
+.. code-block:: xml
+
+    <!-- Check if a given text includes "test" in a case-insensitive manner -->
+    <process id="check" handler="RegExpProcessor">
+        <operation>check</operation>
+        <input name="input">$someTextData</input>
+        <!-- Flags are passed in embedded format -->
+        <input name="expression">"(?i)test"</input>
+    </process>
+    <if desc="Optional steps">
+        <cond>$check{output}</cond>
+        <then>
+            ...
+        </then>
+    </if>
+
+The ``collect`` operation is used to process a provided text using an expression that defines one or more capturing groups. This
+operation can be particularly powerful as it can collect data from both structured and unstructured data. Each matching group
+is appended to a ``list`` of ``string`` elements in the sequence with which it was matched, otherwise resulting in an empty ``list``
+if no matches were made. Consider the following example to see how this can be used:
+
+.. code-block:: xml
+
+    <!-- Define a firstname and lastname in an unstructured text block -->
+    <assign to="aText">"My firstname is 'John' and my lastname is 'Doe'."</assign>
+    <!-- Collect the data using an expression with two capturing groups -->
+    <process id="personData" handler="RegExpProcessor">
+        <operation>collect</operation>
+        <input name="input">$aText</input>
+        <input name="expression">".+ firstname is '([\w]+)' .+ lastname is '([\w]+)'"</input>
+    </process>
+    <!-- Prints "John" -->
+    <log>$personData{0}</log>
+    <!-- Prints "Doe" -->
+    <log>$personData{1}</log>
+
 .. index:: TokenGenerator
 .. index:: string
 .. index:: timestamp
 .. index:: uuid
+.. index:: format
+.. index:: diff
+.. index:: date
+.. index:: inputFormat
 .. _handlers-TokenGenerator:
 
 TokenGenerator
@@ -587,14 +771,18 @@ transaction to be established. The following operations are supported:
 The input parameters expected by the different operations are as follows:
 
 .. csv-table::
-    :stub-columns: 2
     :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
 
-    ``timestamp``, ``format``, No, The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
-    ``timestamp``, ``zone``, No, The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
-    ``timestamp``, ``time``, No, A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
-    ``timestamp``, ``diff``, No, A ``number`` representing the milliseconds to consider as a diff from the considered ``time``. This value (default 0) is added to the considered ``time`` before formatting (i.e. a negative value signals an earlier time).
-    ``string``, ``format``, Yes, A regular expression acting as a template to determine the generated token's format.
+
+    ``timestamp`` | ``format`` | No | The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
+    ``timestamp`` | ``zone`` | No | The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
+    ``timestamp`` | ``time`` |  No | A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
+    ``timestamp`` | ``date`` |  No | A ``string`` representing a date/time to use as the value to format. If specified along with ``time``, the ``time`` input takes precedence.
+    ``timestamp`` | ``inputFormat`` |  No | The formatting pattern to use to interpret the ``date`` input (if provided), matching the Java date/time formatting specifications (see `Formatting configuration`_).
+    ``timestamp`` | ``diff`` | No | A ``number`` representing the milliseconds to consider as a diff from the considered ``time`` or ``date``. This value (default 0) is added to the considered ``time`` or ``date`` before formatting (i.e. a negative value signals an earlier time).
+    ``string`` | ``format`` | Yes | A regular expression acting as a template to determine the generated token's format.
 
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
 e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
@@ -602,6 +790,16 @@ The ``uuid`` operation provides a random and unique identifier where special for
 string that includes date/time values but can also have fixed parts (e.g. if you need to generate a text token with a fixed part and a variable part based on the
 current date/time). Finally, the ``string`` operation is noteworthy as it can be used to generate any kind of text token with both fixed and random parts. The template
 to consider for the output is provided as a regular expression with the value to be returned being a random string to match it.
+
+.. note::
+    **Default format for input dates:** If a ``date`` is provided without an ``inputFormat``, the pattern of ``dd/MM/yyyy'T'HH:mm:ss.SSSZ`` is assumed
+    by default. Moreover, all parts are considered optional allowing you to specify only parts of a date, making use of the following defaults for those that are missing:
+
+    * Day of year (``dd``): The 1st day of the month.
+    * Month (``MM``): The 1st month of the year (January).
+    * Year (``yyyy``): The current year.
+    * Time elements (``HH``, ``mm``, ``ss`` and ``SSS``): A value of zero.
+    * Time zone (``Z``): UTC.
 
 The examples that follow illustrate use of these operations to generate a series of tokens that are then presented to the user by means
 of an :ref:`tdl-step-interact` step. Note in all cases how the produced value is retrieved from the ``map`` resulting from the ``process`` step
@@ -684,6 +882,23 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
     </process>
     <!--
+        Generate a timestamp based on an existing date/time string plus one hour
+    -->
+    <process id="timestampFromFormattedString1" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="date">'20-10-2021 13:30:00'</input>
+        <input name="inputFormat">'dd-MM-yyyy HH:mm:ss'</input> <!-- Assumes UTC -->
+        <input name="diff">3600000</input>
+    </process>
+    <!--
+        Generate a timestamp based on an existing date/time string plus one hour (default formatting)
+    -->
+    <process id="timestampFromFormattedString2" handler="TokenGenerator">
+        <operation>timestamp</operation>
+        <input name="date">'20/10'</input> <!-- Assumes the current year, midnight, and a UTC timezone -->
+        <input name="diff">3600000</input>
+    </process>
+    <!--
         Generate a random string with 2 characters followed by 10 digits.
         Example output would be "cD6723820231".
     -->
@@ -713,6 +928,8 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <instruct desc="A timestamp using a diff:">$formattedTimestampDiff{value}</instruct>
         <instruct desc="Now minus one hour:">$nowMinusOneHour{value}</instruct>
         <instruct desc="Now plus one hour:">$nowPlusOneHour{value}</instruct>
+        <instruct desc="Plus one hour of formatted string:">$timestampFromFormattedString1{value}</instruct>
+        <instruct desc="Plus one hour of default formatted string:">$timestampFromFormattedString2{value}</instruct>
         <instruct desc="A random string:">$stringRandom{value}</instruct>
         <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
     </interact>
@@ -870,6 +1087,11 @@ Used to validate an XML document against a Schematron file.
 
     schematron, Yes, ``schema``, The Schematron file to use for the validation (XSTL or SCH).
     xmldocument, Yes, ``object``, The XML document to validate.
+    type, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the resource's file suffix. The overall default considered is ``sch``.
+
+.. note::
+    **XSLT vs SCH Schematron files:** XSLT versions of Schematron files are pre-processed files and offer significantly better
+    performance for complex rule cases. In addition, if Schematron rules import other resources, use of XSLT files is required.
 
 .. code-block:: xml
 
@@ -1057,3 +1279,5 @@ reference as the expression:
 The ``input`` and ``output`` options for service handlers are documented as part of their module definition. For handlers accessible
 via remote web service calls this information is returned when calling the handler's ``getModuleDefinition`` operation. This is also used internally
 by the test bed before calling a service handler to ensure that required parameters are provided by the test case.
+
+.. _syntax used by the Java language: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html

@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.11.1
+What's new in release 1.12.0
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,7 +19,10 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Referencing a missing variable evaluates as an empty string. | GITB TDL | :ref:`test-case-referring-to-variables_missing`
+    New embedded processing handler ``RegExpProcessor`` to process texts using regular expressions. | GITB TDL | :ref:`handlers-RegExpProcessor`
+    New embedded processing handler ``CollectionUtils`` providing utility functions for maps and lists. | GITB TDL | :ref:`handlers-CollectionUtils`
+    The ``TokenGenerator`` processing handler now allows manipulation of dates based on existing, formatted, date values. | GITB TDL | :ref:`handlers-TokenGenerator`
+    The ``SchematronValidator`` validation handler now supports defining the Schematron file type (XSLT or SCH) as an input. | GITB TDL | :ref:`handlers-SchematronValidator`
 
 Previous documentation versions
 -------------------------------
@@ -31,6 +34,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.11.1| Referencing a missing variable evaluates as an empty string.| https://www.itb.ec.europa.eu/docs/tdl/1.11.1/
     1.11.0| Stop on errors, test case output messages, support for ``verify`` output data, new ``TEST_SUCCESS`` variable, and custom ``interact`` titles.| https://www.itb.ec.europa.eu/docs/tdl/1.11.0/
     1.10.2| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.2/
     1.10.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.10.1/

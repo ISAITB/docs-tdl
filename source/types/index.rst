@@ -28,6 +28,7 @@ in GITB TDL:
     ``list``, Container, A list of values (similar to a ``java.util.List``)
 
 .. index:: Map (Type)
+.. _test-case-types-maps:
 
 Map variables
 ~~~~~~~~~~~~~
@@ -36,6 +37,7 @@ Variables of type ``map`` can contain values or any type, with even different ty
 may also contain embedded ``map`` variables at any level of depth. The keys of a ``map`` are however always strings.
 
 .. index:: List (Type)
+.. _test-case-types-lists:
 
 List variables
 ~~~~~~~~~~~~~~
