@@ -25,6 +25,12 @@ Messaging steps allow the test case to handle the exchange of messages between a
 allowing content to be sent or received is implemented by a messaging handler (see :ref:`introduction-concepts-messaging-handlers`).
 
 .. index:: btxn
+.. index:: txnid (btxn)
+.. index:: to (btxn)
+.. index:: handler (btxn)
+.. index:: stopOnError (btxn)
+.. index:: property (btxn)
+.. index:: config (btxn)
 .. _tdl-step-btxn:
 
 btxn
@@ -63,6 +69,8 @@ and ``receive`` calls.
 Note that ``btxn`` steps are not presented to the user.
 
 .. index:: etxn
+.. index:: txnid (etxn)
+.. index:: stopOnError (etxn)
 .. _tdl-step-etxn:
 
 etxn
@@ -94,6 +102,15 @@ Executing the ``etxn`` results in a call to the transaction's messaging handler 
 Note that ``etxn`` steps are not presented to the user.
 
 .. index:: send
+.. index:: txnid (send)
+.. index:: from (send)
+.. index:: to (send)
+.. index:: desc (send)
+.. index:: id (send)
+.. index:: stopOnError (send)
+.. index:: documentation (send)
+.. index:: config (send)
+.. index:: input (send)
 .. _tdl-step-send:
 
 send
@@ -130,6 +147,19 @@ sending always takes place through the message handler implementation. The ``sen
     <etxn txnId="t1"/>
 
 .. index:: receive
+.. index:: txnid (receive)
+.. index:: from (receive)
+.. index:: to (receive)
+.. index:: desc (receive)
+.. index:: id (receive)
+.. index:: timeout (receive)
+.. index:: timeoutFlag (receive)
+.. index:: timeoutIsError (receive)
+.. index:: stopOnError (receive)
+.. index:: documentation (receive)
+.. index:: config (receive)
+.. index:: input (receive)
+.. index:: output (receive)
 .. _tdl-step-receive:
 
 receive
@@ -196,6 +226,15 @@ output (returned via its call-back to the test bed) to the specified values. If 
     Check the `messaging service documentation`_ for details on how to do this.
 
 .. index:: listen
+.. index:: txnid (listen)
+.. index:: from (listen)
+.. index:: to (listen)
+.. index:: id (listen)
+.. index:: stopOnError (listen)
+.. index:: documentation (listen)
+.. index:: config (listen)
+.. index:: input (listen)
+.. index:: output (listen)
 .. _tdl-step-listen:
 
 listen
@@ -236,6 +275,11 @@ that carries out operations is implemented by a processing handler (see :ref:`in
 Note that processing steps are not presented to the user.
 
 .. index:: bptxn
+.. index:: txnid (bptxn)
+.. index:: handler (bptxn)
+.. index:: stopOnError (bptxn)
+.. index:: property (bptxn)
+.. index:: config (bptxn)
 .. _tdl-step-bptxn:
 
 bptxn
@@ -283,6 +327,8 @@ start.
     <eptxn txnId="t1"/>
 
 .. index:: eptxn
+.. index:: txnid (eptxn)
+.. index:: stopOnError (eptxn)
 .. _tdl-step-eptxn:
 
 eptxn
@@ -312,6 +358,12 @@ completed and proceed with any needed actions such as resource clean-up.
     <eptxn txnId="t1"/>
 
 .. index:: process
+.. index:: txnid (process)
+.. index:: id (process)
+.. index:: handler (process)
+.. index:: stopOnError (process)
+.. index:: operation (process)
+.. index:: input (process)
 .. _tdl-step-process:
 
 process
@@ -413,6 +465,13 @@ Flow steps are used to control the processing flow of a test case. The construct
 flow control structures available in programming languages.
 
 .. index:: if
+.. index:: title (if)
+.. index:: desc (if)
+.. index:: stopOnError (if)
+.. index:: documentation (if)
+.. index:: cond (if)
+.. index:: then (if)
+.. index:: else (if)
 .. _tdl-step-if:
 
 if
@@ -449,6 +508,12 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     </if>
 
 .. index:: while
+.. index:: title (while)
+.. index:: desc (while)
+.. index:: stopOnError (while)
+.. index:: documentation (while)
+.. index:: cond (while)
+.. index:: do (while)
 .. _tdl-step-while:
 
 while
@@ -495,6 +560,12 @@ The following example validates the name of each attachment defined in an XML do
     </while>
 
 .. index:: repuntil
+.. index:: title (repuntil)
+.. index:: desc (repuntil)
+.. index:: stopOnError (repuntil)
+.. index:: documentation (repuntil)
+.. index:: do (repuntil)
+.. index:: cond (repuntil)
 .. _tdl-step-repuntil:
 
 repuntil
@@ -535,6 +606,14 @@ should take place. The structure of the ``repuntil`` element is as follows:
     reflecting accurately how the condition is considered.
 
 .. index:: foreach
+.. index:: title (foreach)
+.. index:: desc (foreach)
+.. index:: start (foreach)
+.. index:: end (foreach)
+.. index:: counter (foreach)
+.. index:: stopOnError (foreach)
+.. index:: documentation (foreach)
+.. index:: do (foreach)
 .. _tdl-step-foreach:
 
 foreach
@@ -584,6 +663,11 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
     </foreach>	
 
 .. index:: flow
+.. index:: title (flow)
+.. index:: desc (flow)
+.. index:: stopOnError (flow)
+.. index:: documentation (flow)
+.. index:: thread (flow)
 .. _tdl-step-flow:
 
 flow
@@ -649,6 +733,9 @@ The following example sends a SOAP request to two actors in parallel and proceed
     Check the `messaging service documentation`_ for details on how to do this.
 
 .. index:: exit
+.. index:: desc (exit)
+.. index:: success (exit)
+.. index:: documentation (exit)
 .. _tdl-step-exit:
 
 exit
@@ -707,6 +794,13 @@ Support steps
 Support steps are those that perform specific actions not related to messaging, processing or flow control. 
 
 .. index:: assign
+.. index:: to (assign)
+.. index:: append (assign)
+.. index:: type (assign)
+.. index:: lang (assign)
+.. index:: source (assign)
+.. index:: asTemplate (assign)
+.. index:: stopOnError (assign)
 .. _tdl-step-assign:
 
 assign
@@ -756,6 +850,10 @@ here on how variables are :ref:`dynamically created<test-case-variables-from-exp
     and considered the same as ``$myVariable``.
 
 .. index:: log
+.. index:: lang (log)
+.. index:: source (log)
+.. index:: asTemplate (log)
+.. index:: stopOnError (log)
 .. _tdl-step-log:
 
 log
@@ -806,6 +904,9 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
     <log asTemplate="false">$message</log>
 
 .. index:: group
+.. index:: desc (group)
+.. index:: stopOnError (group)
+.. index:: documentation (group)
 .. _tdl-step-group:
 
 group
@@ -847,6 +948,16 @@ related validations.
     rendered on the user interface.
 
 .. index:: verify
+.. index:: id (verify)
+.. index:: desc (verify)
+.. index:: handler (verify)
+.. index:: level (verify)
+.. index:: stopOnError (verify)
+.. index:: output (verify)
+.. index:: documentation (verify)
+.. index:: property (verify)
+.. index:: config (verify)
+.. index:: input (verify)
 .. _tdl-step-verify:
 
 verify
@@ -929,12 +1040,18 @@ completes, this variable will be set to anything returned as the `validation rep
 If no ``output`` attribute is set, the context data from the step's report will be displayed but not recorded in the session context.
 
 .. index:: call
+.. index:: id (call)
+.. index:: path (call)
+.. index:: from (call)
+.. index:: stopOnError (call)
+.. index:: input (call)
+.. index:: output (call)
 .. _tdl-step-call:
 
 call
 ~~~~
 
-The ``call`` step is used to invoke a set of steps defined as a ``scriptlet`` (see :ref:`test-case-scriptlets`). If we consider that a scriptlet resembles a function 
+The ``call`` step is used to invoke a set of steps defined as a ``scriptlet`` (see :ref:`scriptlets`). If we consider that a scriptlet resembles a function
 with input, output and local variables, the ``call`` step can be considered as the function's invocation. Its purpose is to identify the ``scriptlet`` to call, pass
 its required input parameters and receive its output. The structure of the ``call`` element is as follows:
 
@@ -943,23 +1060,96 @@ its required input parameters and receive its output. The structure of the ``cal
     :header: "Name", "Required?", "Description"
 
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    @path, yes, The ID of the scriptlet to call.
+    @path, yes, The identifier scriptlet to call. The value provided here depends on the whether the scriptlet is :ref:`external to the test case<scriptlets>` or :ref:`defined within it<test-case-scriptlets>`.
+    @from, no, The identifier of the test suite from which the scriptlet will be loaded. If not provided this is assumed to be the current test suite.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
-    output, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
+    output, no, Zero or more elements for the ``scriptlet``'s output parameters to specify which outputs you require.
+
+Scriptlets can be defined in :ref:`separate XML files<scriptlets>`, in which case they can be used by any test case, or as
+:ref:`internal to a specific test case<test-case-scriptlets>`, in which case they are considered private. How a scriptlet
+is looked up depends on its type, which defines how the ``path`` and ``from`` attributes are used. Specifically:
+
+* **Internal scriptlet:** The ``path`` attribute is set with the ``id`` value of the scriptlet to call and the ``from`` attribute is omitted.
+* **External scriptlet:** The ``from`` attribute is set with the ``id`` of the test suite to load the scriptlet from, and
+  the ``path`` is set with the file path to the scriptlet's XML file (relative to the test suite's root).
+
+If the ``from`` attribute is not specified, the test engine first attempts to load the scriptlet from the ones defined
+within the test case, by matching the ``path`` value against the defined scriptlets' ``id``. If no match is found a
+further lookup is made within the test case's containing test suite, in which case the ``path`` value is considered as
+the path to the scriptlet's XML file. When the ``from`` attribute is specified the scriptlet is always considered to be
+external to the test case, and its value is considered to be a test suite's ``id``. The lookup in this case proceeds as
+follows:
+
+#. If the value matches the current **test suite** ``id``, the lookup is made within the current test suite.
+#. If not found, the lookup for a matching test suite continues within the current test suite's **specification**.
+#. If not found, the lookup for a matching test suite continues within the current test suite's overall **domain**.
+
+.. note::
+    **Non-unique test suite IDs:** If multiple test suites are matched during a scriptlet's lookup, an arbitrary test suite
+    will be considered. Ensure that test suites sharing common resources have a unique ``id``. A test suite's ``id`` is
+    always unique within a specification but not necessarily across specifications (i.e. within the overall domain).
+
+The following example ``call`` steps, illustrate different cases of scriptlet lookup:
 
 .. code-block:: xml
 
-    <call id="call1" path="script1">
+    <!--
+        Look for a scriptlet with id "script1" within the test case.
+        If not found look for a file "script1" within the test case's test suite.
+    -->
+    <call id="call1" path="script1"/>
+    <!--
+        Look for the scriptlet in test suite "test_suite_1" and load it from file "scriptlets/script1.xml".
+    -->
+    <call id="call2" from="test_suite_1" path="scriptlets/script1.xml"/>
+
+Once the target scriptlet has been located, the ``call`` step will calculate and pass any ``inputs`` it requires. The approach
+to pass inputs is identical to the case of :ref:`inputs to handlers<handlers-inputs-outputs>`. Values can be provided as
+constants or results of :ref:`expressions<test-case-expressions>`, and can optionally be considered as :ref:`templates<test-case-expressions-template-files>`
+with placeholder substitutions. It is important to note that all scriptlet inputs are required; failure to provide one or
+more inputs will result in a test session error.
+
+Once a scriptlet completes, its :ref:`outputs<scriptlets_elements_output>` are recorded in a ``map`` stored in the
+test session's context, that is named using the ``call`` step's ``id``. Individual outputs can then be referred
+to from within this ``map`` using their name.
+
+A ``call`` step may choose to ignore specific scriptlet outputs. This can be done by listing the specific outputs you are
+interested in, naming them as part of the ``call`` step's ``output`` elements. Any outputs that don't match the listed ones
+will then be discarded. Note that when the ``call`` step does not define specific ``output`` elements, all scriptlet outputs are
+returned by default.
+
+The following example illustrates potential uses of the ``call`` step:
+
+.. code-block:: xml
+
+    <!--
+        Call a scriptlet defined within the test case and retrieve all its output.
+    -->
+    <call id="internalCall" path="script1">
+        <input name="docToValidate">$fileContent1</input>
+    </call>
+    <!--
+        Call a scriptlet defined in test suite "test_suite_1" and retrieve only its "outputMessage" output.
+    -->
+    <call id="externalCall" from="test_suite_1" path="scriptlets/script1.xml">
         <input name="docToValidate">$fileContent1</input>
         <output name="outputMessage"/>
     </call>
 
-More information and examples on how to call a ``scriptlet`` and how to manage its output are provided in :ref:`test-case-scriptlets`.
+Further information on defining and using scriptlets is provided in the :ref:`scriptlet documentation<scriptlets>`. For
+scriptlets specifically defined within test cases (i.e. private scriptlets) refer to the test case's
+:ref:`scriptlets element<test-case-scriptlets>`.
 
 .. index:: interact
-.. index:: instruct
-.. index:: request
+.. index:: id (interact)
+.. index:: title (interact)
+.. index:: desc (interact)
+.. index:: with (interact)
+.. index:: inputTitle (interact)
+.. index:: stopOnError (interact)
+.. index:: documentation (interact)
+
 .. _tdl-step-interact:
 
 interact
@@ -987,6 +1177,14 @@ The structure of the ``interact`` element is as follows:
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
 
+.. index:: instruct (interact)
+.. index:: desc (instruct)
+.. index:: with (instruct)
+.. index:: name (instruct)
+.. index:: type (instruct)
+.. index:: source (instruct)
+.. index:: asTemplate (instruct)
+
 The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
 .. csv-table::
@@ -1000,6 +1198,17 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
     @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+
+.. index:: request (interact)
+.. index:: desc (request)
+.. index:: with (request)
+.. index:: contentType (request)
+.. index:: encoding (request)
+.. index:: name (request)
+.. index:: options (request)
+.. index:: optionLabels (request)
+.. index:: multiple (request)
+.. index:: asTemplate (request)
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -1113,6 +1322,9 @@ Common step concepts
 The following section documents common concepts that apply to all test steps.
 
 .. index:: documentation (test case step)
+.. index:: import (documentation - test case step)
+.. index:: from (documentation - test case step)
+.. index:: encoding (documentation - test case step)
 .. _tdl-steps-common-documentation:
 
 Rich documentation per step
@@ -1126,10 +1338,19 @@ attached to each step (via attribute ``desc``), allowing further instructions, c
     :header: "Name", "Required?", "Description"
 
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
-typically enclosed within a CDATA section if this includes HTML elements (in which case the ``import`` and ``encoding`` attributes are omitted).
+typically enclosed within a CDATA section if this includes HTML elements (in which case the ``from``, ``import`` and ``encoding`` attributes are omitted).
+When loading documentation from a separate file, it is also possible to lookup this file from another test suite. This is
+done by specifying as the value of the ``from`` attribute the ``id`` of the target test suite. This is used to lookup the
+target test suite as follows:
+
+#. Look for the test suite in the same **specification** as the current test case.
+#. If not found in the same specification, look for the test suite in the other specifications of the test case's **domain**.
+   If across specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such
+   a scenario it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
 
 This documentation can provide further information on the context of the test step, diagrams or reference information that are useful to understand how it is to be completed. The content supplied supports
 several HTML features:

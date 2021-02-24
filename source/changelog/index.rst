@@ -19,6 +19,9 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
+    Support for test suites without actor definitions nor test cases, as shared resource holders. | GITB TDL | :ref:`test-suite-sharing-empty`
+    Support for sharing resources (scriptlets, artifacts, documentation) across test suites. | GITB TDL | :ref:`test-suite-sharing`
+    Support for sharing scriptlets across test cases, scriptlet output expressions, optional parameters, variables and outputs. | GITB TDL | :ref:`Scriptlets (standalone)<scriptlets>`, :ref:`Scriptlets (test case)<test-case-scriptlets>`, :ref:`tdl-step-call`
     New embedded processing handler ``RegExpProcessor`` to process texts using regular expressions. | GITB TDL | :ref:`handlers-RegExpProcessor`
     New embedded processing handler ``CollectionUtils`` providing utility functions for maps and lists. | GITB TDL | :ref:`handlers-CollectionUtils`
     The ``TokenGenerator`` processing handler now allows manipulation of dates based on existing, formatted, date values. | GITB TDL | :ref:`handlers-TokenGenerator`

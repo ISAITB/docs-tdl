@@ -44,15 +44,23 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
 
     @id, yes, A string to uniquely identify the test suite by.
     metadata, yes, A block containing the metadata used to describe the test suite.
-    actors, yes, The list of actors that relate to the test suite's test cases.
-    testcase, yes, One or more test cases that are included in the test suite.
+    actors, no, The list of actors that relate to the test suite's test cases. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
+    testcase, no, A set of one or more test cases that are included in the test suite. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
 
 Elements
 --------
 
 Here we will see how a test suite breaks down into its individual sections and discuss the purpose of each. 
 
-.. index:: Metadata (Test suites)
+.. index:: metadata (Test suite)
+.. index:: name (Test suite metadata)
+.. index:: type (Test suite metadata)
+.. index:: version (Test suite metadata)
+.. index:: authors (Test suite metadata)
+.. index:: description (Test suite metadata)
+.. index:: published (Test suite metadata)
+.. index:: lastModified (Test suite metadata)
+.. index:: documentation (Test suite metadata)
 .. _test-suite-metadata:
 
 Metadata
@@ -74,7 +82,10 @@ manage existing test suites but also for end users to understand the test suite'
     lastModified, no, A string acting as an indication of the last modification time for the test suite.
     documentation, no, Rich text content that provides further information on the current test suite.
 
-.. index:: documentation (test suite)
+.. index:: documentation (Test suite)
+.. index:: import (Test suite documentation)
+.. index:: from (Test suite documentation)
+.. index:: encoding (Test suite documentation)
 
 The ``documentation`` element complements the test suite's ``description`` by allowing the test suite's author to include extended rich text documentation as HTML. The structure of this element is as follows:
 
@@ -83,10 +94,19 @@ The ``documentation`` element complements the test suite's ``description`` by al
     :header: "Name", "Required?", "Description"
 
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
-typically enclosed within a CDATA section if this includes HTML elements (in which case the ``import`` and ``encoding`` attributes are omitted).
+typically enclosed within a CDATA section if this includes HTML elements (in which case the ``from``, ``import`` and ``encoding`` attributes are omitted).
+When loading documentation from a separate file, it is also possible to lookup this file from another test suite. This is
+done by specifying as the value of the ``from`` attribute the ``id`` of the target test suite. This is used to lookup the
+target test suite as follows:
+
+#. Look for the test suite in the same **specification** as the current test case.
+#. If not found in the same specification, look for the test suite in the other specifications of the test case's **domain**.
+   If across specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such
+   a scenario it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
 
 This documentation can provide further information on the context of the test suite, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
 overall specification. The content supplied supports several HTML features:
@@ -126,7 +146,14 @@ Note that documentation such as this is also supported for:
     being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
     values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
 
-.. index:: Actors (Test suites)
+.. index:: actors (Test suite)
+.. index:: id (Test suite actors)
+.. index:: default (Test suite actors)
+.. index:: hidden (Test suite actors)
+.. index:: displayOrder (Test suite actors)
+.. index:: name (Test suite actors)
+.. index:: desc (Test suite actors)
+.. index:: endpoint (Test suite actors)
 .. _test-suite-actors:
 
 Actors
@@ -170,6 +197,11 @@ test cases. Examples of such configuration properties could be a Member State co
 (i.e. these can be simple values or complete files). For an actor as a system under test (SUT), these are properties that would need to be provided before executing
 a test case.
 
+.. index:: endpoint (Test suite actor)
+.. index:: name (Test suite actor endpoint)
+.. index:: desc (Test suite actor endpoint)
+.. index:: config (Test suite actor endpoint)
+
 Such actor configuration is captured in configuration sets named "endpoints" with each one defining key-value pair configuration properties named
 "parameters". In terms of their XML representation, an endpoint is defined using the ``endpoint`` element as follows:
 
@@ -181,14 +213,17 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
     @desc, no, A description to explain the purpose of this endpoint.
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
-.. index:: config (endpoint parameter)
-.. index:: adminOnly
-.. index:: notForTests
-.. index:: hidden
-.. index:: dependsOn
-.. index:: dependsOnValue
-.. index:: allowedValues
-.. index:: allowedValueLabels
+.. index:: config (Test suite actor endpoint)
+.. index:: desc (Test suite actor endpoint parameter)
+.. index:: use (Test suite actor endpoint parameter)
+.. index:: kind (Test suite actor endpoint parameter)
+.. index:: adminOnly (Test suite actor endpoint parameter)
+.. index:: notForTests (Test suite actor endpoint parameter)
+.. index:: hidden (Test suite actor endpoint parameter)
+.. index:: dependsOn (Test suite actor endpoint parameter)
+.. index:: dependsOnValue (Test suite actor endpoint parameter)
+.. index:: allowedValues (Test suite actor endpoint parameter)
+.. index:: allowedValueLabels (Test suite actor endpoint parameter)
 
 The ``config`` elements defining an endpoint's parameters are structured as follows:
 
@@ -333,7 +368,12 @@ The key point to note is the reference to the "configuredValue" parameter in ``$
     **GITB software support:** Only a single endpoint can currently be configured for an actor. Additional endpoints will be recorded for the actor but will be 
     ignored during test execution.
 
-.. index:: Test cases (Test suites)
+.. index:: testcase (Test suite)
+.. index:: id (Test suite testcase)
+.. index:: prequisite (Test suite testcase)
+.. index:: option (Test suite testcase)
+
+.. _test-suite-test-cases:
 
 Test cases
 ~~~~~~~~~~
@@ -360,14 +400,14 @@ Deploying a test suite in the GITB software
 A test suite is packaged as a compressed ZIP archive that contains:
 
 * A single test suite XML file.
-* One or more test case XML files.
+* One or more test case XML files (unless this is only a :ref:`shared resource holder<test-suite-sharing-empty>`).
 * Any number of arbitrary files used as resources within test cases.
 
 The names of the archive, the test suite and the test case XML files are not important. Neither is the folder structure defined within the archive.
 What is important is that:
 
 * A single test suite XML file is defined.
-* The test case IDs defined in the test case XML files are referenced in the test suite XML.
+* Test case IDs defined in the test case XML files are referenced in the test suite XML.
 
 Uploading a test suite to the GITB software the following has the following results:
 
@@ -376,9 +416,10 @@ Uploading a test suite to the GITB software the following has the following resu
   change is significant) or not. Choosing to replace the test suite results in the test suite being updated and its test cases being replaced
   with the ones contained in the new version. Matching of the test suite with an existing one is on the basis of their name within the specification.
 * The actors that are defined in the test suite are created if they don't already exist along with their endpoints and endpoint parameters.
-* Actors that already exist in the specification are updated based on the latest provided information. In this case new endpoints and parameters are added
+* If the user chooses to, actors that already exist in the specification are updated based on the latest provided information. In this case new endpoints and parameters are added
   and existing ones are updated. Note that actors, endpoints and parameters that are not defined in the new test suite are not removed. The matching of
   actors is on the basis of their ID, whereas for endpoints and parameters their name is used.
+* If the test suite does not include any test cases it is marked as hidden (See :ref:`test-suite-sharing-empty`).
 
 As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and to provide their details (their name, endpoints
 and endpoint parameters). An alternative approach to avoid defining the complete actor details in the test suite is to simply refer to the actors used
@@ -408,3 +449,67 @@ user interface without being concerned with keeping their definitions up to date
 actor's information is updated through the user interface but gets reset when a new version of a test suite gets uploaded where the change was not reflected.
 The only points you need to ensure are that the specification's actors are already defined before you start uploading test suites and that you don't change their 
 ID.
+
+.. _test-suite-sharing:
+
+Sharing resources across test suites
+------------------------------------
+
+Test suites, and in particular the :ref:`test cases<test-case>` they include, may rely on additional file resources for
+their documentation and test content. Such files may be made available to test suites in one of two ways:
+
+* As binary :ref:`external configuration properties<test-case-configuration>`
+* As files included in test suite archives.
+
+When provided through configuration properties, files will be available in the test sessions' context from which they
+can be used as ``binary`` variables. Although this approach is flexible, it does not cover all cases, cannot support
+large files, and is not well adapted for resources with dependencies (e.g. an XML schema with imports). The approach of
+providing files within test suite archives is an effective way of addressing such limitations.
+
+The files included within test suites, apart from the test suite and test case definition files, can be:
+
+* :ref:`Scriptlets<scriptlets>`, XML files containing blocks of test steps to be used across multiple test cases.
+* Arbitrary files used as imports in :ref:`test cases<test-case-imports>` and :ref:`scriptlets<scriptlets_elements_imports>`.
+* Documentation files, containing HTML content that is used to provide extended documentation for :ref:`test suites<test-suite-metadata>`,
+  :ref:`test cases<test-case-metadata>`, and individual :ref:`test steps<tdl-steps-common-documentation>`.
+
+Once such files are included in a test suite they can be used within itself but also shared with other test suites. The
+approach to share files uses the test suites' ``id`` attribute to identify the test suite from which a resource will be
+loaded. The constructs that support this all foresee a ``from`` attribute that is set with the target test suite ``id``,
+defaulting to the current test suite if missing. Specifically:
+
+* The ``call`` step to :ref:`call a scriptlet<tdl-step-call>`.
+* The ``artifact`` element of a test case or scriptlet's :ref:`imports<test-case-imports>` block.
+* The ``documentation`` element for :ref:`test suites<test-suite-metadata>`, :ref:`test cases<test-case-metadata>` and
+  :ref:`test steps<tdl-steps-common-documentation>`.
+
+The approach to lookup a test suite using the identifier specified in the ``from`` attribute is as follows:
+
+#. Look for the test suite in the same **specification**.
+#. If not found, look for the test suite in the other specifications of the **domain**.
+   If across specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such
+   a scenario it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
+
+Once the target test suite has been located, the specific file is loaded using a file path relative to the test suite's
+root. The approach to provide this path depends on the test construct in question:
+
+* For ``call`` steps this is the value of the ``path`` attribute.
+* For ``artifact`` import elements this is the element's value.
+* For ``documentation`` elements this is the value of the ``import`` attribute.
+
+.. note::
+    **Resources with dependencies:** When resources such as XML schemas and Schematrons are imported from other test suites,
+    resolution of dependent files (e.g. imported schemas) is carried out as expected based on the loaded file's location.
+
+.. _test-suite-sharing-empty:
+
+Test suites as shared resource holders
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is also possible to define a test suite as a pure resource holder for commonly used files (scriptlets, imports and
+documentation). Such test suites can omit the definition of :ref:`actors<test-suite-actors>` and
+:ref:`test cases<test-suite-test-cases>`, including only a :ref:`metadata<test-suite-metadata>` block to provide, at least,
+the test suite's name and version.
+
+Test suites that do not include test cases are considered as **hidden** in the GITB software and are not visible to testers.
+They are visible to administrators for their management and can only be used by other test suites to load common resources.

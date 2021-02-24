@@ -2,7 +2,7 @@
 .. _test-case:
 
 Test Cases
-===============================
+==========
 
 Overview
 --------
@@ -56,6 +56,17 @@ The following example represents a complete, simple test case for the validation
         </output>
     </testcase>
 
+.. index:: id (Test case)
+.. index:: metadata (Test case)
+.. index:: namespaces (Test case)
+.. index:: imports (Test case)
+.. index:: preliminary (Test case)
+.. index:: variables (Test case)
+.. index:: actors (Test case)
+.. index:: steps (Test case)
+.. index:: output (Test case)
+.. index:: scriptlets (Test case)
+
 The following table provides an overview of the attributes and child elements that a ``testcase`` may have. A more detailed discussion per case 
 follows in the subsequent sections.
 
@@ -79,7 +90,15 @@ Elements
 
 We will now see how a test case breaks down into its individual sections and discuss the purpose of each.
 
-.. index:: Metadata (Test cases)
+.. index:: metadata (Test cases)
+.. index:: name (Test case metadata)
+.. index:: type (Test case metadata)
+.. index:: version (Test case metadata)
+.. index:: authors (Test case metadata)
+.. index:: description (Test case metadata)
+.. index:: published (Test case metadata)
+.. index:: lastModified (Test case metadata)
+.. index:: documentation (Test case metadata)
 .. _test-case-metadata:
 
 Metadata
@@ -101,7 +120,10 @@ about the test case to help users understand its purpose. Its structure is as fo
     lastModified, no, A string acting as an indication of the last modification time for the test case.
     documentation, no, Rich text content that provides further information on the current test case.
 
-.. index:: documentation (test case)
+.. index:: documentation (Test case)
+.. index:: import (Test case documentation)
+.. index:: from (Test case documentation)
+.. index:: encoding (Test case documentation)
 
 The ``documentation`` element complements the test case's ``description`` by allowing the author to include extended rich text documentation as HTML. The structure of this element is as follows:
 
@@ -110,10 +132,19 @@ The ``documentation`` element complements the test case's ``description`` by all
     :header: "Name", "Required?", "Description"
 
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
-typically enclosed within a CDATA section if this includes HTML elements (in which case the ``import`` and ``encoding`` attributes are omitted).
+typically enclosed within a CDATA section if this includes HTML elements (in which case the ``from``, ``import`` and ``encoding`` attributes are omitted).
+When loading documentation from a separate file, it is also possible to lookup this file from another test suite. This is
+done by specifying as the value of the ``from`` attribute the ``id`` of the target test suite. This is used to lookup the
+target test suite as follows:
+
+#. Look for the test suite in the same **specification** as the current test case.
+#. If not found in the same specification, look for the test suite in the other specifications of the test case's **domain**.
+   If across specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such
+   a scenario it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
 
 This documentation can provide further information on the context of the test case, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
 overall specification. The content supplied supports several HTML features:
@@ -151,7 +182,8 @@ Note that documentation such as this is also supported for:
     **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
     "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
-.. index:: Namespaces (Test cases)
+.. index:: namespaces (Test case)
+.. index:: ns (Test case namespaces)
 .. _test-case-namespaces:
 
 Namespaces
@@ -206,23 +238,30 @@ additional details need to first be defined unambiguously by the test bed and ma
 .. note::
     **GITB software support:** Expression languages other than the default XPath 1.0 are not supported. As such the ``namespaces`` element is currently ignored.
 
-.. index:: Imports (Test cases)
+.. index:: imports (Test case)
+.. index:: artifact (Test case imports)
+.. index:: name (Test case imports)
+.. index:: type (Test case imports)
+.. index:: encoding (Test case imports)
+.. index:: from (Test case imports)
 .. _test-case-imports:
 
 Imports
 ~~~~~~~
 
-The ``imports`` element allows the use of arbitrary resources that are present in the test suite. This can be very useful when a test case needs to send messages
+The ``imports`` element allows the use of arbitrary resources from the same or another test suite. This can be very useful when a test case needs to send messages
 based on a template or load a binary file that is needed as input by a messaging, processing or validation handler (e.g. a certificate). The ``imports`` element 
 defines one or more ``artifact`` children with the following structure:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
+    :delim: |
 
-    @name, yes, The name with which this artefact will be associated to the test session context for subsequent lookups.
-    @type, yes, The type as which the artefact needs to be loaded.
-    @encoding, no, In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
+    @name | Yes | The name with which this artefact will be associated to the test session context for subsequent lookups.
+    @type | Yes | The type as which the artefact needs to be loaded.
+    @encoding | No | In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
+    @from | No | The identifier of another test suite from which this resource will be loaded. If unspecified the current test suite is assumed.
 
 The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. This path may be provided as a
 fixed value or as a :ref:`variable reference<test-case-referring-to-variables>` to determine the imported resource dynamically. In case a variable reference
@@ -232,14 +271,23 @@ is provided this should be one of the following:
 * A reference to a :ref:`variable<test-case-variables>` defined in the test case. In this case the value of the variable can even be adapted during the course of the test session resulting in
   different resources depending on the point at which the import is referenced.
 
+Importing resources is not limited to the current test suite. Using the ``from`` attribute it is possible to define another
+test suite as the source from which to lookup the resource, specifying as the attribute's value the identifier of the target
+test suite. The lookup of the test suite using the ``from`` value is carried out as follows:
+
+#. Look for the test suite in the same **specification** as the test case being executed.
+#. If not found in the same specification, look for the test suite in the other specifications of the test case's **domain**. If across
+   specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such a scenario
+   it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
+
 Regarding the ``type`` attribute, this needs to refer to an appropriate type from the GITB type system (see :ref:`test-case-types`). Given that in this case we are referring to a file
 being loaded, the types that can be used are:
 
 * ``binary``: Load the artefact as a set of bytes without additional processing.
 * ``object``: Load the artefact as a XML Document Object Model. In this case it is best to also explicitly provide the ``encoding`` to consider.
-* ``schema``: Load the artefact as a XML Schema. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
+* ``schema``: Load the artefact as a XML Schema or Schematron file. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
 
-Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite name as a prefix). As an 
+Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite ID as a prefix). As an
 example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable of type ``schema`` that is named "ublSchema". The
 path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources". This example also includes
 another input whose referenced resource is defined dynamically based on an external configuration parameter (at organisation level in this case).
@@ -274,7 +322,7 @@ another input whose referenced resource is defined dynamically based on an exter
     the test bed itself. The preferred and simpler approach now is to simply define the handler in the respective test step (e.g. the ``verify``
     step's ``handler`` attribute for validators) without previously importing it.
 
-.. index:: Preliminary (Test cases)
+.. index:: preliminary (Test case)
 .. _test-case-preliminary:
 
 Preliminary
@@ -307,7 +355,12 @@ The following example shows a test case that prompts the user before starting to
         </steps>
     </testcase>
 
-.. index:: Actors (Test cases)
+.. index:: actors (Test case)
+.. index:: id (Test case actors)
+.. index:: name (Test case actors)
+.. index:: role (Test case actors)
+.. index:: displayOrder (Test case actors)
+.. index:: endpoint (Test case actors)
 .. _test-case-actors:
 
 Actors
@@ -383,7 +436,10 @@ if not already specified by the response of the simulated actor's handler. The b
 .. note::
     **GITB software support:** The "MONITOR" value for the actor ``role`` is currently not supported.
 
-.. index:: Variables (Test cases)
+.. index:: variables (Test case)
+.. index:: name (Test case variables)
+.. index:: type (Test case variables)
+.. index:: value (Test case variables)
 .. _test-case-variables:
 
 Variables
@@ -483,7 +539,7 @@ type. The following example illustrates setting values for different variable ty
     need to specify the ``type`` attribute as ``list[INTERNAL_TYPE]``. For example a ``list`` of ``string`` elements is defined as
     ``<var name="myList" type="list[string]"/>``.
 
-.. index:: Steps (Test cases)
+.. index:: steps (Test case)
 .. index:: stopOnError (Test case)
 .. _test-case-steps:
 
@@ -526,11 +582,13 @@ The test case's steps are defined as children of the ``steps`` element. The avai
     :ref:`tdl-step-call`, Call a scriptlet
     :ref:`tdl-step-interact`, Trigger an interaction with the user
 
-.. index:: output
-.. index:: success (output)
-.. index:: failure (output)
-.. index:: case (output)
-.. index:: default (output)
+.. index:: output (Test case)
+.. index:: success (Test case output)
+.. index:: failure (Test case output)
+.. index:: case (Test case output)
+.. index:: default (Test case output)
+.. index:: cond (Test case output)
+.. index:: message (Test case output)
 .. _test-case-output:
 
 Output
@@ -620,49 +678,27 @@ test steps:
     output to be returned (e.g. concatenating text with session variable values). For a fixed message make sure to enclose the text
     in quotes.
 
-.. index:: Scriptlets (Test cases)
+.. index:: scriptlets (Test case)
 .. _test-case-scriptlets:
 
 Scriptlets
 ~~~~~~~~~~
 
-The ``scriptlets`` element is meant to define reusable blocks of steps that can be called during the test case's execution. 
-They are similar to function blocks in programming languages considering that:
+The ``scriptlets`` element is meant to define reusable blocks of steps that can be called during the test case's execution.
+They resemble function blocks in programming languages considering that they can be called multiple times with different
+inputs and produce different outputs.
 
-* They receive inputs and produce outputs.
-* They define a nested context for their own variables and processing that is isolated from the test session context.
-* They can access variables from the parent test session context.
+Scriptlets are typically defined as separate XML documents that can be used across test cases or even across test suites.
+Defining a scriptlet within a test case results in it being private to its containing test case. To define such private
+scriptlets, include the ``scriptlets`` element with one or more ``scriptlet`` children.
 
-The main benefit of using scriptlets is really one of test step organisation to avoid copying (and then maintaining) sequences
-of steps that might be executed multiple times and at different locations in the test case. Each scriptlet is defined in a
-``scriptlet`` element with the following structure:
+Details on how each ``scriptlet`` element is defined are provided in the :ref:`scriptlet documentation<scriptlets>`. This
+includes the :ref:`differences to consider<scriptlets_embedded>` when comparing scriptlets embedded in test cases and ones
+that are defined as standalone XML documents.
 
-.. csv-table::
-    :stub-columns: 1
-    :header: "Name", "Required?", "Description"
-
-    @id, yes, The ID of the scriptlet used to refer to it in ``call`` steps (see :ref:`tdl-step-call`).
-    metadata, no, Optional scriptlet metadata. Structurally this matches exactly the ``metadata`` for the test case (see :ref:`test-case-metadata`).
-    namespaces, no, Optional namespaces for contained expressions. Structurally this matches exactly the ``namespaces`` for the test case (see :ref:`test-case-namespaces`).
-    imports, no, Optional artefacts to import for the scriptlet. Structurally this matches exactly the ``imports`` for the test case (see :ref:`test-case-imports`).
-    params, no, An optional set of parameters that the scriptlet will expect from a ``call`` step  (see :ref:`tdl-step-call`).
-    variables, no, An optional set of local variables. Structurally this matches exactly the ``variables`` for the test case (see :ref:`test-case-variables`).
-    steps, yes, The sequence of steps to be executed in this scriptlet. Can contain any supported test steps (see :ref:`test-case-steps`).
-    output, yes, One or more output values resulting from the scriptlet's execution.
-
-The ``params`` and ``variables`` for the scriptlet define their individual elements as ``var`` elements. These follow the same structure and 
-logic as the test cases variables (see :ref:`test-case-variables`).
-
-A scriptlet is called using its ``id`` in a ``call`` step (see :ref:`tdl-step-call`). As part of this ``call`` the test case needs to pass as inputs any parameters that
-the scriptlet expects. Concerning the scriptlet's output, each defined ``output`` value will be evaluated once the scriptlet completes and the overall result
-will be returned as a ``map`` named using the ``id`` used in the relevant ``call`` step that triggered it's execution. Regarding output values:
-
-* If the ``call`` does not specify named ``output`` elements then all the scriptlet's outputs will be returned.
-* If the ``call`` does specify named ``output`` elements only these will be returned.
-
-The following example shows a ``scriptlet`` that will validate a file passed as an input parameter. Once completed it will also
-return a ``string`` result for a value provided by the user. Calling the scriptlet occurs for two different files and results in the 
-display of their output values.
+Calling a scriptlet from a test case is achieved through the :ref:`call<tdl-step-call>` step. The following example
+illustrates the definition of a scriptlet within a test case to validate XML documents. This is called twice for each
+of the inputs provided by the user.
 
 .. code-block:: xml
 
@@ -671,82 +707,53 @@ display of their output values.
             <!-- 
                 Request two files to be uploaded.
             -->
-            <interact desc="Upload files" with="User">
-                <request desc="Upload the first file" with="User" contentType="BASE64">$fileContent1</request>
-                <request desc="Upload the second file" with="User" contentType="BASE64">$fileContent2</request>
+            <interact id="userData" desc="Upload files">
+                <request desc="Upload the first file" name="file1" contentType="BASE64"/>
+                <request desc="Upload the second file" name="file2" contentType="BASE64"/>
             </interact>
             <!-- 
                 Call the scriptlet for the first file and store the result under variable "call1".
             -->
-            <call id="call1" path="script1">
-                <input name="docToValidate">$fileContent1</input>
-                <output name="outputMessage"/>
+            <call id="call1" path="validateDocument">
+                <input name="contentToValidate">$userData{file1}</input>
             </call>
             <!-- 
                 Call the scriptlet for the second file and store the result under variable "call2".
             -->
-            <call id="call2" path="script1">
-                <input name="docToValidate">$fileContent2</input>
-                <output name="outputMessage"/>
+            <call id="call2" path="validateDocument">
+                <input name="contentToValidate">$userData{file2}</input>
             </call>
-            <!-- 
-                Display the results from both calls to the user.
+            <!--
+                Log the root element names of the validated files.
             -->
-            <interact desc="Scriptlet results" with="User">
-                <instruct desc="Output one" with="User" type="string">$call1{outputMessage}</instruct>
-                <instruct desc="Output two" with="User" type="string">$call2{outputMessage}</instruct>
-            </interact>
+            <log>concat("File 1: ", $call1{rootName})</log>
+            <log>concat("File 2: ", $call2{rootName})</log>
         </steps>
         <scriptlets>
-            <scriptlet id="script1">
-                <!--
-                    This parameter has to be provided when calling the scriptlet.
-                -->
+            <scriptlet id="validateDocument">
+                <imports>
+                    <artifact type="schema" encoding="UTF-8" name="schemaToUse">resources/aSchemaFile.xsd</artifact>
+                    <artifact type="schema" encoding="UTF-8" name="schematronToUse">resources/aSchematronFile.sch</artifact>
+                </imports>
                 <params>
-                    <var name="docToValidate" type="object"/>
+                    <var name="contentToValidate" type="object"/>
                 </params>
-                <!--
-                    These variables are only locally visible.
-                -->
-                <variables>
-                    <var name="userMessage" type="string"/>
-                    <var name="outputMessage" type="string"/>
-                    <var name="anotherOutputMessage" type="string">
-                        <value>Another value</value>
-                    </var>
-                </variables>
                 <steps>
-                    <!-- 
-                        Ask the user to enter a string value.
-                    -->
-                    <interact desc="Scriptlet call" with="User">
-                        <request desc="Give me a value" with="User" type="string">$userMessage</request>
-                    </interact>
-                    <!-- 
-                        Validate the file passed as a parameter.
-                    -->
-                    <verify handler="XSDValidator" desc="Validate content">
-                        <input name="xmldocument">$docToValidate</input>
-                        <!-- 
-                            The schemaFile variable is retrieved from the global session context
-                            (its declaration is ommitted from the example).
-                        -->
-                        <input name="xsddocument" source="$schemaFile"/>
+                    <verify handler="XSDValidator" desc="Validate XML structure">
+                        <input name="xsddocument">$schemaToUse</input>
+                        <input name="xmldocument">$contentToValidate</input>
                     </verify>
-                    <assign to="$outputMessage">$userMessage</assign>
+                    <verify handler="SchematronValidator" desc="Validate XML content">
+                        <input name="schematron">$schematronToUse</input>
+                        <input name="xmldocument">$contentToValidate</input>
+                    </verify>
                 </steps>
-                <!-- 
-                    This output is returned as it is specified in the call.
-                -->
-                <output name="outputMessage" type="string">$outputMessage</output>
-                <!-- 
-                    This output is not specified in the call and is thus ignored.
-                -->
-                <output name="anotherOutputMessage" type="string">$anotherOutputMessage</output>
+                <output name="rootName" source="$contentToValidate">name(/*)</output>
             </scriptlet>
         </scriptlets>
     </testcase>
 
 .. note::
-    **GITB software support:** Currently the GITB software requires that scriptlets have at least one variable
-    and one parameter. In addition, declared outputs must also exist as declared scriptlet variables.
+    **Using scriptlets across test cases:** Scriptlets defined within test cases are private to that test case. If you want
+    to use a scriptlet across several test cases, within the test suite or across test suites, you need to define it in
+    its own XML document. See the :ref:`scriptlet documentation<scriptlets>` for details on this.

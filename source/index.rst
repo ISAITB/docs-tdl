@@ -12,6 +12,7 @@ GITB TDL Documentation
    changelog/index
    testsuite/index
    testcase/index
+   scriptlets/index
    types/index
    expressions/index
    constructs/index

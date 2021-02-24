@@ -115,6 +115,9 @@ as follows:
 The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
 
 .. index:: TCPMessaging
+.. index:: content (TCPMessaging)
+.. index:: network.host (TCPMessaging)
+.. index:: network.port (TCPMessaging)
 
 TCPMessaging
 ++++++++++++
@@ -140,6 +143,9 @@ Used to send or receive an arbitrary byte stream over TCP.
     <etxn txnId="t1"/>
 
 .. index:: UDPMessaging
+.. index:: content (UDPMessaging)
+.. index:: network.host (UDPMessaging)
+.. index:: network.port (UDPMessaging)
 .. _handlers-udpmessaging:
 
 UDPMessaging
@@ -166,6 +172,23 @@ Used to send or receive arbitrary bytes over UDP.
     <etxn txnId="t1"/>
 
 .. index:: SoapMessaging
+.. index:: http_headers (SoapMessaging)
+.. index:: soap_message (SoapMessaging)
+.. index:: soap_attachments (SoapMessaging)
+.. index:: soap_header (SoapMessaging)
+.. index:: soap_body (SoapMessaging)
+.. index:: soap_message (SoapMessaging)
+.. index:: soap_content (SoapMessaging)
+.. index:: soap_attachments (SoapMessaging)
+.. index:: soap_attachments_size (SoapMessaging)
+.. index:: network.host (SoapMessaging)
+.. index:: network.port (SoapMessaging)
+.. index:: http.uri (SoapMessaging)
+.. index:: soap.version (SoapMessaging)
+.. index:: soap.encoding (SoapMessaging)
+.. index:: http.uri.extension (SoapMessaging)
+.. index:: http.ssl (SoapMessaging)
+
 .. _handlers-soapmessaging:
 
 SoapMessaging
@@ -245,6 +268,20 @@ the system's configuration, as in the following example (assuming an endpoint na
     session communications when receiving data. Check it's documentation on what is needed to achieve this.
 
 .. index:: HttpMessaging
+.. index:: http_headers (HttpMessaging)
+.. index:: http_body (HttpMessaging)
+.. index:: http_parts (HttpMessaging)
+.. index:: http_method (HttpMessaging)
+.. index:: http_version (HttpMessaging)
+.. index:: http_path (HttpMessaging)
+.. index:: network.host (HttpMessaging)
+.. index:: network.port (HttpMessaging)
+.. index:: http.uri (HttpMessaging)
+.. index:: http.uri.extension (HttpMessaging)
+.. index:: http.ssl (HttpMessaging)
+.. index:: status.code (HttpMessaging)
+.. index:: http.method (HttpMessaging)
+
 .. _handlers-httpmessaging:
 
 HttpMessaging
@@ -407,6 +444,18 @@ test part):
     </steps>
 
 .. index:: HttpsMessaging
+.. index:: http_headers (HttpsMessaging)
+.. index:: http_body (HttpsMessaging)
+.. index:: http_method (HttpsMessaging)
+.. index:: http_version (HttpsMessaging)
+.. index:: http_path (HttpsMessaging)
+.. index:: network.host (HttpsMessaging)
+.. index:: network.port (HttpsMessaging)
+.. index:: http.uri (HttpsMessaging)
+.. index:: http.uri.extension (HttpsMessaging)
+.. index:: http.ssl (HttpsMessaging)
+.. index:: status.code (HttpsMessaging)
+.. index:: http.method (HttpsMessaging)
 
 HttpsMessaging
 ++++++++++++++
@@ -454,6 +503,14 @@ Used to send or receive content over HTTPS.
     session communications when receiving data. Check it's documentation on what is needed to achieve this.
 
 .. index:: HttpProxyMessaging
+.. index:: request_data (HttpProxyMessaging)
+.. index:: http_method (HttpProxyMessaging)
+.. index:: http_version (HttpProxyMessaging)
+.. index:: http_path (HttpProxyMessaging)
+.. index:: network.host (HttpProxyMessaging)
+.. index:: network.port (HttpProxyMessaging)
+.. index:: proxy.address (HttpProxyMessaging)
+
 .. _handlers-HttpProxyMessaging:
 
 HttpProxyMessaging
@@ -494,8 +551,10 @@ Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. index:: Base64Processor
-.. index:: encode
-.. index:: decode
+.. index:: encode (Base64Processor)
+.. index:: decode (Base64Processor)
+.. index:: input (Base64Processor)
+.. index:: dataUrl (Base64Processor)
 .. _handlers-Base64Processor:
 
 Base64Processor
@@ -565,8 +624,10 @@ The following examples illustrate use of this handler to work with Base64 encodi
     </process>
 
 .. index:: CollectionUtils
-.. index:: size
-.. index:: clear
+.. index:: size (CollectionUtils)
+.. index:: clear (CollectionUtils)
+.. index:: map (CollectionUtils)
+.. index:: list (CollectionUtils)
 .. _handlers-CollectionUtils:
 
 CollectionUtils
@@ -665,11 +726,11 @@ necessary. The following examples illustrate how this works for lists and maps:
     </process>
 
 .. index:: RegExpProcessor
-.. index:: check
-.. index:: collect
-.. index:: input
-.. index:: expression
-.. index:: output
+.. index:: check (RegExpProcessor)
+.. index:: collect (RegExpProcessor)
+.. index:: input (RegExpProcessor)
+.. index:: expression (RegExpProcessor)
+.. index:: output (RegExpProcessor)
 .. _handlers-RegExpProcessor:
 
 RegExpProcessor
@@ -745,13 +806,15 @@ if no matches were made. Consider the following example to see how this can be u
     <log>$personData{1}</log>
 
 .. index:: TokenGenerator
-.. index:: string
-.. index:: timestamp
-.. index:: uuid
-.. index:: format
-.. index:: diff
-.. index:: date
-.. index:: inputFormat
+.. index:: zone (TokenGenerator)
+.. index:: time (TokenGenerator)
+.. index:: string (TokenGenerator)
+.. index:: timestamp (TokenGenerator)
+.. index:: uuid (TokenGenerator)
+.. index:: format (TokenGenerator)
+.. index:: diff (TokenGenerator)
+.. index:: date (TokenGenerator)
+.. index:: inputFormat (TokenGenerator)
 .. _handlers-TokenGenerator:
 
 TokenGenerator
@@ -949,6 +1012,8 @@ Embedded validation handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. index:: NumberValidator
+.. index:: actualnumber (NumberValidator)
+.. index:: expectednumber (NumberValidator)
 
 NumberValidator
 +++++++++++++++
@@ -970,6 +1035,8 @@ Used to verify that a provided ``number`` matches an expected value.
     </verify>
 
 .. index:: StringValidator
+.. index:: actualstring (StringValidator)
+.. index:: expectedstring (StringValidator)
 .. _handlers-StringValidator:
 
 StringValidator
@@ -992,6 +1059,8 @@ Used to verify that a provided ``string`` matches an expected value.
     </verify>
 
 .. index:: RegExpValidator
+.. index:: input (RegExpValidator)
+.. index:: expression (RegExpValidator)
 .. _handlers-RegExpValidator:
 
 RegExpValidator
@@ -1014,6 +1083,8 @@ Used to verify that a provided ``string`` matches a regular expression.
     </verify>
 
 .. index:: XPathValidator
+.. index:: xmldocument (XPathValidator)
+.. index:: xpathexpression (XPathValidator)
 .. _handlers-XPathValidator:
 
 XPathValidator
@@ -1052,6 +1123,8 @@ use. The following example illustrates both cases:
     </verify>
 
 .. index:: XSDValidator
+.. index:: xsddocument (XSDValidator)
+.. index:: xmldocument (XSDValidator)
 .. _handlers-XSDValidator:
 
 XSDValidator
@@ -1074,6 +1147,9 @@ Used to validate an XML document against an XML Schema (XSD) instance.
     </verify>
 
 .. index:: SchematronValidator
+.. index:: schematron (SchematronValidator)
+.. index:: xmldocument (SchematronValidator)
+.. index:: type (SchematronValidator)
 .. _handlers-SchematronValidator:
 
 SchematronValidator
@@ -1100,13 +1176,10 @@ Used to validate an XML document against a Schematron file.
         <input name="schematron">$schematronFile</input>
     </verify>
 
-.. index:: Handler authentication
-.. index:: HTTP Basic
-.. index:: UsernameToken
-.. index:: WS-Security
-.. _handlers-authentication:
-
 .. index:: XmlMatchValidator
+.. index:: xml (XmlMatchValidator)
+.. index:: template (XmlMatchValidator)
+.. index:: ignoredPaths (XmlMatchValidator)
 .. _handlers-XmlMatchValidator:
 
 XmlMatchValidator
@@ -1154,6 +1227,17 @@ The following example illustrates how this validator can be used:
         <input name="template">$templateFile</input>
         <input name="ignoredPaths">$pathsToSkip</input>
     </verify>
+
+.. index:: Handler authentication
+.. index:: HTTP Basic
+.. index:: UsernameToken
+.. index:: WS-Security
+.. index:: auth.basic.username
+.. index:: auth.basic.password
+.. index:: auth.token.username
+.. index:: auth.token.password
+.. index:: auth.token.password.type
+.. _handlers-authentication:
 
 Authentication for external handlers
 ------------------------------------
@@ -1236,6 +1320,10 @@ calling various test services:
     </verify>
 
 .. index:: Handler inputs and outputs
+.. index:: name (Handler inputs and outputs)
+.. index:: lang (Handler inputs and outputs)
+.. index:: source (Handler inputs and outputs)
+.. index:: asTemplate (Handler inputs and outputs)
 .. _handlers-inputs-outputs:
 
 Handler inputs and outputs

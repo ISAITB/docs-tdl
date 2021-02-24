@@ -777,6 +777,7 @@ The following table provides an overview of the places where expressions can be 
 
     Section :ref:`test-case-imports`, Used for the paths to import artifacts from as an alternative to providing fixed path references.
     Section :ref:`test-case-output`, Used to evaluate message match conditions and produce the resulting message texts.
+    Section :ref:`scriptlets_elements_output`, Used to evaluate scriptlet output values.
     Step :ref:`tdl-step-btxn`, Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-bptxn`, Variable references can be used to set ``config`` element values.
     Step :ref:`tdl-step-send`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
