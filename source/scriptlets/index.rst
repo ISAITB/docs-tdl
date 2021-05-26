@@ -300,7 +300,7 @@ per case.
         -->
         <output name="rootName" source="$contentToValidate">name(/*)</output>
         <output name="isValidForSchema">$xsdCheck</output>
-        <output name="isValidForSchematron">schCheck</output>
+        <output name="isValidForSchematron">$schCheck</output>
     </scriptlet>
 
 In this example note how the :ref:`verify<tdl-step-verify>` steps are set with a specific ``id``. Once each validation is
