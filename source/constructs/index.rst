@@ -976,6 +976,7 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
 .. index:: documentation (group)
 .. index:: hidden (group)
 .. index:: collapsed (group)
+.. index:: title (group)
 .. _tdl-step-group:
 
 group
@@ -988,6 +989,7 @@ a visual grouping and label to the display. Its structure is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @title, no, A short title to display for this step (default is "group").
     @desc, no, The description for the group.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
