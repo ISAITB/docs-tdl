@@ -98,6 +98,7 @@ The sections that follow list the handler implementations that already exist as 
 in the GITB test bed software.
 
 .. index:: Embedded messaging handlers
+.. _handlers-predefined-handlers-messaging:
 
 Embedded messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -546,6 +547,7 @@ the initial parameters received.
     <etxn txnId="t1"/>
 
 .. index:: Embedded processing handlers
+.. _handlers-predefined-handlers-processing:
 
 Embedded processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

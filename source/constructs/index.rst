@@ -111,6 +111,7 @@ Note that ``etxn`` steps are not presented to the user.
 .. index:: documentation (send)
 .. index:: config (send)
 .. index:: input (send)
+.. index:: hidden (send)
 .. _tdl-step-send:
 
 send
@@ -126,9 +127,10 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @txnid, yes, The ID of the transaction this ``send`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
-    @desc, yes, A description to display to the user for this test step.
+    @desc, no, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -160,6 +162,7 @@ sending always takes place through the message handler implementation. The ``sen
 .. index:: config (receive)
 .. index:: input (receive)
 .. index:: output (receive)
+.. index:: hidden (receive)
 .. _tdl-step-receive:
 
 receive
@@ -176,12 +179,13 @@ of the ``receive`` element is as follows:
     @txnid, yes, The ID of the transaction this ``receive`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
-    @desc, yes, A description to display to the user for this test step.
+    @desc, no, A description to display to the user for this test step.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
     @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
     @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -235,6 +239,7 @@ output (returned via its call-back to the test bed) to the specified values. If 
 .. index:: config (listen)
 .. index:: input (listen)
 .. index:: output (listen)
+.. index:: hidden (listen)
 .. _tdl-step-listen:
 
 listen
@@ -253,6 +258,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
@@ -360,10 +366,13 @@ completed and proceed with any needed actions such as resource clean-up.
 .. index:: process
 .. index:: txnid (process)
 .. index:: id (process)
+.. index:: desc (process)
 .. index:: handler (process)
 .. index:: stopOnError (process)
+.. index:: documentation (process)
 .. index:: operation (process)
 .. index:: input (process)
+.. index:: hidden (process)
 .. _tdl-step-process:
 
 process
@@ -380,10 +389,13 @@ The structure of the ``process`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnId, no, The ID of the transaction to which this processing step belongs. Can be ommitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
+    @txnId, no, The ID of the transaction to which this processing step belongs. Can be omitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is ommitted in favour of the ``txnId`` in case a transaction is referenced.
+    @desc, no, A description to display to the user on the purpose of the check (meaningful if ``hidden`` is ``false``).
+    @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``true``).
+    documentation, no, Rich text content that provides further information on the current step (meaningful if ``hidden`` is ``false``).
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
@@ -456,6 +468,39 @@ on the ``process`` step itself (replacing the ``txnId`` reference) as illustrate
         <instruct desc="Value:">$uuid{value}</instruct>
     </interact>
 
+The ``process`` step is by default considered to be internal and not meaningful to present to users. You could nonetheless choose to include the
+step in the test session presentation by setting its ``hidden`` attribute to ``false`` (the default value is ``true`` for ``process`` steps). An 
+example case where this could be useful is when you use a :ref:`custom processing service<handlers>` to transform content between syntaxes. Making
+the ``process`` step visible could serve to better inform users of the conversion process and its output. In addition, keep in mind that when
+presenting the step you should also consider providing a **description** (via the ``desc`` attribute) and additional **documentation** (via the 
+``documentation`` element).
+
+The following TDL snippet illustrates setting this information for a custom processing step:
+
+.. code-block:: xml
+
+    <!--
+        Setting "hidden" to false makes this step visible.
+    -->
+    <process id="conversion" hidden="false" desc="Convert input to syntax B" handler="$DOMAIN{conversionServiceAddress}">
+        <documentation import="docs/conversionDoc.html"/>
+        <operation>convert</operation>
+        <input name="input">$inputContentSyntaxA</input>
+    </process>
+
+A ``process`` step that is displayed will present its overall result and additional information linked to the processing. Regarding
+this additional information:
+
+* In the case of :ref:`embedded processing handlers<handlers-predefined-handlers-processing>` the step's visible output will be any
+  output values produced by the processing.
+* In the case of :ref:`custom processing handlers<handlers>` the visible output will be what is set as context on the step's report
+  (which can replicate or differ from the actual outputs).
+
+.. note::
+    **Hidden steps:** The ``hidden`` attribute is supported for all steps that can be presented to users. The ``process`` step however is the
+    only case where the default value is assumed to be ``true``. For further information on the steps' ``hidden`` attribute check the  
+    :ref:`tdl-steps-common-hidesteps` section.
+    
 .. index:: Flow steps
 
 Flow steps
@@ -472,6 +517,8 @@ flow control structures available in programming languages.
 .. index:: cond (if)
 .. index:: then (if)
 .. index:: else (if)
+.. index:: hidden (if)
+.. index:: collapsed (if)
 .. _tdl-step-if:
 
 if
@@ -484,8 +531,10 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "decision").
-    @desc, yes, A description to display to the user on the purpose of the check.
+    @desc, no, A description to display to the user on the purpose of the check.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
@@ -514,6 +563,8 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
 .. index:: documentation (while)
 .. index:: cond (while)
 .. index:: do (while)
+.. index:: hidden (while)
+.. index:: collapsed (while)
 .. _tdl-step-while:
 
 while
@@ -527,8 +578,10 @@ continues to be true. The structure of the ``while`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, yes, A description to display to the user on the purpose of the loop.
+    @desc, no, A description to display to the user on the purpose of the loop.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
     do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
@@ -566,6 +619,8 @@ The following example validates the name of each attachment defined in an XML do
 .. index:: documentation (repuntil)
 .. index:: do (repuntil)
 .. index:: cond (repuntil)
+.. index:: hidden (repuntil)
+.. index:: collapsed (repuntil)
 .. _tdl-step-repuntil:
 
 repuntil
@@ -579,8 +634,10 @@ should take place. The structure of the ``repuntil`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, yes, A description to display to the user on the purpose of the loop.
+    @desc, no, A description to display to the user on the purpose of the loop.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
     cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -614,6 +671,8 @@ should take place. The structure of the ``repuntil`` element is as follows:
 .. index:: stopOnError (foreach)
 .. index:: documentation (foreach)
 .. index:: do (foreach)
+.. index:: hidden (foreach)
+.. index:: collapsed (foreach)
 .. _tdl-step-foreach:
 
 foreach
@@ -626,11 +685,13 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, yes, A description to display to the user on the purpose of the loop.
+    @desc, no, A description to display to the user on the purpose of the loop.
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
@@ -668,6 +729,8 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
 .. index:: stopOnError (flow)
 .. index:: documentation (flow)
 .. index:: thread (flow)
+.. index:: hidden (flow)
+.. index:: collapsed (flow)
 .. _tdl-step-flow:
 
 flow
@@ -682,8 +745,10 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "flow").
-    @desc, yes, A description to display to the user on the purpose of the forking.
+    @desc, no, A description to display to the user on the purpose of the forking.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
 
@@ -736,6 +801,7 @@ The following example sends a SOAP request to two actors in parallel and proceed
 .. index:: desc (exit)
 .. index:: success (exit)
 .. index:: documentation (exit)
+.. index:: hidden (exit)
 .. _tdl-step-exit:
 
 exit
@@ -747,8 +813,9 @@ The ``exit`` step is used to immediately exit the test case from any execution b
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @desc, yes, A description to display for the ``exit`` step.
+    @desc, no, A description to display for the ``exit`` step.
     @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
 
 The following example shows a test case that exits as a success based on the user's input:
@@ -907,6 +974,8 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
 .. index:: desc (group)
 .. index:: stopOnError (group)
 .. index:: documentation (group)
+.. index:: hidden (group)
+.. index:: collapsed (group)
 .. _tdl-step-group:
 
 group
@@ -919,8 +988,10 @@ a visual grouping and label to the display. Its structure is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @desc, yes, The description for the group.
+    @desc, no, The description for the group.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
 
 The children of the ``group`` element can be any number of steps supported by GITB TDL. The following example creates a group around a set of 
@@ -943,9 +1014,37 @@ related validations.
         </verify>
     </group>
 
-.. note::
-    **GITB software support:** The ``group`` step is currently not supported. Using it will execute the contained steps but these will not be
-    rendered on the user interface.
+Using a ``group`` can provide a useful means of structuring a test case's presentation. In addition, it allows several steps to be considered
+together and determine how they are presented. Specifically:
+
+* Used with the :ref:`hidden<tdl-steps-common-hidesteps>` attribute, to completely hide a set of steps.
+* Used with the :ref:`collapsed<tdl-steps-common-collapsed>` attribute, to define the group's display as initially collapsed.
+
+Use of these attributes is illustrated in the following TDL snippet:
+
+.. code-block:: xml
+
+    <!-- 
+        Hide both validations. This could be interesting to make an internal check to drive subsequent control flow.
+    -->
+    <group id="checkResult" hidden="true">
+        <verify handler="XSDValidator" desc="Against schema" level="WARNING">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron" level="WARNING">...</verify>
+    </group>
+    <!-- 
+        Show the two validations in a group and present as initially collapsed.
+    -->
+    <group desc="Validate document" collapsed="true">
+        <verify handler="XSDValidator" desc="Against schema">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
+    </group>
+    <!-- 
+        Show the two validations in a group and present it fully (the default).
+    -->
+    <group desc="Validate document">
+        <verify handler="XSDValidator" desc="Against schema">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
+    </group>
 
 .. index:: verify
 .. index:: id (verify)
@@ -958,6 +1057,7 @@ related validations.
 .. index:: property (verify)
 .. index:: config (verify)
 .. index:: input (verify)
+.. index:: hidden (verify)
 .. _tdl-step-verify:
 
 verify
@@ -976,11 +1076,12 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :header: "Name", "Required?", "Description"
 
     @id, no, The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
-    @desc, yes, The description for the validation.
+    @desc, no, The description for the validation.
     @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     @level, no, The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @output, no, A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -1046,6 +1147,7 @@ If no ``output`` attribute is set, the context data from the step's report will 
 .. index:: stopOnError (call)
 .. index:: input (call)
 .. index:: output (call)
+.. index:: hidden (call)
 .. _tdl-step-call:
 
 call
@@ -1063,6 +1165,7 @@ its required input parameters and receive its output. The structure of the ``cal
     @path, yes, The identifier scriptlet to call. The value provided here depends on the whether the scriptlet is :ref:`external to the test case<scriptlets>` or :ref:`defined within it<test-case-scriptlets>`.
     @from, no, The identifier of the test suite from which the scriptlet will be loaded. If not provided this is assumed to be the current test suite.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the ``scriptlet``'s output parameters to specify which outputs you require.
 
@@ -1149,6 +1252,8 @@ scriptlets specifically defined within test cases (i.e. private scriptlets) refe
 .. index:: inputTitle (interact)
 .. index:: stopOnError (interact)
 .. index:: documentation (interact)
+.. index:: hidden (interact)
+.. index:: collapsed (interact)
 
 .. _tdl-step-interact:
 
@@ -1169,10 +1274,12 @@ The structure of the ``interact`` element is as follows:
 
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @title, no, A short title to display for this step (default is "interact").
-    @desc, yes, A description for the user interaction.
+    @desc, no, A description for the user interaction.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
     @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction").
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     instruct, no, Zero or more elements to appear as instructions to the user.
     request, no, Zero or more information requests for the user.
@@ -1243,7 +1350,7 @@ will receive the input. In addition the ``type`` is ignored but the ``contentTyp
 * Specifying "BASE64" results in a file upload presented to the user.
 * Specifying "STRING" (the default) or "URI" results in a simple text input. Note that only "STRING" can be used in case the request is defined as a dropdown list (i.e. the ``options`` attribute is defined).
 
-The ``contentType`` can also be ommitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
+The ``contentType`` can also be omitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
 ``schema`` a type of ``binary`` with ``contentType`` "BASE64" will be considered.
 
 The following examples illustrate a user interactions presenting instructions and also requesting information:
@@ -1251,7 +1358,7 @@ The following examples illustrate a user interactions presenting instructions an
 .. code-block:: xml
 
     <interact desc="Some information and inputs">
-        <!-- type="string" ommitted as default. Displays the text as a message to the user. -->
+        <!-- type="string" omitted as default. Displays the text as a message to the user. -->
         <instruct desc="This is a simple message"/>
         <instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
         <!-- Present a download button for file "schema.xsd" (not specifying a name would produce a "downloadedFile" file). -->
@@ -1338,7 +1445,7 @@ attached to each step (via attribute ``desc``), allowing further instructions, c
     :header: "Name", "Required?", "Description"
 
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
-    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
@@ -1483,6 +1590,128 @@ It is interesting to note that stopping a test execution could also be achieved 
 Doing this simply to prevent subsequent test steps is overly verbose and, moreover is displayed as part of the test execution diagram. It
 could still be interesting to follow this approach however if you want to include additional :ref:`processing<tdl-step-process>` or :ref:`user interaction<tdl-step-interact>` 
 steps before the session ends.
+
+.. index:: hidden
+.. _tdl-steps-common-hidesteps:
+
+Hide test steps
+~~~~~~~~~~~~~~~
+
+The purpose of most test steps, apart from carrying out their respective actions, is to also communicate progress and results to the user.
+Depending on how specific steps are rendered, they can present the test session's control flow and reports that include a step's input, output
+and validation results (in case of a :ref:`verify<tdl-step-verify>` step).
+
+Depending on the purpose of a given step it could nonetheless be preferrable to hide it from the test session's display. Doing so could be interesting
+in case this step is used as a complementary action that is not important from a testing perspective but is required to e.g. clean up resources or make
+internal updates. Examples of such cases include:
+
+* :ref:`Sending<tdl-step-send>` a finalisation message to a given test service (e.g. a :ref:`custom messaging service<handlers>`).
+* Making a :ref:`processing call<tdl-step-process>` to record statistics (e.g. via a :ref:`custom processing service<handlers>`).
+* Validating content via a :ref:`verify<tdl-step-verify>` step at warning level as an internal check to determine subsequent actions.
+* Additional control flow steps (e.g. :ref:`if<tdl-step-if>` steps) to determine finalisation actions to make.
+
+Hiding an otherwise visible test step is supported by means of the ``hidden`` attribute. This takes a ``boolean`` value that determines whether the
+step should be included in the test session's display. When set to false, the step is not presented but is executed by the test engine as expected.
+In other words, hiding a step affects only its visual representation, not its processing.
+
+The following example includes a :ref:`verify<tdl-step-verify>` step that is not meant to be displayed to the user but is used to determine subsequent
+processing. Note how the verification is forced at warning level to not impact the test session's result:
+
+.. code-block:: xml
+
+    <!-- This check will not be presented in the test session display. -->
+    <verify id="internalCheck" handler="StringValidator" hidden="true" level="WARNING">
+        <input name="actualstring">$valueToCheck</input>
+        <input name="expectedstring">'CASE1'</input>
+    </verify>
+    <!-- Conditional branch based on previous (hidden) check result. -->
+    <if>
+        <cond>$internalCheck</cond>
+        <then>
+            ...
+        </then>
+    </if>
+
+In case you need to take multiple internal actions that you want to hide, a good approach is to use the :ref:`group<tdl-step-group>` step. To do so 
+place all such internal steps within a :ref:`group<tdl-step-group>` and set the group itself to be ``hidden``. Any steps included in a
+step that takes child steps (e.g. :ref:`group<tdl-step-group>`, :ref:`if<tdl-step-if>`, :ref:`foreach<tdl-step-foreach>`, :ref:`flow<tdl-step-flow>`)
+which is set as ``hidden`` will be altogether removed from the display. This is the case regardless of how the ``hidden`` attibute may be set
+on child steps.
+
+The following example illustrates how to hide a :ref:`group<tdl-step-group>` of steps:
+
+.. code-block:: xml
+
+    <group hidden="true">
+        <verify id="internalCheck" handler="StringValidator" level="WARNING">
+            ...
+        </verify>
+        <process>
+            ...
+        </process>
+        <send>
+            ...
+        </send>
+    </group>
+
+The ``hidden`` attribute is supported on all test steps that can be visually represented. Check the documentation of each step to see whether displaying or
+hiding it is applicable.
+
+.. note::
+    **Visible process steps:** The default value for the ``hidden`` attribute is true, resulting in the relevant steps being displayed. The exception
+    is the :ref:`process<tdl-step-process>` step that is hidden by default. Setting ``hidden`` to false on a :ref:`process<tdl-step-process>` step will
+    result in it being displayed, providing a report that includes the step's output.
+
+.. index:: collapsed
+.. _tdl-steps-common-collapsed:
+
+Collapse sets of test steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test cases that include numerous test steps may appear as complex to users. Introducing :ref:`grouping<tdl-step-group>` of related steps can provide better
+visual structuring and make them easier to follow. If further simplification is needed a good approach is to additionally define such groups as being by 
+default collapsed by setting their ``collapsed`` attribute to ``true``.
+
+Collapsing a group of steps results in them being presented as initially minimised and displaying only:
+
+* Their description (if defined).
+* Their :ref:`documentation<tdl-steps-common-documentation>` link (if defined).
+* Their overall progress status and result.
+
+After a :ref:`group<tdl-step-group>` is diplayed as collapsed, the user can always expand it to view its details and child steps. However, the initial minimised 
+display helps significantly in reducing the amount of visual information on steps that you may not want to prominently display. Good examples are actions to
+provide acknowledgements for received messages or sets of validations that are not the test case's main focus. It may also be interesting to display as ``collapsed``
+sets of steps that repeat in several locations to avoid visual clutter.
+
+The ``collapsed`` attribute is not only applicable to :ref:`group<tdl-step-group>` steps, but also to any other step that is presented as a block with contained details.
+It can be set on:
+
+* Steps with child steps, notably :ref:`group<tdl-step-group>`, :ref:`while<tdl-step-while>`, :ref:`repuntil<tdl-step-repuntil>`, 
+  :ref:`foreach<tdl-step-foreach>`, :ref:`flow<tdl-step-flow>`, :ref:`if<tdl-step-if>`.
+* The :ref:`interact<tdl-step-interact>` step used to trigger user actions.
+
+The default value for the ``collapsed`` attribute is always ``false``, meaning that all relevant steps will by default be presented as
+fully expanded.
+
+The following example illustrates how a set of tests on XML content can be displayed as initially collapsed to simplify the display:
+
+.. code-block:: xml
+
+    <!-- 
+        The three verify steps will be initially hidden, showing instead only their containing group.
+        The group can be at any point expanded to view internal details (e.g. if a validation error is reported).
+    -->
+    <group desc="Validate XML message" collapsed="true">
+        <verify handler="XSDValidator" desc="Validate message structure">...</verify>
+        <verify handler="SchematronValidator" desc="Validate core business rules">...</verify>
+        <verify handler="SchematronValidator" desc="Validate additional contraints">...</verify>
+    </group>
+
+.. note::
+    **Collapsed vs Hidden:** Apart from collapsing a group of steps, steps can also be set as :ref:`hidden<tdl-steps-common-hidesteps>`.
+    Use ``collapsed`` when you want to still include steps in the test session display but simplify their presentation. Use ``hidden``
+    for purely internal steps that you want to completely remove from the display. In case ``hidden`` is set to ``true`` the ``collapsed``
+    attribute is effectively ignored.
 
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
 .. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive
