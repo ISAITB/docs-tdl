@@ -1264,7 +1264,7 @@ interact
 
 The ``interact`` step is used to exchange information with the user executing the test case. Interactions can be of two types:
 
-* **Instructions:** Informative messages to be presented to a user.
+* **Instructions:** Informative messages or data to be presented to a user.
 * **Requests:** Prompts to a user to provide input.
 
 Both instructions and requests can be included in the same ``interact`` step to display and/or request multiple sets of information in one go.
@@ -1293,6 +1293,7 @@ The structure of the ``interact`` element is as follows:
 .. index:: type (instruct)
 .. index:: source (instruct)
 .. index:: asTemplate (instruct)
+.. index:: mimeType (instruct)
 
 The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
@@ -1305,6 +1306,7 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor).
     @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
     @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
+    @mimeType~ no~ A `mime type`_ value (e.g. ``text/xml``) to hint how this value should be highlighted when displayed. In case an invalid or unsupported mime type is provided no such highlighting will be applied.
     @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
@@ -1318,6 +1320,8 @@ The ``instruct`` elements define what is going to presented to the user. They ha
 .. index:: optionLabels (request)
 .. index:: multiple (request)
 .. index:: asTemplate (request)
+.. index:: inputType (request)
+.. index:: mimeType (request)
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -1334,6 +1338,8 @@ The ``request`` elements define how information shall be requested from the user
     @options~ no~ Used to render a dropdown list by providing the option values to consider (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings).
     @optionLabels~ no~ Used as the labels for the option values (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings). If provided the number of values needs to match the options. If not provided the option values are used.
     @multiple~ no~ A ``boolean`` value to determine whether the dropdown list (if the ``options`` attribute is defined) shall be a single or multiple selection list (default is ``false`` for single selection).
+    @inputType~ no~ The input control type to use when prompting users for the relevant value. By default a value of ``TEXT`` is assumed unless this input is mapped to an existing ``binary`` variable.
+    @mimeType~ no~ In case the ``inputType`` is set as ``CODE`` (i.e. a code editor) this is the content's expected `mime type`_ (e.g. ``text/xml``) to be considered for presenting appropriate syntax highlighting.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
@@ -1342,20 +1348,53 @@ value is a complete expression that will be evaluated to produce the value to di
 attributes are not used and are ignored if specified. What is important is the ``type`` attribute that defines how the element's expression
 result is to be interpreted (see :ref:`test-case-types`):
 
-* A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. This will be rendered as a
-  download button for the user to download the content as a file.
-* All other cases result in the value being displayed as text. This is also the default case if the ``type`` attribute is not specified.
+* A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. The user will have the option to
+  download the content as a file or open it in a code editor.
+* All other cases result in the value being displayed inline as text. This is also the default case if the ``type`` attribute is not specified.
+* Note that in case the text is too long to be displayed the user will instead be provided with controls to download it as a file or open it
+  in a code editor (as in the case of e.g. binary content).
+
+As a complement to the ``type`` attribute you can also specify the ``mimeType`` attribute. This is meaningful for binary or large text content
+as it serves two purposes: it allows you to specify the content type and file extension to use when the content is downloaded as a file, and it
+provides a hint for appropriate syntax highlighting when displaying the content in a code editor.
 
 Concerning ``request`` elements, the content of the expression is expected to be a pure variable reference that identifies the variable that
-will receive the input. In addition the ``type`` is ignored but the ``contentType`` becomes important. Specifically:
+will receive the input. You can also leave this empty and specify a ``name`` instead, in which case the value will be recorded in a map in the 
+test session context. This map is named using the ``interact`` step's ``id`` and in which the specific input value is added with a key matching
+its ``name``. These two approaches are illustrated in the snippet that follows:
+
+.. code-block:: xml
+
+    <interact id="data" desc="Provide inputs">
+        <!-- Approach 1, stored in variable aValue. -->
+        <request desc="Enter a text value:">$aValue</request>
+        <!-- Approach 2, stored in variable data{value}. -->
+        <request desc="Enter another text value:" name="value"/>
+    <interact>
+
+To determine the type of input control to present to the user you use the ``inputType`` attribute. The supported values for this are:
+
+* ``TEXT`` for a simple text field (the default if not specified).
+* ``UPLOAD`` for a file upload control.
+* ``MULTILINE_TEXT`` for a textarea supporting input of multiple lines.
+* ``SECRET`` for a control to add a secret value such as a password.
+* ``CODE`` for input via a code editor. To complement this you can also specify the ``mimeType`` attribute with a `mime type`_ (e.g. ``text/xml``) to have
+  appropriate syntax highlighting.
+* ``SELECT_SINGLE`` for a single-select dropdown list, specifying the options via the ``options`` and ``optionLabels`` attributes.
+* ``SELECT_MULTIPLE`` for a multi-select dropdown list using similarly the ``options`` and ``optionLabels`` attributes.
+
+Prior to GITB TDL version 1.14.0, the way to determine the input control to use was the ``contentType`` attribute. Although less expressive, this approach is 
+still supported as follows:
 
 * Specifying "BASE64" results in a file upload presented to the user.
 * Specifying "STRING" (the default) or "URI" results in a simple text input. Note that only "STRING" can be used in case the request is defined as a dropdown list (i.e. the ``options`` attribute is defined).
 
-The ``contentType`` can also be omitted in which case both the ``type`` and ``contentType`` are determined by the variable being referenced. If this is a ``binary``, ``object`` or 
-``schema`` a type of ``binary`` with ``contentType`` "BASE64" will be considered.
+It is interesting to note that any available context information is always considered to reduce the configuration you need to provide. For example, if for a ``request``
+you are referencing an already defined ``binary`` variable, you can skip the ``inputType`` or ``contentType`` definitions as this will anyway result in a file upload.
+Similarly, if for a ``request`` you define ``options`` and the ``multiple`` attribute, you don't need to define the ``inputType`` as well as this is considered to be
+by default ``SELECT_MULTIPLE``.
 
-The following examples illustrate a user interactions presenting instructions and also requesting information:
+The following examples illustrate user interactions presenting instructions and also requesting information:
 
 .. code-block:: xml
 
@@ -1363,10 +1402,14 @@ The following examples illustrate a user interactions presenting instructions an
         <!-- type="string" omitted as default. Displays the text as a message to the user. -->
         <instruct desc="This is a simple message"/>
         <instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
-        <!-- Present a download button for file "schema.xsd" (not specifying a name would produce a "downloadedFile" file). -->
-        <instruct name="schema.xsd" desc="A file to download:">$schemaFile</instruct>
+        <!-- Present a download button and XML editor for file "schema.xsd" (not specifying a name would produce a "downloadedFile" file). -->
+        <instruct name="schema.xsd" desc="A file to download:" mimeType="text/xml">$schemaFile</instruct>
         <!-- Present a text input field storing the result in variable aStringInputValue. -->
-        <request desc="Enter a text value:">$aStringInputValue</request>
+        <request desc="Enter a text value:" inputType="TEXT">$aStringInputValue</request>
+        <!-- Present a text area input storing the result in variable aLongStringInputValue. -->
+        <request desc="Enter a long text value:" inputType="MULTILINE_TEXT">$aLongStringInputValue</request>
+        <!-- Present a secret value input storing the result in variable aSecretValue. -->
+        <request desc="Enter a secret value:" inputType="SECRET">$aSecretValue</request>
         <!-- Present a single selection dropdown list storing the result in variable aSelectedInputValue. -->
         <request desc="Enter a text value:" options="v1, v2" optionLabels="Value 1, Value 2">$aSelectedInputValue</request>
         <!-- Present a file upload storing the result in variable aBinaryVariable. -->
@@ -1377,44 +1420,40 @@ The following examples illustrate a user interactions presenting instructions an
     <interact id="userInput" desc="Some information and inputs">
         <!-- Present a text input field storing the result in variable userInput{text} (a type of "string" is assumed as the default). -->
         <request name="text" desc="Enter a text value:"/>
+        <!-- Present a code editor for XML content, storing the result in variable userInput{xml} -->
+        <request name="xml" desc="Enter XML content:" inputType="CODE" mimeType="text/xml"/>
+        <!-- Present a code editor for JSON content, storing the result in variable userInput{json} -->
+        <request name="json" desc="Enter JSON content:" inputType="CODE" mimeType="application/json"/>
         <!-- Present a file upload storing the result in variable userInput{file}. -->
         <request name="file" desc="Upload a file:" type="binary"/>
+        <!-- Equivalent to the above but using the inputType -->
+        <request name="anotherFile" desc="Upload another file:" inputType="UPLOAD"/>
     </interact>
 
-To better illustrate how dropdown selections can be define, the following code sample presents the different ways to define them:
+To better illustrate how dropdown selections can be defined, the following code sample presents the different ways to define them:
 
 .. code-block:: xml
 
-    <variables>
-        <var name="input1" type="string"/>
-        <var name="input2" type="string"/>
-        <var name="input3" type="string"/>
-        <var name="input4" type="string"/>
-        <var name="input3_options" type="string"/>
-        <var name="input3_labels" type="string"/>
-        <var name="input4_options" type="list[string]"/>
-        <var name="input4_labels" type="list[string]"/>
-    </variables>
-    ...
     <steps>
-        <assign to="$input3_options">"v1, v2, v3"</assign>
-        <assign to="$input3_labels">"Value 1, Value 2, Value 3"</assign>
-        <assign to="$input4_options" append="true">"x1"</assign>
-        <assign to="$input4_options" append="true">"x2"</assign>
-        <assign to="$input4_options" append="true">"x3"</assign>
-        <assign to="$input4_labels" append="true">"VAL 1"</assign>
-        <assign to="$input4_labels" append="true">"VAL 2"</assign>
-        <assign to="$input4_labels" append="true">"VAL 3"</assign>
+        <!-- Assign options and labels (you may predefine variables or create them on the fly as follows) -->
+        <assign to="input3_options">"v1, v2, v3"</assign>
+        <assign to="input3_labels">"Value 1, Value 2, Value 3"</assign>
+        <assign to="input4_options" append="true">"x1"</assign>
+        <assign to="input4_options" append="true">"x2"</assign>
+        <assign to="input4_options" append="true">"x3"</assign>
+        <assign to="input4_labels" append="true">"VAL 1"</assign>
+        <assign to="input4_labels" append="true">"VAL 2"</assign>
+        <assign to="input4_labels" append="true">"VAL 3"</assign>
 	
-        <interact desc="Enter data">
-            <!-- Single selection with options provided in the attribute values. -->
-            <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3">$input1</request>
-            <!-- Multiple selection with options provided in the attribute values. -->
-            <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true">$input2</request>
-            <!-- Single selection with options provided by referring to string variables. -->
-            <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels">$input3</request>
-            <!-- Single selection with options provided by referring to list variables. -->
-            <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels">$input4</request>
+        <interact id="data" desc="Enter data">
+            <!-- Single selection with options provided in the attribute values (stored as data{input1}). -->
+            <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" name="input1"/>
+            <!-- Multiple selection with options provided in the attribute values (stored as data{input2}). -->
+            <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true" name="input2"/>
+            <!-- Single selection with options provided by referring to string variables (stored as data{input3}). -->
+            <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels" name="input3"/>
+            <!-- Single selection with options provided by referring to list variables (stored as data{input4}). -->
+            <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels" name="input4"/>
         </interact>
     </steps>
 
@@ -1717,3 +1756,4 @@ The following example illustrates how a set of tests on XML content can be displ
 
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
 .. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive
+.. _mime type: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types

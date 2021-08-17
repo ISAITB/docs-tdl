@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.13.0
+What's new in release 1.14.0
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,10 +19,8 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    The ``process`` step can now be displayed in the test case's presentation. | GITB TDL | :ref:`tdl-step-process`
-    Support for the ``hidden`` attribute to define steps that are not included in the test case's presentation. | GITB TDL | :ref:`tdl-steps-common-hidesteps`
-    Support for the ``collapsed`` attribute on group steps to have them displayed as initially collapsed. | GITB TDL | :ref:`tdl-steps-common-collapsed`
-    Extended ``group`` steps to allow them to be included in the test case's presentation. | GITB TDL | :ref:`tdl-step-group`
+    The ``receive`` elements of ``interact`` steps support the ``inputType`` and ``mimeType`` attributes to determine the type of input control to use. | GITB TDL | :ref:`tdl-step-interact`
+    The ``instruct`` elements of ``interact`` steps support the ``mimeType`` attribute to determine downloaded file extensions and editor syntax highlighting. | GITB TDL | :ref:`tdl-step-interact`
 
 Previous documentation versions
 -------------------------------
@@ -34,6 +32,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.13.0| Support for steps to be defined as ``hidden`` and ``collapsed``, display of ``group`` steps, and option to display ``process`` steps.| https://www.itb.ec.europa.eu/docs/tdl/1.13.0/
     1.12.0| Support for sharing resources and scriptlets across test suites, new ``RegExpProcessor`` and ``CollectionUtils`` processors, extensions to the ``TokenGenerator`` and ``SchematronValidator``.| https://www.itb.ec.europa.eu/docs/tdl/1.12.0/
     1.11.1| Referencing a missing variable evaluates as an empty string.| https://www.itb.ec.europa.eu/docs/tdl/1.11.1/
     1.11.0| Stop on errors, test case output messages, support for ``verify`` output data, new ``TEST_SUCCESS`` variable, and custom ``interact`` titles.| https://www.itb.ec.europa.eu/docs/tdl/1.11.0/
