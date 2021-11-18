@@ -112,6 +112,7 @@ Note that ``etxn`` steps are not presented to the user.
 .. index:: config (send)
 .. index:: input (send)
 .. index:: hidden (send)
+.. index:: reply (send)
 .. _tdl-step-send:
 
 send
@@ -131,6 +132,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -163,6 +165,7 @@ sending always takes place through the message handler implementation. The ``sen
 .. index:: input (receive)
 .. index:: output (receive)
 .. index:: hidden (receive)
+.. index:: reply (receive)
 .. _tdl-step-receive:
 
 receive
@@ -186,6 +189,7 @@ of the ``receive`` element is as follows:
     @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for the signal's input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -240,6 +244,7 @@ output (returned via its call-back to the test bed) to the specified values. If 
 .. index:: input (listen)
 .. index:: output (listen)
 .. index:: hidden (listen)
+.. index:: reply (listen)
 .. _tdl-step-listen:
 
 listen
@@ -259,6 +264,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
     documentation, no, Rich text content that provides further information on the current step.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
@@ -372,6 +378,7 @@ completed and proceed with any needed actions such as resource clean-up.
 .. index:: documentation (process)
 .. index:: operation (process)
 .. index:: input (process)
+.. index:: output (process)
 .. index:: hidden (process)
 .. _tdl-step-process:
 
@@ -395,13 +402,33 @@ The structure of the ``process`` element is as follows:
     @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``true``).
+    @input, no, An alternative to input elements to provide a single input when the processing handler expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-process__simplified`.
+    @operation, no, An alternative to the operation element providing the operation to carry out by the processing handler. See also :ref:`tdl-step-process__simplified`.
+    @output, no, The name to use for the session context variable to store the processing output as an alternative to using the ``id``. See also :ref:`tdl-step-process__simplified`.
     documentation, no, Rich text content that provides further information on the current step (meaningful if ``hidden`` is ``false``).
     operation, no, An optional ``string`` to identify an operation the handler is expected to perform.
     input, no, Zero or more elements for the input parameters to the processing step. See :ref:`handlers-inputs-outputs` for details.
 
-The ``operation`` attribute is relevant for processing handlers that can support more than one task. Use of multiple operations under
+Setting an ``operation`` is relevant for processing handlers that can support more than one task. Use of multiple operations under
 the same transaction renders processing services quite powerful in that they can perform any number of related operations
-and be extended with additional ones if needed.
+and be extended with additional ones if needed. The operation to perform can be provided either via child element or attribute. If both
+are provided, the child element takes precedence.
+
+The output of processing steps can be leveraged in two ways:
+
+    * If the ``output`` attribute is defined, its value is used to name the variable in which the results are stored. If multiple results
+      are produced this will be a ``map``, but for a single result this will be directly recorded.
+    * If there is no ``output`` attribute, the step's ``id`` is used instead. Its value will be used as the name of a ``map`` that will
+      include all outputs, using the names defined by the processing handler.
+
+Using the ``output`` attribute is meant as a simplification when doing simple processing. It allows you to control the resulting variable's
+name which could be interesting if you need it as part of :ref:`template processing<test-case-expressions-template-files>` when replacing
+similarly named placeholders. For further ways to simplify basic processing steps see :ref:`tdl-step-process__simplified`.
+
+.. _tdl-step-process__transactions:
+
+Processing transactions
++++++++++++++++++++++++
 
 For a processing handler that retains state, carrying out operations in a transaction is important as it provides an opportunity to manage
 correctly its resources. Moreover, for processing handlers supporting more than one operation for the same data, a transaction provides
@@ -468,6 +495,11 @@ on the ``process`` step itself (replacing the ``txnId`` reference) as illustrate
         <instruct desc="Value:">$uuid{value}</instruct>
     </interact>
 
+.. _tdl-step-process__visibility:
+
+Process step visibility
++++++++++++++++++++++++
+
 The ``process`` step is by default considered to be internal and not meaningful to present to users. You could nonetheless choose to include the
 step in the test session presentation by setting its ``hidden`` attribute to ``false`` (the default value is ``true`` for ``process`` steps). An 
 example case where this could be useful is when you use a :ref:`custom processing service<handlers>` to transform content between syntaxes. Making
@@ -500,7 +532,55 @@ this additional information:
     **Hidden steps:** The ``hidden`` attribute is supported for all steps that can be presented to users. The ``process`` step however is the
     only case where the default value is assumed to be ``true``. For further information on the steps' ``hidden`` attribute check the  
     :ref:`tdl-steps-common-hidesteps` section.
-    
+
+.. _tdl-step-process__simplified:
+
+Simplified processing steps
++++++++++++++++++++++++++++
+
+Test cases often include basic processing steps as utilities that don't need transactions and multiple inputs, or produce only single
+output values. To reduce the verbosity of the ``process`` step in such cases, you can make use of three syntax alternatives:
+
+    * The ``input`` attribute to provide a single input. This is possible when a single input is expected, or in case of multiple expected
+      inputs, there is one mandatory one.
+    * The ``operation`` attribute to define the operation.
+    * The ``output`` attribute to directly name the result rather than use an intermediate ``map``.
+
+In the case of inputs and operations, defining them both as attributes and child elements is superfluous. If nonetheless both are defined,
+the child elements take precedence.
+
+The following example illustrates how these alternatives can be used to simplify your test definitions. We consider here that we are 
+generating two messages based on a template that includes a placeholder for an identifier (named "messageId"). For the first message
+we use a verbose syntax whereas for the second one we use the simplifications discussed here. In both cases the :ref:`handlers-TokenGenerator`
+is used to generate UUIDs as alphanumeric strings with a length of ten characters.
+
+.. code-block:: xml
+
+    <!--
+        Verbose approach.
+    -->
+    <process id="tokenStep" handler="TokenGenerator">
+        <operation>string</operation>
+        <input name="format">"[a-zA-Z\d]{10}"</input>
+    </process>
+    <!-- 
+        The output is stored in a map named using the step's id. As the template defines
+        a "messageId" placeholder we need to create such a variable from the result map.
+    -->
+    <assign to="messageId">$tokenStep{value}</assign>
+    <assign to="message1" asTemplate="true">$messageTemplate</assign>
+
+    <!--
+        Simplified approach.
+    -->
+    <process output="messageId" handler="TokenGenerator" input="[a-zA-Z\d]{10}" operation="string"/>
+    <assign to="message2" asTemplate="true">$messageTemplate</assign>
+
+.. note::
+    The :ref:`tdl-step-call` step also offers :ref:`similar syntax simplifications<tdl-step-call__simplified>`. This simplified
+    syntax is available for :ref:`tdl-step-process` and :ref:`tdl-step-call` steps as these typically represent utilities that are
+    frequently used.
+
 .. index:: Flow steps
 
 Flow steps
@@ -921,12 +1001,18 @@ here on how variables are :ref:`dynamically created<test-case-variables-from-exp
 .. index:: source (log)
 .. index:: asTemplate (log)
 .. index:: stopOnError (log)
+.. index:: level (log)
+.. index:: ERROR (log)
+.. index:: WARNING (log)
+.. index:: INFO (log)
+.. index:: DEBUG (log)
+
 .. _tdl-step-log:
 
 log
 ~~~
 
-The ``log`` step is used to add information to the test session's log output. The step itself is not visible on a test case's
+The ``log`` step is used to add information to the test session's log output at various severity levels. The step itself is not visible on a test case's
 diagram but users can inspect its output in the recorded test session log. This step can be used both as a development utility
 for test case developers and also as a means of providing additional information to testers. The latter case can be valuable
 in providing e.g. technical details to complement a validation step if needed to inspect further details.
@@ -936,12 +1022,14 @@ The element's structure is as follows:
 
 .. csv-table::
     :stub-columns: 1
+    :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
-    @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
-    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
+    @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
+    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference.
 
 The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
 user by means of a :ref:`user interaction step<tdl-step-interact>`:
@@ -969,6 +1057,15 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
     <log>$message</log>
     <!-- Equivalent to the previous case (template processing is disabled by default). -->
     <log asTemplate="false">$message</log>
+    <!-- Log a message at a different severity level (a warning in this case). -->
+    <log level="WARNING">'The value should normally be received by your service directly.'</log>
+    <!-- Log a message at a dynamically defined severity level. -->
+    <assign to="logLevel">'WARNING'</assign>
+    <log level="$logLevel">'The value should normally be received by your service directly.'</log>
+
+.. note::
+    **Test case log level:** You can configure the :ref:`minimum log level for a test case<test-case-steps>` to control which log
+    messages are included in the session log.
 
 .. index:: group
 .. index:: desc (group)
@@ -1060,6 +1157,9 @@ Use of these attributes is illustrated in the following TDL snippet:
 .. index:: config (verify)
 .. index:: input (verify)
 .. index:: hidden (verify)
+.. index:: ERROR (verify)
+.. index:: WARNING (verify)
+
 .. _tdl-step-verify:
 
 verify
@@ -1075,27 +1175,28 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
 
 .. csv-table::
     :stub-columns: 1
+    :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @id, no, The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
-    @desc, no, The description for the validation.
-    @handler, yes, A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
-    @level, no, The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @output, no, A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    documentation, no, Rich text content that provides further information on the current step.
-    property, no, Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
-    config, no, Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
-    input, yes, One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
+    @id~ no~ The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
+    @desc~ no~ The description for the validation.
+    @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
+    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @output~ no~ A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
+    @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    documentation~ no~ Rich text content that provides further information on the current step.
+    property~ no~ Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
+    config~ no~ Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
+    input~ yes~ One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
 
 A ``verify`` step that is set at warning level (through attribute ``level``) will never result in an overall failure for the test session. If validation fails,
 the result will be indicated as a warning but without further impact. Note that a validation service returning a detailed validation report for a ``verify`` step 
 at warning level may have its resulting report adapted accordingly. The report will be set as ``WARNING`` (if it was ``FAILURE``) and any error-level report 
 items will be listed as warnings.
 
-The following example illustrates use of two ``verify`` steps, one using an :ref:`handlers-XSDValidator` and the other set at warning level and calling a remote
-validation service:
+The following example includes three ``verify`` steps, the first one using an :ref:`handlers-XSDValidator`, followed by a second one at warning level which uses a remote
+validation service. The third ``verify`` step replicates the previous one but defines its level dynamically:
 
 .. code-block:: xml
 
@@ -1110,6 +1211,13 @@ validation service:
         Warning-level validation using a remote validation service.
     -->
     <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="WARNING" desc="Validate against remote service">
+        <input name="aDocument">$document</input>
+    </verify>
+    <!-- 
+        Validation using a remote validation service with a dynamically set severity level.
+    -->
+    <assign to="levelToUse">'WARNING'</assign>
+    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="$levelToUse" desc="Validate against remote service">
         <input name="aDocument">$document</input>
     </verify>
 
@@ -1168,6 +1276,8 @@ its required input parameters and receive its output. The structure of the ``cal
     @from, no, The identifier of the test suite from which the scriptlet will be loaded. If not provided this is assumed to be the current test suite.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @input, no, An alternative to input elements to provide a single input when the scriptlet expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-call__simplified`.
+    @output, no, The name to use for the session context variable to store the scriptlet output as an alternative to using the ``id``. See also :ref:`tdl-step-call__simplified`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the ``scriptlet``'s output parameters to specify which outputs you require.
 
@@ -1245,6 +1355,53 @@ The following example illustrates potential uses of the ``call`` step:
 Further information on defining and using scriptlets is provided in the :ref:`scriptlet documentation<scriptlets>`. For
 scriptlets specifically defined within test cases (i.e. private scriptlets) refer to the test case's
 :ref:`scriptlets element<test-case-scriptlets>`.
+
+.. _tdl-step-call__simplified:
+
+Simplified call steps
++++++++++++++++++++++
+
+Test cases often include scriptlets as utilities that don't need multiple inputs or produce only single output values. To reduce the 
+verbosity of the ``call`` step in such cases, you can make use of two syntax alternatives:
+
+    * The ``input`` attribute to provide a single input. This is possible when the scriptlet expects only a single input.
+    * The ``output`` attribute to directly name the result rather than use an intermediate ``map``.
+
+Defining an input both as an attribute and child element is superfluous. If nonetheless both are defined, the child elements take precedence.
+On the other hand, the ``output`` attribute is complementary to the output child elements. When defining output child elements these result
+in limiting the produced results to only the ones specified. The results are first filtered as such before using the ``output`` attribute's
+value to name the resulting variable.
+
+The following example illustrates how these alternatives can be used to simplify your test definitions. We consider here that we are 
+generating two messages based on a template that includes a placeholder for a signature (named "signature"). For the first message
+we use a verbose syntax whereas for the second one we use the simplifications discussed here. In both cases the signature value is created
+through a scriptlet that expects an input named "valueToSign" and produces an output named "signedValue".
+
+.. code-block:: xml
+
+    <!--
+        Verbose approach.
+    -->
+    <call id="signatureCall" path="signatureScript">
+        <input name="valueToSign">$aValue</input>
+    </call>
+    <!-- 
+        The output is stored in a map named using the step's id. As the template defines
+        a "signature" placeholder we need to create such a variable from the result map.
+    -->
+    <assign to="signature">$signatureScript{signedValue}</assign>
+    <assign to="message1" asTemplate="true">$messageTemplate</assign>
+
+    <!--
+        Simplified approach.
+    -->
+    <call output="signature" path="signatureScript" input="$aValue"/>
+    <assign to="message2" asTemplate="true">$messageTemplate</assign>
+
+.. note::
+    The :ref:`tdl-step-process` step also offers :ref:`similar syntax simplifications<tdl-step-process__simplified>`. This simplified
+    syntax is available for :ref:`tdl-step-process` and :ref:`tdl-step-call` steps as these typically represent utilities that are
+    frequently used.
 
 .. index:: interact
 .. index:: id (interact)

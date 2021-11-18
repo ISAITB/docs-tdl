@@ -776,6 +776,7 @@ The following table provides an overview of the places where expressions can be 
     :header: "Use", "Description"
 
     Section :ref:`test-case-imports`, Used for the paths to import artifacts from as an alternative to providing fixed path references.
+    Section :ref:`test-case-steps`, Optionally a variable reference can be used to define the minimum test case log level.
     Section :ref:`test-case-output`, Used to evaluate message match conditions and produce the resulting message texts.
     Section :ref:`scriptlets_elements_output`, Used to evaluate scriptlet output values.
     Step :ref:`tdl-step-btxn`, Variable references can be used to set ``config`` element values.
@@ -789,7 +790,7 @@ The following table provides an overview of the places where expressions can be 
     Step :ref:`tdl-step-repuntil`, Used to define and evaluate the repeat condition (``cond``).
     Step :ref:`tdl-step-foreach`, Variable references can be used to evaluate the loop boundaries (``start`` and ``end``).
     Step :ref:`tdl-step-assign`, Used as the expression to apply. Also a pure variable reference is used in the ``to`` and ``source`` elements.
-    Step :ref:`tdl-step-log`, Used as the expression to apply when calculating the log output. Also a pure variable reference is used in the ``source`` element.
-    Step :ref:`tdl-step-verify`, Used to determine ``input`` values. Variable references can be used to set ``config`` element values.
+    Step :ref:`tdl-step-log`, Used as the expression to apply when calculating the log output. Also a variable reference is used in the ``source`` element and optionally to set the log level.
+    Step :ref:`tdl-step-verify`, Used to determine ``input`` values. Variable references can also be used to set ``config`` element values and the error level.
     Step :ref:`tdl-step-call`, Used to determine ``input`` values.
     Step :ref:`tdl-step-interact`, Used in the values displayed to (``instruct``) or requested from (``request``) users.

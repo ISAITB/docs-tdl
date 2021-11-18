@@ -1,8 +1,8 @@
 .. index:: Test suites
 .. _test-suite:
 
-Test Suites
-===============================
+Test suites
+===========
 
 Overview
 --------
@@ -409,19 +409,19 @@ What is important is that:
 * A single test suite XML file is defined.
 * Test case IDs defined in the test case XML files are referenced in the test suite XML.
 
-Uploading a test suite to the GITB software the following has the following results:
+Uploading a test suite to the GITB software has the following results:
 
 * If it doesn't previously exist, the test suite is recorded along with its test cases and linked to the appropriate specification actors.
-* If the test suite does exist the user selects whether this new version should invalidate previous conformance testing sessions (if the
+* If the test suite does exist, the user selects whether this new version should invalidate previous conformance testing sessions (if the
   change is significant) or not. Choosing to replace the test suite results in the test suite being updated and its test cases being replaced
-  with the ones contained in the new version. Matching of the test suite with an existing one is on the basis of their name within the specification.
+  with the ones contained in the new version. Matching of the test suite with an existing one is on the basis of their ID within the specification.
 * The actors that are defined in the test suite are created if they don't already exist along with their endpoints and endpoint parameters.
 * If the user chooses to, actors that already exist in the specification are updated based on the latest provided information. In this case new endpoints and parameters are added
   and existing ones are updated. Note that actors, endpoints and parameters that are not defined in the new test suite are not removed. The matching of
   actors is on the basis of their ID, whereas for endpoints and parameters their name is used.
 * If the test suite does not include any test cases it is marked as hidden (See :ref:`test-suite-sharing-empty`).
 
-As previously discussed the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and to provide their details (their name, endpoints
+As previously discussed, the :ref:`test-suite-actors` section serves to define which actors are used within the test suite and to provide their details (their name, endpoints
 and endpoint parameters). An alternative approach to avoid defining the complete actor details in the test suite is to simply refer to the actors used
 in its test cases without providing their information. Referring to actors is on the basis of their ID and referred actors are assumed and required to be present in the
 target specification (resulting in an upload error otherwise).
@@ -444,11 +444,9 @@ The following example shows a test suite in which a "User" actor is referred to.
         <testcase id="UBL_invoice_validation_test_2"/>
     </testsuite>
 
-Specifying a test suite's actors in this way could be interesting if you want to be able to manage the actors' information through the GITB software's
-user interface without being concerned with keeping their definitions up to date in test suites. This would avoid for example an unwanted case where an
-actor's information is updated through the user interface but gets reset when a new version of a test suite gets uploaded where the change was not reflected.
-The only points you need to ensure are that the specification's actors are already defined before you start uploading test suites and that you don't change their 
-ID.
+Specifying a test suite's actors in this way could be interesting if you want to manage their information fully through the GITB software's
+user interface. The only thing to ensure is that the specification's actors are already defined before uploading test suites and that their 
+IDs are correctly referenced.
 
 .. _test-suite-sharing:
 

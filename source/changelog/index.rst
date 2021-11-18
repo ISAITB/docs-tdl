@@ -7,25 +7,26 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.14.1
+What's new in release 1.15.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.14.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.14.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
 a whole or specific improvements in the GITB software (or both) . In addition, references are provided to the relevant sections 
 for more information.
 
-
 .. csv-table::
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    The ``receive`` elements of ``interact`` steps support the ``inputType`` and ``mimeType`` attributes to determine the type of input control to use. | GITB TDL | :ref:`tdl-step-interact`
-    The ``instruct`` elements of ``interact`` steps support the ``mimeType`` attribute to determine downloaded file extensions and editor syntax highlighting. | GITB TDL | :ref:`tdl-step-interact`
+    Messaging steps now support the ``reply`` attribute to indicate that they should be presented as reply messages. | GITB TDL | :ref:`tdl-step-send`, :ref:`tdl-step-receive`, :ref:`tdl-step-listen`
+    Support for automatically converting non-list values to lists (as single-item lists containing the value). | GITB TDL | :ref:`test-case-types-type-conversions`
+    Support for automatically converting lists and maps to strings. | GITB TDL | :ref:`test-case-types-type-conversions`
+    The ``log`` step now supports a ``level`` attribute to define the message's severity level. | GITB TDL | :ref:`tdl-step-log`
+    Test cases now support the ``logLevel`` attribute to control which messages are included in test session logs. | GITB TDL | :ref:`test-case-steps`
+    The severity level of ``verify`` steps can be now be provided dynamically via variable reference. | GITB TDL | :ref:`tdl-step-verify`
+    The ``process`` step now enables simplified usage through the ``input``, ``operation`` and ``output`` attributes. | GITB TDL | :ref:`tdl-step-process__simplified`
+    The ``call`` step now enables simplified usage through the ``input`` and ``output`` attributes. | GITB TDL | :ref:`tdl-step-call__simplified`
 
 Previous documentation versions
 -------------------------------
@@ -37,6 +38,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.14.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.14.1/
     1.14.0| Syntax-aware processing on ``interact`` steps via the ``mimeType`` attribute and support for several input types via the ``inputType`` attribute.| https://www.itb.ec.europa.eu/docs/tdl/1.14.0/
     1.13.0| Support for steps to be defined as ``hidden`` and ``collapsed``, display of ``group`` steps, and option to display ``process`` steps.| https://www.itb.ec.europa.eu/docs/tdl/1.13.0/
     1.12.0| Support for sharing resources and scriptlets across test suites, new ``RegExpProcessor`` and ``CollectionUtils`` processors, extensions to the ``TokenGenerator`` and ``SchematronValidator``.| https://www.itb.ec.europa.eu/docs/tdl/1.12.0/

@@ -1,7 +1,7 @@
 .. index:: Test cases
 .. _test-case:
 
-Test Cases
+Test cases
 ==========
 
 Overview
@@ -541,6 +541,12 @@ type. The following example illustrates setting values for different variable ty
 
 .. index:: steps (Test case)
 .. index:: stopOnError (Test case)
+.. index:: logLevel
+.. index:: ERROR (Test case logLevel)
+.. index:: WARNING (Test case logLevel)
+.. index:: INFO (Test case logLevel)
+.. index:: DEBUG (Test case logLevel)
+
 .. _test-case-steps:
 
 Steps
@@ -551,9 +557,68 @@ of a GITB TDL step construct. The structure of the element is as follows:
 
 .. csv-table::
     :stub-columns: 1
+    :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @stopOnError, no, A boolean flag determining whether the test session should stop if any step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @stopOnError~ no~ A boolean flag determining whether the test session should stop if any step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @logLevel~ no~ The minimum logging level that this test case should produce. This can be (in increasing severity) ``DEBUG`` (the default level), ``INFO``, ``WARNING`` or ``ERROR``, but can also be set dynamically as a variable reference. See also the :ref:`tdl-step-log` step.
+
+.. _test-case-steps__logging:
+
+Test case logging
++++++++++++++++++
+
+The test case's **logging level** affects log statements produced automatically by the test bed or :ref:`added explicitly by the test case<tdl-step-log>`.
+While executing a test session, the test bed automatically produces the following log output:
+
+    * At ``DEBUG`` level, information on each step's start, end and latest status.
+    * At ``INFO`` level, information on key lifecycle points such as the start and end of the session.
+    * At ``WARNING`` level, detected issues that although not blocking for the test session could be signs of problems.
+    * At ``ERROR`` level, information on unexpected errors that forced the test session to fail.
+
+When using the ``logLevel`` attribute to set the test case's log level, this defines the minimum level of messages to be added to the
+session's log. A good example is setting the ``logLevel`` to ``INFO`` which will exclude all ``DEBUG`` output while including all output 
+of ``INFO`` and higher severity. This could be interesting if you want to use the test session log to record instructions and important
+events using the :ref:`tdl-step-log` step, thus ensuring that when your users consult it they will see only meaningful information.
+
+In certain cases you may prefer to set the test case logging level dynamically. This is achieved by using a variable reference as the 
+``logLevel`` value, referring either to a :ref:`configuration property<test-case-configuration>` or a :ref:`predefined test case variable<test-case-variables>`.
+Interestingly, when referring to a variable and given that the provided expression is calculated every time, you can adapt the test case's
+logging level during the course of the test session. You may for example start with a ``WARNING`` level but switch to ``INFO``
+for a specific set of steps. An example of this is illustrated below:
+
+.. code-block:: xml
+
+    <testcase>
+        <variables>
+            <var name="loggingLevel" type="string">
+                <value>WARNING</value>
+            </var>
+        </variables>
+        <steps logLevel="$loggingLevel">
+            <!-- 
+                The following log entry is ignored as we only log at WARNING level and above.
+            -->
+            <log level="INFO">'An info message'</log>
+            <!-- 
+                For the group that follows switch to INFO level.
+            -->
+            <assign to="loggingLevel">'INFO'</assign>
+            <group>
+                ...
+            </group>
+            <!-- 
+                Switch back to WARNING level.
+            -->
+            <assign to="loggingLevel">'WARNING'</assign>
+            ...
+        </steps>
+    </testcase>
+
+.. _test-case-steps__steps:
+
+Available steps
++++++++++++++++
 
 The test case's steps are defined as children of the ``steps`` element. The available test steps that can be defined are:
 
