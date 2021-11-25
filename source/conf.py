@@ -134,7 +134,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'GITBTDL.tex', 'GITB TDL Documentation',
-     'DIGIT ISA', 'manual'),
+     'DIGIT D.2', 'manual'),
 ]
 
 
