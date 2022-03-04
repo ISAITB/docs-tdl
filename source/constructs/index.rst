@@ -965,7 +965,7 @@ The element's structure is as follows:
 
     @to, yes, The target variable to assign the result of the expression to.
     @append, no, Used if the ``to`` variable is a ``list`` to append the result to. Can be "true" or "false".
-    @type, no, Used to specify the type of variable to create if the ``to`` is an entry in a ``map``.
+    @type, no, Used to explicitly specify the type of variable to create (e.g. if the ``to`` is an entry in a ``map``).
     @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
