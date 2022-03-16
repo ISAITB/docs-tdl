@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.15.1
+What's new in release 1.16.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.15.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.15.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,14 +19,13 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Messaging steps now support the ``reply`` attribute to indicate that they should be presented as reply messages. | GITB TDL | :ref:`tdl-step-send`, :ref:`tdl-step-receive`, :ref:`tdl-step-listen`
-    Support for automatically converting non-list values to lists (as single-item lists containing the value). | GITB TDL | :ref:`test-case-types-type-conversions`
-    Support for automatically converting lists and maps to strings. | GITB TDL | :ref:`test-case-types-type-conversions`
-    The ``log`` step now supports a ``level`` attribute to define the message's severity level. | GITB TDL | :ref:`tdl-step-log`
-    Test cases now support the ``logLevel`` attribute to control which messages are included in test session logs. | GITB TDL | :ref:`test-case-steps`
-    The severity level of ``verify`` steps can be now be provided dynamically via variable reference. | GITB TDL | :ref:`tdl-step-verify`
-    The ``process`` step now enables simplified usage through the ``input``, ``operation`` and ``output`` attributes. | GITB TDL | :ref:`tdl-step-process__simplified`
-    The ``call`` step now enables simplified usage through the ``input`` and ``output`` attributes. | GITB TDL | :ref:`tdl-step-call__simplified`
+    Namespaces can now be defined to simplify XPath expressions in GITB TDL steps and the XPathValidator. | GITB TDL | :ref:`test-case-namespaces`
+    Actors defined in test cases are considered by default as SIMULATED. | GITB TDL | :ref:`test-case-actors`
+    Introduction of the ``STEP_STATUS`` variable to record and query the specific status of each step. | GITB TDL | :ref:`test-case-expressions-step-status`
+    Reuse of steps' ``desc`` attribute to identify them in the test session log to make log entries more meaningful. | GITB software | :ref:`tdl-steps`
+    Support for test session log contributions from custom test services used as remote service handlers. | GITB TDL | :ref:`tdl-step-log`
+    Support for the parallel or sequential execution of a test suite's test cases when a test suite is executed in the background. | GITB software | :ref:`test-suite-test-cases`
+    Test cases now feature the ``supportsParallelExecution`` attribute that can be used to enforce a test case's execution in isolation. | GITB TDL | :ref:`test-case`
 
 Previous documentation versions
 -------------------------------
@@ -42,6 +37,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.15.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.15.1/
     1.15.0| Logging levels, simplified ``process`` and call ``steps``, and styling of replies in messaging steps.| https://www.itb.ec.europa.eu/docs/tdl/1.15.0/
     1.14.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.14.1/
     1.14.0| Syntax-aware processing on ``interact`` steps via the ``mimeType`` attribute and support for several input types via the ``inputType`` attribute.| https://www.itb.ec.europa.eu/docs/tdl/1.14.0/

@@ -113,12 +113,14 @@ Namespaces
 ~~~~~~~~~~
 
 The ``namespaces`` element is identical in structure and purpose to the one defined for :ref:`test cases<test-case-namespaces>`.
-It is used to define one or more expression languages that are used in test case constructs that support them.
+It is used to declare one or more namespace mappings (prefix to value), allowing the declared prefixes to be used in the scriptlet's
+XPath expressions.
+
+If the scriptlet is called by a test case or another scriptlet that already defines namespaces, these definitions are inherited. In case
+the current scriptlet defines a namespace prefix that has already been defined, then the scriptlet's own definition overrides the inherited
+one.
 
 For further information on this element check the :ref:`test case namespaces documentation<test-case-namespaces>`.
-
-.. note::
-    **GITB software support:** Expression languages other than the default XPath 1.0 are not supported. As such the ``namespaces`` element is currently ignored.
 
 .. index:: imports (Scriptlets)
 .. _scriptlets_elements_imports:

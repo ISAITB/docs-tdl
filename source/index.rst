@@ -9,7 +9,6 @@ GITB TDL Documentation
    :includehidden:
 
    introduction/index
-   changelog/index
    testsuite/index
    testcase/index
    scriptlets/index
@@ -18,4 +17,5 @@ GITB TDL Documentation
    constructs/index
    handlers/index
    examples/index
+   changelog/index
    genindex

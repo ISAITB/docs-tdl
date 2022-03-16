@@ -128,7 +128,7 @@ part of a transaction created by ``btxn``, the identifier of which it references
     @txnid, yes, The ID of the transaction this ``send`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
-    @desc, no, A description to display to the user for this test step.
+    @desc, no, A description for this step to display to the user and to include in the test session log.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
@@ -182,7 +182,7 @@ of the ``receive`` element is as follows:
     @txnid, yes, The ID of the transaction this ``receive`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
-    @desc, no, A description to display to the user for this test step.
+    @desc, no, A description for this step to display to the user and to include in the test session log.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @timeout, no, An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
     @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
@@ -398,7 +398,7 @@ The structure of the ``process`` element is as follows:
 
     @txnId, no, The ID of the transaction to which this processing step belongs. Can be omitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
-    @desc, no, A description to display to the user on the purpose of the check (meaningful if ``hidden`` is ``false``).
+    @desc, no, A description for this step to display to the user (meaningful if ``hidden`` is ``false``) and to include in the test session log.
     @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``true``).
@@ -611,7 +611,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "decision").
-    @desc, no, A description to display to the user on the purpose of the check.
+    @desc, no, A description for this check to display to the user and to include in the test session log.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
@@ -658,7 +658,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description to display to the user on the purpose of the loop.
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
@@ -714,7 +714,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description to display to the user on the purpose of the loop.
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
@@ -765,7 +765,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description to display to the user on the purpose of the loop.
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
     @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
@@ -825,7 +825,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "flow").
-    @desc, no, A description to display to the user on the purpose of the forking.
+    @desc, no, A description for this thread fork to display to the user and to include in the test session log.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
@@ -893,7 +893,7 @@ The ``exit`` step is used to immediately exit the test case from any execution b
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @desc, no, A description to display for the ``exit`` step.
+    @desc, no, A description for the step to display to the user and to include in the test session log.
     @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     documentation, no, Rich text content that provides further information on the current step.
@@ -966,7 +966,7 @@ The element's structure is as follows:
     @to, yes, The target variable to assign the result of the expression to.
     @append, no, Used if the ``to`` variable is a ``list`` to append the result to. Can be "true" or "false".
     @type, no, Used to explicitly specify the type of variable to create (e.g. if the ``to`` is an entry in a ``map``).
-    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
+    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
@@ -1025,7 +1025,7 @@ The element's structure is as follows:
     :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
+    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
     @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
@@ -1063,6 +1063,11 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
     <assign to="logLevel">'WARNING'</assign>
     <log level="$logLevel">'The value should normally be received by your service directly.'</log>
 
+Using the ``log`` step provides flexibility to test developers for conveying information to users that may be difficult to present on the test execution
+diagram. When considering such log contributions, the ``log`` step is complemented by the `logging capabilities`_ of `custom test services`_ used as
+:ref:`remote service handlers<handlers>` for messaging (:ref:`send<tdl-step-send>`, :ref:`receive<tdl-step-receive>`), processing (:ref:`process<tdl-step-process>`)
+and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can contribute to the test session log via service call to the test bed.
+
 .. note::
     **Test case log level:** You can configure the :ref:`minimum log level for a test case<test-case-steps>` to control which log
     messages are included in the session log.
@@ -1087,7 +1092,7 @@ a visual grouping and label to the display. Its structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @title, no, A short title to display for this step (default is "group").
-    @desc, no, The description for the group.
+    @desc, no, A description for this group to display to the user and to include in the test session log.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
@@ -1179,7 +1184,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :header: "Name", "Required?", "Description"
 
     @id~ no~ The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
-    @desc~ no~ The description for the validation.
+    @desc~ no~ A description for this validation to display to the user and to include in the test session log.
     @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
@@ -1433,7 +1438,7 @@ The structure of the ``interact`` element is as follows:
 
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @title, no, A short title to display for this step (default is "interact").
-    @desc, no, A description for the user interaction.
+    @desc, no, A description for the user interaction to display to the user and to include in the test session log.
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT.
     @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction").
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
@@ -1914,3 +1919,5 @@ The following example illustrates how a set of tests on XML content can be displ
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
 .. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive
 .. _mime type: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+.. _custom test services: https://www.itb.ec.europa.eu/docs/services/latest/
+.. _logging capabilities: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#contributing-to-test-session-logs

@@ -57,6 +57,7 @@ The following example represents a complete, simple test case for the validation
     </testcase>
 
 .. index:: id (Test case)
+.. index:: supportsParallelExecution
 .. index:: metadata (Test case)
 .. index:: namespaces (Test case)
 .. index:: imports (Test case)
@@ -75,8 +76,9 @@ follows in the subsequent sections.
     :header: "Name", "Required?", "Description"
 
     @id, yes, A string to uniquely identify the test case by. This is referenced in the test suite XML.
+    @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is ``true``).
     metadata, yes, A block containing the metadata used to describe the test case.
-    namespaces, no, An optional set of namespaces to define the expression languages used in the test case.
+    namespaces, no, An optional set of namespace declarations to define the namespace prefixes used in the test case's expressions.
     imports, no, An optional set of imports used to load additional resources from the test suite.
     preliminary, no, An optional set of user interaction steps to display before the test session starts.
     variables, no, An optional set of variables that are used in the test case.
@@ -84,6 +86,26 @@ follows in the subsequent sections.
     steps, yes, The sequence of steps that this test case foresees.
     output, no, Definition of an output message to display for the overall test session.
     scriptlets, no, Optional named groups of test steps which can be used within the test case.
+
+The ``id`` attribute is important in uniquely identifying the test case within a given test suite, and needs to be referenced by the 
+:ref:`test suite<test-suite>` if it is to be considered. It is not presented to normal users, only administrators, and is used when 
+:ref:`uploading a new version of a test suite<test-suite-deploying>` to determine whether the test case definition serves as an update to an existing 
+test case.
+
+The ``supportsParallelExecution`` attribute is important in determining how the test case is handled in batch background executions (i.e. not executions
+that are interactively launched and followed by a tester). If this is set to ``true``, the default value considered if missing, the test case is assumed
+to be able to correctly function while other test cases are being executed in parallel for the same SUT. This means that the design of the test case
+caters for such concurrent sessions and is able to correctly map exchanged messages to sessions. This is not always possible to do, especially in 
+scenarios where messaging is initiated from the SUT (not by the test bed) or are asynchronous in nature.
+
+If the test case cannot correctly handle such concurrency, you need to set ``supportsParallelExecution`` to ``true``. Doing so instructs the test
+engine to always execute the given test case in isolation. Any ongoing test session will first need to complete before the current test case is executed
+and its own test session will itself need to complete before executing any other test cases. The order of execution of test cases when making such 
+considerations is defined by their :ref:`declaration order<test-suite-test-cases>` in the :ref:`test suite<test-suite>`.
+
+.. note::
+    When ``supportsParallelExecution`` is set to ``false``, the test case's non-parallel execution is honoured only within the context of a single batch
+    execution of a test suite. The flag becomes ineffective if the tester explicitly launches separate test sessions in parallel.
 
 Elements
 --------
@@ -184,27 +206,85 @@ Note that documentation such as this is also supported for:
 
 .. index:: namespaces (Test case)
 .. index:: ns (Test case namespaces)
+.. index:: prefix (Test case namespaces)
 .. _test-case-namespaces:
 
 Namespaces
 ~~~~~~~~~~
 
-The ``namespaces`` optional element is used to define one or more expression languages that are used in test case constructs that support them. This needs to
-be done when expressions are used that should not be processed using the default XPath 1.0 language. A detailed discussion on GITB expressions as well 
-as where and how you can use them is provided in :ref:`test-case-expressions`. Each referred expression language is defined in a ``namespace`` element with
-the following structure:
+The ``namespaces`` optional element is used to declare namespace mappings for use within the test case. The primary use cases of these namespaces is to allow
+the definition of prefixes used in XML and XPath expressions. In principle they could be applied to any type of language or expression that has such a concept
+(e.g. JSON-LD, Turtle) but currently their use is limited to XML.
+
+Each namespace to declare is defined as a child ``ns`` element with the following structure:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    ns, yes, One or more elements to define the expression languages used in the test case. Each ``ns`` element must specify a ``prefix`` attribute to define the namespace prefix.
+    @prefix, yes, The namespace prefix that will be used in expressions.
 
-The values specified in the ``prefix`` attributes define how each expression language is referenced within the test case. As an example consider a test case that needs to 
-check a number variable ``var`` and set a ``result`` variable with "result1" if ``var`` is 1 or with "result2" otherwise. Simple if-else constructs like this are a good
-example of a shortcoming of XPath 1.0 as they are not natively supported and need a non-intuitive workaround based on string concatenation. A simpler approach would be to use
-a scripting language more adapted to this kind of operation such as JavaScript. The following test case illustrates this assignment using both the default XPath 1.0 and
-JavaScript:
+The value to which the ``prefix`` is mapped is provided as the ``ns`` element's text content.
+
+Namespaces declared using this approach can be used in two cases:
+
+    * Within any GITB TDL step that supports :ref:`expressions<test-case-expressions>`.
+    * As the expression to apply for the :ref:`XPathValidator<handlers-XPathValidator>` embedded validation handler.
+
+The following example illustrates how namespaces can be used for XML-based processing. The sample test case:
+
+    #. Requests an invoice from the user.
+    #. Extracts the invoice's type using namespaces in an :ref:`assign step<tdl-step-assign>` and then logs it.
+    #. Validates the invoice's type using namespaces with the :ref:`XPathValidator<handlers-XPathValidator>`.
+
+.. code-block:: xml
+
+    <testcase>
+        <!-- 
+            Declare the namespaces to use used in XPath expressions.
+        -->
+        <namespaces>
+           <ns prefix="inv">urn:oasis:names:specification:ubl:schema:xsd:Invoice-2</ns>
+           <ns prefix="cbc">urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2</ns>
+        </namespaces>
+        <steps>
+            <!-- 
+                Request the user to upload the invoice to validate.
+            -->
+            <interact id="input" desc="Upload invoice">
+                <request desc="File upload" name="xml" inputType="UPLOAD"/>
+            </interact>
+            <!--
+                Use an XPath expression to extract the invoice type as an XML element.
+            -->
+            <assign to="invoiceTypeElement" type="object" source="$input{xml}">/inv:Invoice/cbc:InvoiceTypeCode</assign>
+            <!--
+                Log the extracted element.
+            -->
+            <log>$invoiceTypeElement</log>
+            <!--
+                Use XPath to validate the invoice.
+            -->
+            <verify handler="XPathValidator" desc="Check invoice type">
+                <input name="xmldocument">$input{xml}</input>
+                <input name="xpathexpression">"/inv:Invoice/cbc:InvoiceTypeCode/text() = '380'"</input>
+            </verify>  
+        </steps>
+    </testcase>
+
+.. _test-case-namespaces-languages:
+
+Defining alternative expression languages
++++++++++++++++++++++++++++++++++++++++++
+
+A further, experimental use case for the ``namespaces`` element is to define additional expression languages for use within the test case. This needs to
+be done when expressions are used that should not be processed using the default XPath 1.0 language. A detailed discussion on GITB expressions as well 
+as where and how you can use them is provided in :ref:`test-case-expressions`.
+
+In this case the alternative languages are defined using ``ns`` elements, of which the ``prefix`` attributes define how they are to be referenced. A TDL step
+that supports expressions can then define the expression language to consider using its ``lang`` attribute. To illustrate how this works consider a test case
+in which we declare to be using expressions as JavaScript. We will use JavaScript for conditional checks on a number to determine a result given that doing 
+this in XPath 1.0 is rather cumbersome.
 
 .. code-block:: xml
 
@@ -236,7 +316,7 @@ by first wrapping it in a function, the result of which is returned as the assig
 additional details need to first be defined unambiguously by the test bed and made known to its users. Only then can we use them in a deterministic and portable manner.
 
 .. note::
-    **GITB software support:** Expression languages other than the default XPath 1.0 are not supported. As such the ``namespaces`` element is currently ignored.
+    **GITB software support:** Using the ``namespaces`` element to define expression languages other than the default XPath 1.0 is currently not supported.
 
 .. index:: imports (Test case)
 .. index:: artifact (Test case imports)
@@ -376,7 +456,7 @@ one or more ``actor`` children with the following structure:
 
     @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
     @name~ no~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case. Not specifying this will default to the name for actor provided in the test suite.
-    @role~ yes~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
+    @role~ no~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" (the default value) if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
     @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
@@ -421,7 +501,7 @@ if not already specified by the response of the simulated actor's handler. The b
 
     <testcase>
         <gitb:actor id="sender" name="sender" role="SUT"/>
-        <gitb:actor id="receiver" name="receiver" role="SIMULATED">
+        <gitb:actor id="receiver" name="receiver">
             <gitb:endpoint name="info">
                 <gitb:config name="deliveryAddress">SIMULATED_ADDRESS</gitb:config>
             </gitb:endpoint>
@@ -699,12 +779,12 @@ message will be altogether skipped; under no circumstances will a test session f
 (relevant warnings will however be included in the test session's log).
 
 The following snippet illustrates how the ``output`` section could be leveraged to return user-friendly failure messages based on the executed
-test steps:
+test steps (using the :ref:`STEP_STATUS<test-case-expressions-step-status>` variable to determine the cause of the failure):
 
 .. code-block:: xml
 
     <testcase>
-        <steps>
+        <steps stopOnError="true">
             ...
             <verify id="checkIntegrity" desc="Validate integrity">
                 ...
@@ -721,15 +801,15 @@ test steps:
             <!-- We skip the "success" element as we only want failure messages. -->
             <failure>
                 <case>
-                    <cond>not($STEP_SUCCESS{checkIntegrity})</cond>
+                    <cond>$STEP_STATUS{checkIntegrity} = 'ERROR'</cond>
                     <message>"Please verify the integrity of your data and re-submit."</message>
                 </case>
                 <case>
-                    <cond>not($STEP_SUCCESS{checkSyntax})</cond>
+                    <cond>$STEP_STATUS{checkSyntax} = 'ERROR'</cond>
                     <message>"Please verify the syntax of your data and re-submit."</message>
                 </case>
                 <case>
-                    <cond>not($STEP_SUCCESS{checkContent})</cond>
+                    <cond>$STEP_STATUS{checkContent} = 'ERROR'</cond>
                     <message>"Please verify your data content and re-submit."</message>
                 </case>
                 <!-- The default will be applied if no specific case was found to match. -->

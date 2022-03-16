@@ -1124,6 +1124,36 @@ use. The following example illustrates both cases:
         <input name="xpathexpression">concat("contains(/toc/text()", ", 'string to look for')")</input>
     </verify>
 
+In the expressions you use for the validations (attribute ``xpathexpression``) you may also make use of XML namespaces. Doing so is actually
+a best practice to ensure that you don't have ambiguous results due to elements with the same local names. To use namespaces in expressions
+you first need to define their prefixes in the test case's :ref:`namespaces section<test-case-namespaces>`. Moreover, keep in mind that the
+provided input (attribute ``xmldocument``) also supports expressions with namespaces when determining the XML content to apply the XPath
+expression to (if e.g. you want to validate only a part of an XML document).
+
+The following example illustrates how you can use namespace prefixes with your XPath expressions:
+
+.. code-block:: xml
+
+    <testcase>
+        <!-- 
+            Declare the namespaces to be used.
+        -->
+        <namespaces>
+           <ns prefix="ns1">urn:specification:foo</ns>
+           <ns prefix="ns2">urn:specification:bar</ns>
+        </namespaces>
+        <steps>
+            <!--
+                Use the defined namespaces.
+            -->
+            <verify handler="XPathValidator" desc="Check document">
+                <input name="xmldocument">$myDocument</input>
+                <input name="xpathexpression">"/ns1:Foo/ns2:Bar/text() = 'EXPECTED'"</input>
+            </verify>  
+        </steps>
+    </testcase>
+
+
 .. index:: XSDValidator
 .. index:: xsddocument (XSDValidator)
 .. index:: xmldocument (XSDValidator)

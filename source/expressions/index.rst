@@ -5,11 +5,8 @@ Expressions
 -----------
 
 Expressions are used in GITB TDL to perform arbitrary operations on context variables and to provide more control over the input and
-output of specific steps. The approach to interpret and execute expressions is pluggable, meaning that a test bed implementation can
-support any number of expression languages that a test case can then refer to. This is achieved by means of the declarations in a 
-test case's  ``namespaces`` element (see :ref:`test-case-namespaces`) where a prefix is used to identify each language used. 
-The default expression language assumed by GITB TDL is XPath 1.0 given that processing XML constructs is one of the more frequent needs 
-when conformance testing for content specifications. However, the use of XPath does not restrict us to using XML documents as variables; 
+output of specific steps. The expression language assumed by GITB TDL is **XPath 1.0** given that processing XML constructs is one of the more
+frequent needs when conformance testing for content specifications. However, the use of XPath does not restrict us to using XML documents as variables; 
 XPath provides sufficient expressiveness to define most operation you would need to support (albeit not always in the most intuitive way).
 
 The following ``assign`` operations illustrate some interesting examples:
@@ -29,6 +26,12 @@ The following ``assign`` operations illustrate some interesting examples:
         /testcase/steps into another object variable named targetElement.
     -->
     <assign to="$targetElement" source="$fileContent">/*[local-name() = 'testcase']/*[local-name() = 'steps']</assign>
+    <!-- 
+        From an object variable fooContent (i.e. an XML document), extract part matching 
+        /ns1:foo/ns2:bar into another object variable named barElement. Using "ns1" and "ns2" in the 
+        expression assumes they are defined in the test case's "namespaces" section.
+    -->
+    <assign to="$barElement" source="$fooContent">/ns1:foo/ns2:bar</assign>
     <!-- 
         Assign to a number variable named result the result of adding 1 to another number 
         variable named counter.
@@ -73,6 +76,9 @@ on that:
 In the above example, we are using the value contained in a ``map`` variable named "toc" to construct a temporary ``string`` with 
 XML content. We then assign this to an ``object`` variable named "tempXml" to convert it into an XML document (i.e. a variable
 of type ``object``). We can then use the "tempXml" variable for any XPath manipulation that requires a source document.
+
+When manipulating XML content through expressions we most likely want to use **namespaces** to ensure we correctly identify our target elements.
+To directly use namespaces in XPath expressions via their declared prefixes we need to first define them in the test case's :ref:`namespaces section<test-case-namespaces>`.
 
 Escaping XML in expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -510,10 +516,11 @@ Checking the result of test steps
 During the course of a test session you may want to check the result of previous steps. This could be used to determine the flow of execution,
 adapt processing, :ref:`display custom messages to users<tdl-step-interact>`, or determine the :ref:`overall output message<test-case-output>` of the test session.
 
-For this purpose you have two special variables maintained in the test session context:
+For this purpose you have three special variables maintained in the test session context:
 
-* **STEP_SUCCESS** to check specific steps.
+* **STEP_SUCCESS** to check whether specific steps have succeeded.
 * **TEST_SUCCESS** to check the overall test session result.
+* **STEP_STATUS** to check specific steps' status.
 
 .. note::
     **Stopping on failures:** Although its possible to use these variables in combination with :ref:`if<tdl-step-if>` and :ref:`exit<tdl-step-exit>` steps to conditionally stop test sessions,
@@ -522,8 +529,8 @@ For this purpose you have two special variables maintained in the test session c
 .. index:: STEP_SUCCESS
 .. _test-case-expressions-step-success:
 
-Checking the result of a specific step
-++++++++++++++++++++++++++++++++++++++
+Checking whether a specific step succeeded
+++++++++++++++++++++++++++++++++++++++++++
 
 A typical scenario where you would want to check the result of a specific step would be to avoid showing 
 an information popup to the user in case a previous step failed (e.g. via a :ref:`tdl-step-interact` step). Whether or not a step has
@@ -578,6 +585,51 @@ conditionally displaying a user interaction popup, we could use the **TEST_SUCCE
 
 Using this variable provides an efficient shorthand in place of separately checking each step's outcome. In addition, it is a useful
 abstraction given that it allows you to ignore steps that were skipped.
+
+.. index:: STEP_STATUS
+
+.. _test-case-expressions-step-status:
+
+Checking the status of a specific step
+++++++++++++++++++++++++++++++++++++++
+
+Complementing the **STEP_SUCCESS** and **TEST_SUCCESS** variables you may also make use of the **STEP_STATUS** variable that records the
+specific status of each step. This can be used for more advanced checks that **STEP_SUCCESS** cannot cover, especially when it is interesting
+to know if a step was successful, skipped or failed. A typical case where this is important is when we want to calculate an :ref:`output message<test-case-output>`
+explaining the result of a test session. Using **STEP_SUCCESS** for this is not ideal as we need to be able to distinguish failed steps from
+steps that were skipped.
+
+The **STEP_STATUS** variable is recorded as a ``map`` that maintains for each step (identified by its ID) the latest applicable status. The status
+is recorded as a ``string`` that takes the following values:
+
+    * "COMPLETED", for steps having succeeded.
+    * "WARNING", for steps having succeeded with warnings.
+    * "ERROR", for steps having failed.
+    * "SKIPPED", for steps that were skipped.
+    * Empty, for steps that are currently pending.
+
+Note that in case an unknown step ID is looked up the result is an empty string, similar to the case of pending steps.
+
+The following example illustrates use of the **STEP_STATUS** variable to determine a test session's output message by checking specific steps for failures:
+
+.. code-block:: xml
+
+    <output>
+        <success>
+            <default>"The test session completed successfully."</default>
+        </success>
+        <failure>
+            <case>
+                <cond>$STEP_STATUS{verifyType} = 'ERROR'</cond>
+                <message>"The provided type was invalid."</message>
+            </case>
+            <case>
+                <cond>$STEP_STATUS{verifyContent} = 'ERROR'</cond>
+                <message>"The provided content was invalid."</message>
+            </case>
+            <default>"The test session resulted in a failure. Please check the validation reports and apply required corrections."</default>
+        </failure>
+    </output>
 
 .. index:: Templates
 .. index:: asTemplate
