@@ -101,54 +101,46 @@ Executing the ``etxn`` results in a call to the transaction's messaging handler 
 
 Note that ``etxn`` steps are not presented to the user.
 
-.. index:: send
-.. index:: txnid (send)
-.. index:: from (send)
-.. index:: to (send)
-.. index:: desc (send)
-.. index:: id (send)
-.. index:: stopOnError (send)
-.. index:: documentation (send)
-.. index:: config (send)
-.. index:: input (send)
-.. index:: hidden (send)
-.. index:: reply (send)
-.. _tdl-step-send:
+.. index:: listen
+.. index:: txnid (listen)
+.. index:: from (listen)
+.. index:: to (listen)
+.. index:: id (listen)
+.. index:: stopOnError (listen)
+.. index:: documentation (listen)
+.. index:: config (listen)
+.. index:: input (listen)
+.. index:: output (listen)
+.. index:: hidden (listen)
+.. index:: reply (listen)
+.. _tdl-step-listen:
 
-send
-~~~~
+listen
+~~~~~~
 
-The ``send`` step allows the test bed to signal that content needs to be sent from one actor to another. This operation needs to be
-part of a transaction created by ``btxn``, the identifier of which it references. The structure of the ``send`` element is as follows:
+The ``listen`` step is used to instruct the test bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
+Similar to the ``send`` and ``receive`` steps, this step is expected to take place within a transaction created by ``btxn``, the 
+identifier of which it references. The structure of the ``listen`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnid, yes, The ID of the transaction this ``send`` belongs to.
+    @txnid, yes, The ID of the transaction this ``listen`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
-    @desc, no, A description for this step to display to the user and to include in the test session log.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @reply, no, A boolean flag indicating that this communication should be presented as a reply.
     documentation, no, Rich text content that provides further information on the current step.
-    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
-    input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
+    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
+    input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
+    output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
 
-The ``send`` step results in the transaction's messaging handler to be notified that it needs to send content. Recall that the actual
-sending always takes place through the message handler implementation. The ``send`` step simply acts as the signal to do so.
-
-.. code-block:: xml
-    :emphasize-lines: 2,3,4,5
-
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <config name="soap.version">1.2</config>
-        <input name="soap_message">$soapMessage</input>
-    </send>
-    <etxn txnId="t1"/>
+.. note::
+    **GITB software support:** The ``listen`` step is currently not supported. As a general note, 
+    interoperability tests involving multiple actors as SUTs are not currently possible.
 
 .. index:: receive
 .. index:: txnid (receive)
@@ -233,46 +225,54 @@ output (returned via its call-back to the test bed) to the specified values. If 
     :ref:`custom messaging service<handlers>`, you need to make sure your service manages the specific receive call's identifier.
     Check the `messaging service documentation`_ for details on how to do this.
 
-.. index:: listen
-.. index:: txnid (listen)
-.. index:: from (listen)
-.. index:: to (listen)
-.. index:: id (listen)
-.. index:: stopOnError (listen)
-.. index:: documentation (listen)
-.. index:: config (listen)
-.. index:: input (listen)
-.. index:: output (listen)
-.. index:: hidden (listen)
-.. index:: reply (listen)
-.. _tdl-step-listen:
+.. index:: send
+.. index:: txnid (send)
+.. index:: from (send)
+.. index:: to (send)
+.. index:: desc (send)
+.. index:: id (send)
+.. index:: stopOnError (send)
+.. index:: documentation (send)
+.. index:: config (send)
+.. index:: input (send)
+.. index:: hidden (send)
+.. index:: reply (send)
+.. _tdl-step-send:
 
-listen
-~~~~~~
+send
+~~~~
 
-The ``listen`` step is used to instruct the test bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
-Similar to the ``send`` and ``receive`` steps, this step is expected to take place within a transaction created by ``btxn``, the 
-identifier of which it references. The structure of the ``listen`` element is as follows:
+The ``send`` step allows the test bed to signal that content needs to be sent from one actor to another. This operation needs to be
+part of a transaction created by ``btxn``, the identifier of which it references. The structure of the ``send`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @txnid, yes, The ID of the transaction this ``listen`` belongs to.
+    @txnid, yes, The ID of the transaction this ``send`` belongs to.
     @from, yes, The ID of the actor that will be sending the message (see :ref:`test-case-actors`).
     @to, yes, The ID of the actor that will be receiving the message (see :ref:`test-case-actors`).
+    @desc, no, A description for this step to display to the user and to include in the test session log.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
     @reply, no, A boolean flag indicating that this communication should be presented as a reply.
     documentation, no, Rich text content that provides further information on the current step.
-    config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
-    input, no, Zero or more elements for for the messaging handler to consider. See :ref:`handlers-inputs-outputs` for details.
-    output, no, Zero or more elements for the output values reported back to the test case. See :ref:`handlers-inputs-outputs` for details.
+    config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
+    input, no, Zero or more elements for the input parameters. See :ref:`handlers-inputs-outputs` for details.
 
-.. note::
-    **GITB software support:** The ``listen`` step is currently not supported. As a general note, 
-    interoperability tests involving multiple actors as SUTs are not currently possible.
+The ``send`` step results in the transaction's messaging handler to be notified that it needs to send content. Recall that the actual
+sending always takes place through the message handler implementation. The ``send`` step simply acts as the signal to do so.
+
+.. code-block:: xml
+    :emphasize-lines: 2,3,4,5
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <config name="soap.version">1.2</config>
+        <input name="soap_message">$soapMessage</input>
+    </send>
+    <etxn txnId="t1"/>
 
 .. index:: Processing steps
 .. _tdl-processing-steps:
@@ -589,219 +589,61 @@ Flow steps
 Flow steps are used to control the processing flow of a test case. The constructs available are similar to the
 flow control structures available in programming languages.
 
-.. index:: if
-.. index:: title (if)
-.. index:: desc (if)
-.. index:: stopOnError (if)
-.. index:: documentation (if)
-.. index:: cond (if)
-.. index:: then (if)
-.. index:: else (if)
-.. index:: hidden (if)
-.. index:: collapsed (if)
-.. _tdl-step-if:
+.. index:: exit
+.. index:: desc (exit)
+.. index:: success (exit)
+.. index:: documentation (exit)
+.. index:: hidden (exit)
+.. _tdl-step-exit:
 
-if
-~~
+exit
+~~~~
 
-The ``if`` step is used to run one of more steps if a condition is met. Its structure is as follows:
+The ``exit`` step is used to immediately exit the test case from any execution branch. The structure of the ``exit`` element is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @title, no, A short title to display for this step (default is "decision").
-    @desc, no, A description for this check to display to the user and to include in the test session log.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @desc, no, A description for the step to display to the user and to include in the test session log.
+    @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
-    cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
-    then, yes, Contains as children any sequence of steps to execute if the condition results to true.
-    else, no, Contains as children any sequence of steps to execute if the condition results to false.
+
+The following example shows a test case that exits as a success based on the user's input:
 
 .. code-block:: xml
+    :emphasize-lines: 8
 
-    <if desc="Check process type">
-        <cond>$processType = 'process1'</cond>
+    <assign to="$inputValue">'NO'</assign>
+    <interact desc="Provide your choice" with="User">
+        <request desc="Enter 'YES' to end the test" with="User">$inputValue</request>
+    </interact>
+    <if>
+        <cond>$inputValue = 'YES'</cond>
         <then>
-            <assign to="$formatType">'XML'</assign>
-            <verify handler="https://VALIDATOR?wsdl" desc="Validate as XML">
-                <input name="source" source="$document"/>
-                <input name="validationType">$formatType</input>
-            </verify>
+            <exit desc="Terminate test" success="true"/>
         </then>
         <else>
-            <assign to="$formatType">'CSV'</assign>
+            <interact desc="You chose to continue" with="User">
+                <instruct desc="Test continues" with="User" type="string">""</instruct>
+            </interact>
+            <verify handler="XSDValidator" desc="Validate content">
+                <input name="xmldocument">$document</input>
+                <input name="xsddocument">$schemaFile"</input>
+            </verify>
         </else>
     </if>
 
-.. index:: while
-.. index:: title (while)
-.. index:: desc (while)
-.. index:: stopOnError (while)
-.. index:: documentation (while)
-.. index:: cond (while)
-.. index:: do (while)
-.. index:: hidden (while)
-.. index:: collapsed (while)
-.. _tdl-step-while:
-
-while
-~~~~~
-
-The ``while`` step is the most useful looping construct. It allows a sequence of steps to be continuously executed as long as a condition
-continues to be true. The structure of the ``while`` element is as follows:
-
-.. csv-table::
-    :stub-columns: 1
-    :header: "Name", "Required?", "Description"
-
-    @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description for this loop to display to the user and to include in the test session log.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
-    documentation, no, Rich text content that provides further information on the current step.
-    cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
-    do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
-
-The following example validates the name of each attachment defined in an XML document using a ``while`` loop:
+The result type of the ``exit`` step can also be determined via variable reference. The example that follows exits as a success or failure depending
+on whether or not the user provides a "true" of "false" input:
 
 .. code-block:: xml
 
-    <!--
-        Initialise maximum iteration count based on the number of "Attachment" nodes in the document.
-    -->
-    <assign to="$iterationCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
-    <assign to="$iteration">1</assign>
-    <while desc="Validate attachment names">
-        <cond>$iteration &lt;= $iterationCount</cond>
-        <do>
-            <verify handler="XPathValidator" desc="The attachment is named as expected">
-                <input name="xmldocument" source="$document"/>
-                <!-- 
-                    Construct the XPath expression to apply using the iteration variable.
-                -->
-                <input name="xpathexpression">concat("//*[local-name() = 'Attachment'][", $iteration, "]/text() = 'file_", $iteration, ".xml'")</input>
-            </verify>
-            <!--
-                Increment iteration counter.
-            -->
-            <assign to="$iteration">$iteration + 1</assign>
-        </do>
-    </while>
-
-.. index:: repuntil
-.. index:: title (repuntil)
-.. index:: desc (repuntil)
-.. index:: stopOnError (repuntil)
-.. index:: documentation (repuntil)
-.. index:: do (repuntil)
-.. index:: cond (repuntil)
-.. index:: hidden (repuntil)
-.. index:: collapsed (repuntil)
-.. _tdl-step-repuntil:
-
-repuntil
-~~~~~~~~
-
-The `repuntil` step allows you to execute a sequence of steps at least once, checking at the end a condition to see if another iteration
-should take place. The structure of the ``repuntil`` element is as follows:
-
-.. csv-table::
-    :stub-columns: 1
-    :header: "Name", "Required?", "Description"
-
-    @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description for this loop to display to the user and to include in the test session log.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
-    documentation, no, Rich text content that provides further information on the current step.
-    do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
-    cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
-
-.. code-block:: xml
-
-    <assign to="$iteration">1</assign>
-    <assign to="$maxIteration">3</assign>
-    <repuntil desc="Do iteration">
-        <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat($iteration, " of ", $maxIteration)</instruct>
-            </interact>
-            <assign to="$iteration">$iteration + 1</assign>
-        </do>
-        <cond>$iteration &lt;= $maxIteration</cond>
-    </repuntil>
-
-.. note::
-    **Do-while:** Step ``repuntil`` stands for "repeat until". Considering this you could assume that the steps in ``do`` will be executed until
-    the condition in ``cond`` is true. This is actually not the case currently as steps are executed while the condition in ``cond`` remains true
-    (i.e. the logic is actually inversed). The naming of this step is thus unfortunate; it would be more appropriate if this was named ``dowhile``
-    reflecting accurately how the condition is considered.
-
-.. index:: foreach
-.. index:: title (foreach)
-.. index:: desc (foreach)
-.. index:: start (foreach)
-.. index:: end (foreach)
-.. index:: counter (foreach)
-.. index:: stopOnError (foreach)
-.. index:: documentation (foreach)
-.. index:: do (foreach)
-.. index:: hidden (foreach)
-.. index:: collapsed (foreach)
-.. _tdl-step-foreach:
-
-foreach
-~~~~~~~
-
-The ``foreach`` step allows you to execute a sequence of steps for a specific number of iterations. Its structure is as follows:
-
-.. csv-table::
-    :stub-columns: 1
-    :header: "Name", "Required?", "Description"
-
-    @title, no, A short title to display for this step (default is "loop").
-    @desc, no, A description for this loop to display to the user and to include in the test session log.
-    @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
-    @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
-    @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
-    documentation, no, Rich text content that provides further information on the current step.
-    do, yes, Contains as children any sequence of steps to execute for a loop iteration.
-
-The ``start`` and ``end`` values define the number of iterations to perform. Specifically, the loop will continue as long as
-``start`` is less than ``end`` with ``start`` getting incremented by one at the end of each iteration.
-
-.. code-block:: xml
-
-    <!-- 
-        The loop will execute 2 times (start must be less than end). The currentIndex variable will be 5 in the first 
-        iteration and then 6. Note that referring to this is done as a variable reference (if not specified the variable
-        would be named "i" and referred to as "$i").
-    -->
-    <foreach desc="Do iteration" counter="currentIndex" start="5" end="7">
-        <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
-            </interact>
-        </do>
-    </foreach>
-    <!-- In the following case the loop's boundaries are set dynamically. -->
-    <assign to="$start">5</assign>
-    <assign to="$end">$start + 2</assign>
-    <foreach desc="Do iteration" counter="currentIndex" start="$start" end="$end">
-        <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
-            </interact>
-        </do>
-    </foreach>	
+    <interact desc="Decide outcome">
+        <request desc="Succeed?">$choice</request>
+    </interact>
+    <exit desc="Finished" success="$choice"/>
 
 .. index:: flow
 .. index:: title (flow)
@@ -877,61 +719,219 @@ The following example sends a SOAP request to two actors in parallel and proceed
     :ref:`custom messaging service<handlers>`, you need to make sure your service manages the specific receive call's identifier.
     Check the `messaging service documentation`_ for details on how to do this.
 
-.. index:: exit
-.. index:: desc (exit)
-.. index:: success (exit)
-.. index:: documentation (exit)
-.. index:: hidden (exit)
-.. _tdl-step-exit:
+.. index:: foreach
+.. index:: title (foreach)
+.. index:: desc (foreach)
+.. index:: start (foreach)
+.. index:: end (foreach)
+.. index:: counter (foreach)
+.. index:: stopOnError (foreach)
+.. index:: documentation (foreach)
+.. index:: do (foreach)
+.. index:: hidden (foreach)
+.. index:: collapsed (foreach)
+.. _tdl-step-foreach:
 
-exit
-~~~~
+foreach
+~~~~~~~
 
-The ``exit`` step is used to immediately exit the test case from any execution branch. The structure of the ``exit`` element is as follows:
+The ``foreach`` step allows you to execute a sequence of steps for a specific number of iterations. Its structure is as follows:
 
 .. csv-table::
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @desc, no, A description for the step to display to the user and to include in the test session log.
-    @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
+    @title, no, A short title to display for this step (default is "loop").
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
+    @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
+    @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
+    @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
+    do, yes, Contains as children any sequence of steps to execute for a loop iteration.
 
-The following example shows a test case that exits as a success based on the user's input:
+The ``start`` and ``end`` values define the number of iterations to perform. Specifically, the loop will continue as long as
+``start`` is less than ``end`` with ``start`` getting incremented by one at the end of each iteration.
 
 .. code-block:: xml
-    :emphasize-lines: 8
 
-    <assign to="$inputValue">'NO'</assign>
-    <interact desc="Provide your choice" with="User">
-        <request desc="Enter 'YES' to end the test" with="User">$inputValue</request>
-    </interact>
-    <if>
-        <cond>$inputValue = 'YES'</cond>
+    <!-- 
+        The loop will execute 2 times (start must be less than end). The currentIndex variable will be 5 in the first 
+        iteration and then 6. Note that referring to this is done as a variable reference (if not specified the variable
+        would be named "i" and referred to as "$i").
+    -->
+    <foreach desc="Do iteration" counter="currentIndex" start="5" end="7">
+        <do>
+            <interact desc="Message to user" with="User">
+                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            </interact>
+        </do>
+    </foreach>
+    <!-- In the following case the loop's boundaries are set dynamically. -->
+    <assign to="$start">5</assign>
+    <assign to="$end">$start + 2</assign>
+    <foreach desc="Do iteration" counter="currentIndex" start="$start" end="$end">
+        <do>
+            <interact desc="Message to user" with="User">
+                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            </interact>
+        </do>
+    </foreach>	
+
+.. index:: if
+.. index:: title (if)
+.. index:: desc (if)
+.. index:: stopOnError (if)
+.. index:: documentation (if)
+.. index:: cond (if)
+.. index:: then (if)
+.. index:: else (if)
+.. index:: hidden (if)
+.. index:: collapsed (if)
+.. _tdl-step-if:
+
+if
+~~
+
+The ``if`` step is used to run one of more steps if a condition is met. Its structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @title, no, A short title to display for this step (default is "decision").
+    @desc, no, A description for this check to display to the user and to include in the test session log.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
+    documentation, no, Rich text content that provides further information on the current step.
+    cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
+    then, yes, Contains as children any sequence of steps to execute if the condition results to true.
+    else, no, Contains as children any sequence of steps to execute if the condition results to false.
+
+.. code-block:: xml
+
+    <if desc="Check process type">
+        <cond>$processType = 'process1'</cond>
         <then>
-            <exit desc="Terminate test" success="true"/>
+            <assign to="$formatType">'XML'</assign>
+            <verify handler="https://VALIDATOR?wsdl" desc="Validate as XML">
+                <input name="source" source="$document"/>
+                <input name="validationType">$formatType</input>
+            </verify>
         </then>
         <else>
-            <interact desc="You chose to continue" with="User">
-                <instruct desc="Test continues" with="User" type="string">""</instruct>
-            </interact>
-            <verify handler="XSDValidator" desc="Validate content">
-                <input name="xmldocument">$document</input>
-                <input name="xsddocument">$schemaFile"</input>
-            </verify>
+            <assign to="$formatType">'CSV'</assign>
         </else>
     </if>
 
-The result type of the ``exit`` step can also be determined via variable reference. The example that follows exits as a success or failure depending
-on whether or not the user provides a "true" of "false" input:
+.. index:: repuntil
+.. index:: title (repuntil)
+.. index:: desc (repuntil)
+.. index:: stopOnError (repuntil)
+.. index:: documentation (repuntil)
+.. index:: do (repuntil)
+.. index:: cond (repuntil)
+.. index:: hidden (repuntil)
+.. index:: collapsed (repuntil)
+.. _tdl-step-repuntil:
+
+repuntil
+~~~~~~~~
+
+The ``repuntil`` step allows you to execute a sequence of steps at least once, checking at the end a condition to see if another iteration
+should take place. The structure of the ``repuntil`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @title, no, A short title to display for this step (default is "loop").
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
+    documentation, no, Rich text content that provides further information on the current step.
+    do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
+    cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
 
 .. code-block:: xml
 
-    <interact desc="Decide outcome">
-        <request desc="Succeed?">$choice</request>
-    </interact>
-    <exit desc="Finished" success="$choice"/>
+    <assign to="$iteration">1</assign>
+    <assign to="$maxIteration">3</assign>
+    <repuntil desc="Do iteration">
+        <do>
+            <interact desc="Message to user" with="User">
+                <instruct desc="Iteration: " with="User" type="string">concat($iteration, " of ", $maxIteration)</instruct>
+            </interact>
+            <assign to="$iteration">$iteration + 1</assign>
+        </do>
+        <cond>$iteration &lt;= $maxIteration</cond>
+    </repuntil>
+
+.. note::
+    **Do-while:** Step ``repuntil`` stands for "repeat until". Considering this you could assume that the steps in ``do`` will be executed until
+    the condition in ``cond`` is true. This is actually not the case currently as steps are executed while the condition in ``cond`` remains true
+    (i.e. the logic is actually inversed). The naming of this step is thus unfortunate; it would be more appropriate if this was named ``dowhile``
+    reflecting accurately how the condition is considered.
+
+.. index:: while
+.. index:: title (while)
+.. index:: desc (while)
+.. index:: stopOnError (while)
+.. index:: documentation (while)
+.. index:: cond (while)
+.. index:: do (while)
+.. index:: hidden (while)
+.. index:: collapsed (while)
+.. _tdl-step-while:
+
+while
+~~~~~
+
+The ``while`` step is the most useful looping construct. It allows a sequence of steps to be continuously executed as long as a condition
+continues to be true. The structure of the ``while`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @title, no, A short title to display for this step (default is "loop").
+    @desc, no, A description for this loop to display to the user and to include in the test session log.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
+    documentation, no, Rich text content that provides further information on the current step.
+    cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
+    do, yes, Contains as children any sequence of steps to execute if the loop's condition results to true.
+
+The following example validates the name of each attachment defined in an XML document using a ``while`` loop:
+
+.. code-block:: xml
+
+    <!--
+        Initialise maximum iteration count based on the number of "Attachment" nodes in the document.
+    -->
+    <assign to="$iterationCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
+    <assign to="$iteration">1</assign>
+    <while desc="Validate attachment names">
+        <cond>$iteration &lt;= $iterationCount</cond>
+        <do>
+            <verify handler="XPathValidator" desc="The attachment is named as expected">
+                <input name="xmldocument" source="$document"/>
+                <!-- 
+                    Construct the XPath expression to apply using the iteration variable.
+                -->
+                <input name="xpathexpression">concat("//*[local-name() = 'Attachment'][", $iteration, "]/text() = 'file_", $iteration, ".xml'")</input>
+            </verify>
+            <!--
+                Increment iteration counter.
+            -->
+            <assign to="$iteration">$iteration + 1</assign>
+        </do>
+    </while>
 
 .. index:: Support steps
 
@@ -995,265 +995,6 @@ here on how variables are :ref:`dynamically created<test-case-variables-from-exp
     prefixed by a ``$`` given that these are :ref:`variable references<test-case-referring-to-variables>`. In the case of ``assign``
     steps this is optional given that the ``to`` can only ever refer to a variable. As such, a ``to`` value of ``myVariable`` is valid 
     and considered the same as ``$myVariable``.
-
-.. index:: log
-.. index:: lang (log)
-.. index:: source (log)
-.. index:: asTemplate (log)
-.. index:: stopOnError (log)
-.. index:: level (log)
-.. index:: ERROR (log)
-.. index:: WARNING (log)
-.. index:: INFO (log)
-.. index:: DEBUG (log)
-
-.. _tdl-step-log:
-
-log
-~~~
-
-The ``log`` step is used to add information to the test session's log output at various severity levels. The step itself is not visible on a test case's
-diagram but users can inspect its output in the recorded test session log. This step can be used both as a development utility
-for test case developers and also as a means of providing additional information to testers. The latter case can be valuable
-in providing e.g. technical details to complement a validation step if needed to inspect further details.
-
-The log output is determined by an expression provided as the text content of the ``log`` element (see :ref:`test-case-expressions`).
-The element's structure is as follows:
-
-.. csv-table::
-    :stub-columns: 1
-    :delim: ~
-    :header: "Name", "Required?", "Description"
-
-    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
-    @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
-    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
-    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference.
-
-The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
-user by means of a :ref:`user interaction step<tdl-step-interact>`:
-
-.. code-block:: xml
-
-    <!-- Add a static message to the log. -->
-    <log>'Starting execution of test case'</log>
-    <!-- Request certain information from the user. -->
-    <interact id="input" desc="User input">
-        <request desc="Provide a boolean flag" name="flag" options="true,false"/>
-        <request desc="Provide an XML file" contentType="BASE64" name="file"/>
-    </interact>
-    <!-- Log the provided flag value. -->
-    <log>$input{flag}</log>
-    <!-- Log a message including the provided flag value. -->
-    <log>concat('You selected: ', $input{flag})</log>
-    <!-- Print the id attribute of the XML file's root element. -->
-    <log source="$input{file}">string(/*[local-name() = "myRootElement"]/@id)</log>
-    <!-- Define a template text. -->
-    <assign to="message">'A value of ${input{flag}} was provided.'</assign>
-    <!-- Will process 'message' as a template to produce the log output. -->
-    <log asTemplate="true">$message</log>
-    <!-- Will process 'message' as a simple text and log its contents without replacing placeholders. -->
-    <log>$message</log>
-    <!-- Equivalent to the previous case (template processing is disabled by default). -->
-    <log asTemplate="false">$message</log>
-    <!-- Log a message at a different severity level (a warning in this case). -->
-    <log level="WARNING">'The value should normally be received by your service directly.'</log>
-    <!-- Log a message at a dynamically defined severity level. -->
-    <assign to="logLevel">'WARNING'</assign>
-    <log level="$logLevel">'The value should normally be received by your service directly.'</log>
-
-Using the ``log`` step provides flexibility to test developers for conveying information to users that may be difficult to present on the test execution
-diagram. When considering such log contributions, the ``log`` step is complemented by the `logging capabilities`_ of `custom test services`_ used as
-:ref:`remote service handlers<handlers>` for messaging (:ref:`send<tdl-step-send>`, :ref:`receive<tdl-step-receive>`), processing (:ref:`process<tdl-step-process>`)
-and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can contribute to the test session log via service call to the test bed.
-
-.. note::
-    **Test case log level:** You can configure the :ref:`minimum log level for a test case<test-case-steps>` to control which log
-    messages are included in the session log.
-
-.. index:: group
-.. index:: desc (group)
-.. index:: stopOnError (group)
-.. index:: documentation (group)
-.. index:: hidden (group)
-.. index:: collapsed (group)
-.. index:: title (group)
-.. _tdl-step-group:
-
-group
-~~~~~
-
-The ``group`` step is a construct used to visually group together a sequence of steps. It has no effect on the test execution adding only
-a visual grouping and label to the display. Its structure is as follows:
-
-.. csv-table::
-    :stub-columns: 1
-    :header: "Name", "Required?", "Description"
-
-    @title, no, A short title to display for this step (default is "group").
-    @desc, no, A description for this group to display to the user and to include in the test session log.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
-    documentation, no, Rich text content that provides further information on the current step.
-
-The children of the ``group`` element can be any number of steps supported by GITB TDL. The following example creates a group around a set of 
-related validations.
-
-.. code-block:: xml
-
-    <group desc="Validate document">
-        <verify handler="XSDValidator" desc="Against schema">
-            <input name="xmldocument">$document</input>
-            <input name="xsddocument">$schema"</input>
-        </verify>
-        <verify handler="SchematronValidator" desc="Against Schematron 1">
-            <input name="xmldocument">$document</input>
-            <input name="schematron">$schematron1"</input>
-        </verify>
-        <verify handler="SchematronValidator" desc="Against Schematron 2">
-            <input name="xmldocument">$document</input>
-            <input name="schematron">$schematron2"</input>
-        </verify>
-    </group>
-
-Using a ``group`` can provide a useful means of structuring a test case's presentation. In addition, it allows several steps to be considered
-together and determine how they are presented. Specifically:
-
-* Used with the :ref:`hidden<tdl-steps-common-hidesteps>` attribute, to completely hide a set of steps.
-* Used with the :ref:`collapsed<tdl-steps-common-collapsed>` attribute, to define the group's display as initially collapsed.
-
-Use of these attributes is illustrated in the following TDL snippet:
-
-.. code-block:: xml
-
-    <!-- 
-        Hide both validations. This could be interesting to make an internal check to drive subsequent control flow.
-    -->
-    <group id="checkResult" hidden="true">
-        <verify handler="XSDValidator" desc="Against schema" level="WARNING">...</verify>
-        <verify handler="SchematronValidator" desc="Against Schematron" level="WARNING">...</verify>
-    </group>
-    <!-- 
-        Show the two validations in a group and present as initially collapsed.
-    -->
-    <group desc="Validate document" collapsed="true">
-        <verify handler="XSDValidator" desc="Against schema">...</verify>
-        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
-    </group>
-    <!-- 
-        Show the two validations in a group and present it fully (the default).
-    -->
-    <group desc="Validate document">
-        <verify handler="XSDValidator" desc="Against schema">...</verify>
-        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
-    </group>
-
-.. index:: verify
-.. index:: id (verify)
-.. index:: desc (verify)
-.. index:: handler (verify)
-.. index:: level (verify)
-.. index:: stopOnError (verify)
-.. index:: output (verify)
-.. index:: documentation (verify)
-.. index:: property (verify)
-.. index:: config (verify)
-.. index:: input (verify)
-.. index:: hidden (verify)
-.. index:: ERROR (verify)
-.. index:: WARNING (verify)
-
-.. _tdl-step-verify:
-
-verify
-~~~~~~
-
-The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-processing-steps`, validation
-takes place using a validation handler implementation that can either be an embedded test bed component or a remote service that implements the
-`GITB validation service API`_. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
-a test report is returned in the `GITB TRL (Test Reporting Language) format`_. The structure of the ``verify`` element is as follows:
-
-.. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
-.. _GITB TRL (Test Reporting Language) format: https://www.itb.ec.europa.eu/specs/latest/gitb_tr.xsd
-
-.. csv-table::
-    :stub-columns: 1
-    :delim: ~
-    :header: "Name", "Required?", "Description"
-
-    @id~ no~ The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
-    @desc~ no~ A description for this validation to display to the user and to include in the test session log.
-    @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
-    @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
-    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @output~ no~ A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
-    @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    documentation~ no~ Rich text content that provides further information on the current step.
-    property~ no~ Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
-    config~ no~ Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
-    input~ yes~ One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
-
-A ``verify`` step that is set at warning level (through attribute ``level``) will never result in an overall failure for the test session. If validation fails,
-the result will be indicated as a warning but without further impact. Note that a validation service returning a detailed validation report for a ``verify`` step 
-at warning level may have its resulting report adapted accordingly. The report will be set as ``WARNING`` (if it was ``FAILURE``) and any error-level report 
-items will be listed as warnings.
-
-The following example includes three ``verify`` steps, the first one using an :ref:`handlers-XSDValidator`, followed by a second one at warning level which uses a remote
-validation service. The third ``verify`` step replicates the previous one but defines its level dynamically:
-
-.. code-block:: xml
-
-    <!-- 
-        Validation using the embedded XSDValidator.
-    -->
-    <verify handler="XSDValidator" desc="Validate invoice against schema">
-        <input name="xmldocument">$document</input>
-        <input name="xsddocument">$schema"</input>
-    </verify>
-    <!-- 
-        Warning-level validation using a remote validation service.
-    -->
-    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="WARNING" desc="Validate against remote service">
-        <input name="aDocument">$document</input>
-    </verify>
-    <!-- 
-        Validation using a remote validation service with a dynamically set severity level.
-    -->
-    <assign to="levelToUse">'WARNING'</assign>
-    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="$levelToUse" desc="Validate against remote service">
-        <input name="aDocument">$document</input>
-    </verify>
-
-.. note::
-    **Remote or local validators:** Simple validations such as those evaluating an XPath expression against a document can be implemented using 
-    :ref:`handlers-predefined-validation-handlers`. When validation logic however is complex it is always best to decouple this into an external validation service. 
-    This is the case even when validating XML content since this usually involves multiple validation steps using an XSD and one or more Schematron files. It is more
-    concise to present this as a single validation step with one report. This also enhances maintainability of the test cases considering that use of the embedded
-    :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator` means that you need to bundle (and maintain) the validation artefacts in each test suite. 
-    When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
-    outside the test bed using any SOAP client.
-
-It may be the case that the ``verify`` step also produces output that needs to be leveraged further on in the test session. This could be interesting in case an 
-:ref:`embedded validation handler<handlers-predefined-validation-handlers>` is used, the inputs of which are determined dynamically via an expression. Usually 
-however you would want to record output if validation is done via a custom service which, apart from returning a validation report, calculates and returns
-additional information. As an example consider a validator that checks the integrity of a provided file and also returns its hash code which is used in further
-processing. Recording a ``verify`` step's output is done by means of the ``output`` attribute which defines the name of the variable to set. Once validation
-completes, this variable will be set to anything returned as the `validation report context`_.
-
-.. code-block:: xml
-
-    <!-- 
-        Validate and return as the report's context a map containing data with the key "identifier".
-        The map is recorded in the session context under "validationOutput".
-    -->
-    <verify output="validationOutput">
-        ...
-    </verify>
-    <log>$validationOutput{identifier}</log>
-
-If no ``output`` attribute is set, the context data from the step's report will be displayed but not recorded in the session context.
 
 .. index:: call
 .. index:: id (call)
@@ -1407,6 +1148,84 @@ through a scriptlet that expects an input named "valueToSign" and produces an ou
     The :ref:`tdl-step-process` step also offers :ref:`similar syntax simplifications<tdl-step-process__simplified>`. This simplified
     syntax is available for :ref:`tdl-step-process` and :ref:`tdl-step-call` steps as these typically represent utilities that are
     frequently used.
+
+.. index:: group
+.. index:: desc (group)
+.. index:: stopOnError (group)
+.. index:: documentation (group)
+.. index:: hidden (group)
+.. index:: collapsed (group)
+.. index:: title (group)
+.. _tdl-step-group:
+
+group
+~~~~~
+
+The ``group`` step is a construct used to visually group together a sequence of steps. It has no effect on the test execution adding only
+a visual grouping and label to the display. Its structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @title, no, A short title to display for this step (default is "group").
+    @desc, no, A description for this group to display to the user and to include in the test session log.
+    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
+    documentation, no, Rich text content that provides further information on the current step.
+
+The children of the ``group`` element can be any number of steps supported by GITB TDL. The following example creates a group around a set of 
+related validations.
+
+.. code-block:: xml
+
+    <group desc="Validate document">
+        <verify handler="XSDValidator" desc="Against schema">
+            <input name="xmldocument">$document</input>
+            <input name="xsddocument">$schema"</input>
+        </verify>
+        <verify handler="SchematronValidator" desc="Against Schematron 1">
+            <input name="xmldocument">$document</input>
+            <input name="schematron">$schematron1"</input>
+        </verify>
+        <verify handler="SchematronValidator" desc="Against Schematron 2">
+            <input name="xmldocument">$document</input>
+            <input name="schematron">$schematron2"</input>
+        </verify>
+    </group>
+
+Using a ``group`` can provide a useful means of structuring a test case's presentation. In addition, it allows several steps to be considered
+together and determine how they are presented. Specifically:
+
+* Used with the :ref:`hidden<tdl-steps-common-hidesteps>` attribute, to completely hide a set of steps.
+* Used with the :ref:`collapsed<tdl-steps-common-collapsed>` attribute, to define the group's display as initially collapsed.
+
+Use of these attributes is illustrated in the following TDL snippet:
+
+.. code-block:: xml
+
+    <!-- 
+        Hide both validations. This could be interesting to make an internal check to drive subsequent control flow.
+    -->
+    <group id="checkResult" hidden="true">
+        <verify handler="XSDValidator" desc="Against schema" level="WARNING">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron" level="WARNING">...</verify>
+    </group>
+    <!-- 
+        Show the two validations in a group and present as initially collapsed.
+    -->
+    <group desc="Validate document" collapsed="true">
+        <verify handler="XSDValidator" desc="Against schema">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
+    </group>
+    <!-- 
+        Show the two validations in a group and present it fully (the default).
+    -->
+    <group desc="Validate document">
+        <verify handler="XSDValidator" desc="Against schema">...</verify>
+        <verify handler="SchematronValidator" desc="Against Schematron">...</verify>
+    </group>
 
 .. index:: interact
 .. index:: id (interact)
@@ -1623,6 +1442,187 @@ To better illustrate how dropdown selections can be defined, the following code 
     The value received from a ``request`` element defined as a multiple selection list will be a comma-separated string in which the individual
     parts match the selected values. This value is recorded in the test session context as a variable of type ``string`` that can be passed as
     input to handlers or be processed with relevant XPath functions.
+
+.. index:: log
+.. index:: lang (log)
+.. index:: source (log)
+.. index:: asTemplate (log)
+.. index:: stopOnError (log)
+.. index:: level (log)
+.. index:: ERROR (log)
+.. index:: WARNING (log)
+.. index:: INFO (log)
+.. index:: DEBUG (log)
+
+.. _tdl-step-log:
+
+log
+~~~
+
+The ``log`` step is used to add information to the test session's log output at various severity levels. The step itself is not visible on a test case's
+diagram but users can inspect its output in the recorded test session log. This step can be used both as a development utility
+for test case developers and also as a means of providing additional information to testers. The latter case can be valuable
+in providing e.g. technical details to complement a validation step if needed to inspect further details.
+
+The log output is determined by an expression provided as the text content of the ``log`` element (see :ref:`test-case-expressions`).
+The element's structure is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
+
+    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
+    @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
+    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference.
+
+The following example illustrates the various ways the ``log`` step can be used, considering in this case input provided by the
+user by means of a :ref:`user interaction step<tdl-step-interact>`:
+
+.. code-block:: xml
+
+    <!-- Add a static message to the log. -->
+    <log>'Starting execution of test case'</log>
+    <!-- Request certain information from the user. -->
+    <interact id="input" desc="User input">
+        <request desc="Provide a boolean flag" name="flag" options="true,false"/>
+        <request desc="Provide an XML file" contentType="BASE64" name="file"/>
+    </interact>
+    <!-- Log the provided flag value. -->
+    <log>$input{flag}</log>
+    <!-- Log a message including the provided flag value. -->
+    <log>concat('You selected: ', $input{flag})</log>
+    <!-- Print the id attribute of the XML file's root element. -->
+    <log source="$input{file}">string(/*[local-name() = "myRootElement"]/@id)</log>
+    <!-- Define a template text. -->
+    <assign to="message">'A value of ${input{flag}} was provided.'</assign>
+    <!-- Will process 'message' as a template to produce the log output. -->
+    <log asTemplate="true">$message</log>
+    <!-- Will process 'message' as a simple text and log its contents without replacing placeholders. -->
+    <log>$message</log>
+    <!-- Equivalent to the previous case (template processing is disabled by default). -->
+    <log asTemplate="false">$message</log>
+    <!-- Log a message at a different severity level (a warning in this case). -->
+    <log level="WARNING">'The value should normally be received by your service directly.'</log>
+    <!-- Log a message at a dynamically defined severity level. -->
+    <assign to="logLevel">'WARNING'</assign>
+    <log level="$logLevel">'The value should normally be received by your service directly.'</log>
+
+Using the ``log`` step provides flexibility to test developers for conveying information to users that may be difficult to present on the test execution
+diagram. When considering such log contributions, the ``log`` step is complemented by the `logging capabilities`_ of `custom test services`_ used as
+:ref:`remote service handlers<handlers>` for messaging (:ref:`send<tdl-step-send>`, :ref:`receive<tdl-step-receive>`), processing (:ref:`process<tdl-step-process>`)
+and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can contribute to the test session log via service call to the test bed.
+
+.. note::
+    **Test case log level:** You can configure the :ref:`minimum log level for a test case<test-case-steps>` to control which log
+    messages are included in the session log.
+
+.. index:: verify
+.. index:: id (verify)
+.. index:: desc (verify)
+.. index:: handler (verify)
+.. index:: level (verify)
+.. index:: stopOnError (verify)
+.. index:: output (verify)
+.. index:: documentation (verify)
+.. index:: property (verify)
+.. index:: config (verify)
+.. index:: input (verify)
+.. index:: hidden (verify)
+.. index:: ERROR (verify)
+.. index:: WARNING (verify)
+
+.. _tdl-step-verify:
+
+verify
+~~~~~~
+
+The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-processing-steps`, validation
+takes place using a validation handler implementation that can either be an embedded test bed component or a remote service that implements the
+`GITB validation service API`_. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
+a test report is returned in the `GITB TRL (Test Reporting Language) format`_. The structure of the ``verify`` element is as follows:
+
+.. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
+.. _GITB TRL (Test Reporting Language) format: https://www.itb.ec.europa.eu/specs/latest/gitb_tr.xsd
+
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
+
+    @id~ no~ The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded (``true`` for success).
+    @desc~ no~ A description for this validation to display to the user and to include in the test session log.
+    @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
+    @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
+    @output~ no~ A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
+    @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    documentation~ no~ Rich text content that provides further information on the current step.
+    property~ no~ Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
+    config~ no~ Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
+    input~ yes~ One more elements for the validation's input parameters. See :ref:`handlers-inputs-outputs` for details.
+
+A ``verify`` step that is set at warning level (through attribute ``level``) will never result in an overall failure for the test session. If validation fails,
+the result will be indicated as a warning but without further impact. Note that a validation service returning a detailed validation report for a ``verify`` step 
+at warning level may have its resulting report adapted accordingly. The report will be set as ``WARNING`` (if it was ``FAILURE``) and any error-level report 
+items will be listed as warnings.
+
+The following example includes three ``verify`` steps, the first one using an :ref:`handlers-XSDValidator`, followed by a second one at warning level which uses a remote
+validation service. The third ``verify`` step replicates the previous one but defines its level dynamically:
+
+.. code-block:: xml
+
+    <!-- 
+        Validation using the embedded XSDValidator.
+    -->
+    <verify handler="XSDValidator" desc="Validate invoice against schema">
+        <input name="xmldocument">$document</input>
+        <input name="xsddocument">$schema"</input>
+    </verify>
+    <!-- 
+        Warning-level validation using a remote validation service.
+    -->
+    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="WARNING" desc="Validate against remote service">
+        <input name="aDocument">$document</input>
+    </verify>
+    <!-- 
+        Validation using a remote validation service with a dynamically set severity level.
+    -->
+    <assign to="levelToUse">'WARNING'</assign>
+    <verify handler="https://VALIDATION_SERVICE_ADDRESS?wsdl" level="$levelToUse" desc="Validate against remote service">
+        <input name="aDocument">$document</input>
+    </verify>
+
+.. note::
+    **Remote or local validators:** Simple validations such as those evaluating an XPath expression against a document can be implemented using 
+    :ref:`handlers-predefined-validation-handlers`. When validation logic however is complex it is always best to decouple this into an external validation service. 
+    This is the case even when validating XML content since this usually involves multiple validation steps using an XSD and one or more Schematron files. It is more
+    concise to present this as a single validation step with one report. This also enhances maintainability of the test cases considering that use of the embedded
+    :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator` means that you need to bundle (and maintain) the validation artefacts in each test suite. 
+    When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
+    outside the test bed using any SOAP client.
+
+It may be the case that the ``verify`` step also produces output that needs to be leveraged further on in the test session. This could be interesting in case an 
+:ref:`embedded validation handler<handlers-predefined-validation-handlers>` is used, the inputs of which are determined dynamically via an expression. Usually 
+however you would want to record output if validation is done via a custom service which, apart from returning a validation report, calculates and returns
+additional information. As an example consider a validator that checks the integrity of a provided file and also returns its hash code which is used in further
+processing. Recording a ``verify`` step's output is done by means of the ``output`` attribute which defines the name of the variable to set. Once validation
+completes, this variable will be set to anything returned as the `validation report context`_.
+
+.. code-block:: xml
+
+    <!-- 
+        Validate and return as the report's context a map containing data with the key "identifier".
+        The map is recorded in the session context under "validationOutput".
+    -->
+    <verify output="validationOutput">
+        ...
+    </verify>
+    <log>$validationOutput{identifier}</log>
+
+If no ``output`` attribute is set, the context data from the step's report will be displayed but not recorded in the session context.
 
 .. _tdl-steps-common:
 
