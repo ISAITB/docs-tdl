@@ -7,8 +7,12 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.16.0
+What's new in release 1.16.1
 ----------------------------
+
+.. note::
+    **Maintenance release:** Release 1.16.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    in this section correspond to the latest release that did introduce changes, i.e. release 1.16.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -37,6 +41,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.16.0| Namespace support, introduction of ``STEP_STATUS`` variable, and ``supportsParallelExecution`` setting for test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.16.0/
     1.15.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.15.1/
     1.15.0| Logging levels, simplified ``process`` and call ``steps``, and styling of replies in messaging steps.| https://www.itb.ec.europa.eu/docs/tdl/1.15.0/
     1.14.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.14.1/
