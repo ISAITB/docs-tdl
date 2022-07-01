@@ -393,6 +393,42 @@ the initial parameters received.
     </send>
     <etxn txnId="t1"/>
 
+.. index:: SimulatedMessaging
+.. index:: parameters (SimulatedMessaging)
+.. index:: result (SimulatedMessaging)
+.. index:: delay (SimulatedMessaging)
+
+.. _handlers-simulatedmessaging:
+
+SimulatedMessaging
+++++++++++++++++++
+
+Used to add simulated messaging steps to the test execution diagram without any actual message exchanges taking
+place.
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    parameters, Send/receive input, No, ``map``, An optional ``map`` of data to display in the step report.
+    result, Send/receive input, No, ``string``, Set to ``SUCCESS``, ``WARNING`` or ``FAILURE`` to specify the step's result (default is ``SUCCESS``).
+    delay, Receive input, No, ``number``, An optional number of milliseconds to delay before presenting the receive step as completed.
+
+.. code-block:: xml
+
+    <assign to="map1{valueFile}">$templateFile</assign>
+    <assign to="map1{valueText}">'A text'</assign>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <input name="parameters">$map1</input>
+    </send>
+    <assign to="map2{valueFile}">$templateFile</assign>
+    <assign to="map2{valueText}">'Another text'</assign>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" reply="true" handler="SimulatedMessaging">
+        <input name="parameters">$map2</input>
+        <input name="result">'FAILURE'</input>
+        <input name="delay">3000</input>
+    </receive>
+
 .. index:: SoapMessaging
 .. index:: http_headers (SoapMessaging)
 .. index:: soap_message (SoapMessaging)
@@ -727,6 +763,49 @@ necessary. The following examples illustrate how this works for lists and maps:
         <input name="list">$aList</input>
     </process>
 
+.. index:: DisplayProcessor
+.. index:: parameters (DisplayProcessor)
+.. _handlers-DisplayProcessor:
+
+DisplayProcessor
+++++++++++++++++
+
+Used to display arbitrary content to users as a report. Using this instead of a :ref:`user interaction step<tdl-step-interact>` allows you
+to display content when the user clicks the relevant step report, as opposed to always producing a popup. This makes it a useful mechanism
+for including additional information in the test's output without distracting the user.  The following operation is supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :stub-columns: 1
+    :delim: |
+
+    ``display`` | Include the provided data in a step report that the user may choose to view. | Yes | No.
+
+The input parameters expected by the ``display`` operation are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
+
+    ``display`` | ``parameters`` | No | The ``map`` including the values to display (labelled using the ``map`` keys).
+
+The following example illustrates usage of the ``DisplayProcessor`` to create a step report for a given set of data that the user may
+choose to view:
+
+.. code-block:: xml
+
+    <assign to="parameters{textValue}">'A sample value'</assign>
+    <assign to="parameters{listValues}" append="true">'Value 1'</assign>
+    <assign to="parameters{listValues}" append="true">'Value 2'</assign>
+    <assign to="parameters{listValues}" append="true">`Value 3`</assign>
+    <process desc="Show values" hidden="false" handler="DisplayProcessor" input="$parameters"/> 
+
+.. note::
+    **DisplayProcessor in non-hidden steps:** :ref:`Process steps<tdl-step-process>` are by default set as ``hidden``, meaning
+    that they execute but are not displayed and do not produce a visible report. When using the ``DisplayProcessor`` you need
+    to ensure that ``hidden`` is set to ``false`` for its use to be meaningful.
+
 .. index:: RegExpProcessor
 .. index:: check (RegExpProcessor)
 .. index:: collect (RegExpProcessor)
@@ -806,6 +885,89 @@ if no matches were made. Consider the following example to see how this can be u
     <log>$personData{0}</log>
     <!-- Prints "Doe" -->
     <log>$personData{1}</log>
+
+.. index:: TemplateProcessor
+.. index:: template (TemplateProcessor)
+.. index:: parameters (TemplateProcessor)
+.. index:: syntax (TemplateProcessor)
+.. _handlers-TemplateProcessor:
+
+TemplateProcessor
++++++++++++++++++
+
+Used to generate text data based on a provided template. Using this processing handler instead of the basic 
+:ref:`GITB TDL templating capabilities<test-case-expressions-template-files>` permits the decoupling of 
+information in the test session context and the template, and also generation of complex content based
+on `FreeMarker templates <https://freemarker.apache.org/>`_. This processor should be used for any template-based
+data generation that is not limited to simple placeholder replacements.
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :stub-columns: 1
+    :delim: |
+
+    ``process`` | Process the provided template and parameters to produce the output. | Yes | Yes, a ``string`` named ``data`` in the resulting step's ``map``.
+
+The input parameters expected by the ``process`` operation are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
+
+    ``process`` | ``template`` | Yes | The template content to use (can be of any type that results in a ``string``).
+    ``process`` | ``parameters`` | No | A ``map`` with named inputs to use as the template's input.
+    ``process`` | ``syntax`` | No | A ``string`` to specify what syntax the template uses. Accepted values are ``gitb`` (the default) and ``freemarker``.
+
+The following example illustrates usage of the ``TemplateProcessor`` to create a message based on a FreeMarker template:
+
+.. code-block:: xml
+
+    <assign to="parameters{value1}">'Value to use'</assign>
+    <assign to="parameters{listValues}" append="true">1</assign>
+    <assign to="parameters{listValues}" append="true">2</assign>
+    <assign to="parameters{listValues}" append="true">3</assign>
+
+    <process output="message" handler="TemplateProcessor">
+        <input name="parameters">$parameters</input>
+        <input name="template">$freemarkerTemplateFile</input>
+        <input name="syntax">'freemarker'</input>
+    </process>
+
+    <log>$message</log> 
+
+In this example the "freemarkerTemplateFile" variable is set (e.g. via :ref:`import<test-case-imports>`) to a template with the following content:
+
+.. code-block:: none
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <data>
+        <content>
+            <value>${value1}</value>
+            <items>
+            <#list listValues as listValue>
+                <item>${listValue}</item>
+            </#list>
+            </items>
+        </content>
+    </data>
+
+Notice here how the template defines FreeMarker constructs (a list iteration) to go over the items of a collection named "listValues". This was passed in the 
+"parameters" ``map`` when calling the :ref:`process step<tdl-step-process>`. When executed, and considering the example's input, this step will produce data as follows:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <data>
+        <content>
+            <value>Value to use</value>
+            <items>
+                <item>1</item>
+                <item>2</item>
+                <item>3</item>
+            </items>
+        </content>
+    </data> 
 
 .. index:: TokenGenerator
 .. index:: zone (TokenGenerator)
@@ -1006,6 +1168,45 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
 
 .. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 .. _Timezone codes: https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html#of-java.lang.String-
+
+.. index:: XSLTProcessor
+.. index:: xml (XSLTProcessor)
+.. index:: xslt (XSLTProcessor)
+.. _handlers-XSLTProcessor:
+
+XSLTProcessor
++++++++++++++
+
+Used to transform XML content using an XSLT style sheet, both being provided as inputs, and output the result.
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :stub-columns: 1
+    :delim: |
+
+    ``process`` | Process XML content using an XSLT style sheet and return the transformed result. | Yes | Yes, a ``string`` named ``output`` in the resulting step's ``map``.
+
+The input parameters expected by the ``process`` operation are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :stub-columns: 2
+    :delim: |
+
+    ``process`` | ``xml`` | Yes | The XML content to transform.
+    ``process`` | ``xslt`` | Yes | The XSLT style sheet to use for the transformation.
+
+The following example illustrates usage of the ``XSLTProcessor`` to transform the provided "xmlContent" (the XML input) using the "xsltContent" (the XSLT style sheet).
+These variables may be provided in any manner, for example the "xmlContent" could be uploaded via a :ref:`user interaction step<tdl-step-receive>` whereas the "xsltContent" could
+be :ref:`imported<test-case-imports>` from the test suite's resources.
+
+.. code-block:: xml
+
+    <process output="result" handler="XSLTProcessor">
+        <input name="xml">$xmlContent</input>
+        <input name="xslt">$xsltContent</input>
+    </process>
+    <log>$result</log>
 
 .. index:: Embedded validation handlers
 .. _handlers-predefined-validation-handlers:
@@ -1279,9 +1480,11 @@ the GITB software foresees the possibility to authenticate as part of each servi
 before any exchanges take place with the service and as such, cannot use the ``config`` and ``input`` elements otherwise used to pass information. 
 Authentication configuration is handled with ``property`` elements that are used as part of the handler setup in:
 
-* The :ref:`tdl-step-btxn` step for messaging services.
-* The :ref:`tdl-step-bptxn` step for processing services.
-* The :ref:`tdl-step-verify` step for messaging services.
+* The :ref:`tdl-step-btxn` step for transactional messaging services.
+* The :ref:`tdl-step-send`, :ref:`tdl-step-receive` and :ref:`tdl-step-listen` step for non-transactional messaging services.
+* The :ref:`tdl-step-bptxn` step for transactional processing services.
+* The :ref:`tdl-step-process` step for non-transactional processing services.
+* The :ref:`tdl-step-verify` step for validation services.
 
 The authentication possibilities currently supported are:
 
@@ -1310,7 +1513,7 @@ calling various test services:
 .. code-block:: xml
 
     <!--
-        Messaging service authentication with UsernameToken (DIGEST).
+        Transactional messaging service authentication with UsernameToken (DIGEST).
     -->
     <btxn from="Sender" to="Receiver1" txnId="t1" handler="$messagingServiceURL">
         <property name="auth.token.username">$DOMAIN{serviceUsername1}</property>
@@ -1330,7 +1533,7 @@ calling various test services:
         <input name="content">$contentToValidate</input>
     </verify>
     <!--
-        Processing service authentication with HTTP basic authentication.
+        Transactional processing service authentication with HTTP basic authentication.
     -->
     <bptxn txnId="t1" handler="$processingServiceURL">
         <property name="auth.basic.username">$DOMAIN{serviceUsername4}</property>
@@ -1342,14 +1545,33 @@ calling various test services:
     </process>
     <eptxn txnId="t1"/>
     <!--
+        Non-transactional processing service authentication with HTTP basic authentication.
+    -->
+    <process id="result" handler="$otherProcessingServiceURL">
+        <property name="auth.basic.username">$DOMAIN{serviceUsername5}</property>
+        <property name="auth.basic.password">$DOMAIN{servicePassword5}</property>
+        <operation>action</operation>
+        <input name="anInput">$aValue</input>
+    </process>
+    <!--
         Validation service authentication with UsernameToken (TEXT) authentication.
     -->
     <verify handler="$validationService2" desc="Validate content">
-        <property name="auth.token.username">$DOMAIN{serviceUsername5}</property>
-        <property name="auth.token.password">$DOMAIN{servicePassword5}</property>
+        <property name="auth.token.username">$DOMAIN{serviceUsername6}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword6}</property>
         <property name="auth.token.password.type">TEXT</property>
         <input name="content">$contentToValidate</input>
     </verify>
+    <!--
+        Non-transactional messaging service with UsernameToken (TEXT) authentication.
+    -->
+    <send id="dataSend" desc="Send message" from="Sender" to="Receiver" handler="$messagingServiceURL">
+        <property name="auth.token.username">$DOMAIN{serviceUsername7}</property>
+        <property name="auth.token.password">$DOMAIN{servicePassword7}</property>
+        <property name="auth.token.password.type">TEXT</property>
+        <input name="message">$messageToSend</input>
+    </send>
+    <etxn txnId="t1"/>
 
 .. index:: Handler inputs and outputs
 .. index:: name (Handler inputs and outputs)
@@ -1393,7 +1615,7 @@ reference as the expression:
     </verify>
 
 .. note::
-    **Specifying a fixed value:** Considering that the default expression language is XPath 1.0, a fixed text value is provided by enclosing it in
+    **Specifying a fixed value:** Considering that the default expression language is XPath, a fixed text value is provided by enclosing it in
     quotes. See :ref:`test-case-expressions` for further details.
 
 The ``input`` and ``output`` options for service handlers are documented as part of their module definition. For handlers accessible

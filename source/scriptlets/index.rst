@@ -313,6 +313,72 @@ completed the overall results are recorded as ``boolean`` variables which are th
     **Selecting outputs:** When a scriptlet returns multiple outputs its caller may choose to select only a subset of these to use. For details
     on this and how returned outputs can be used check the :ref:`call<tdl-step-call>` step's documentation.
 
+.. _scriptlets_dynamic_references:
+
+Dynamic labels and actor references
+-----------------------------------
+
+Certain information relative to :ref:`test steps<tdl-steps>` are expected to have fixed values that are known before the a test session is
+executed. Such information includes step descriptions, titles and actor references (e.g. used in :ref:`messaging steps<tdl-messaging-steps>`)
+which remain unchanged during a test session to allow a consistent execution diagram to be presented to the user.
+
+This rule is relaxed in the case of scriptlets given that they can be used in various contexts. They can be used by multiple different 
+test cases, potentially spanning several test suites, or even used from within other scriptlets (essentially anywhere you can have a 
+:ref:`call step<tdl-step-call>`). To enable this flexibility, the rule for otherwise constant values in scriptlets is that these can be
+set via :ref:`variable references<test-case-referring-to-variables>` as long as their value can be determined when a test case's definition
+is initially loaded.
+
+The cases where otherwise fixed values can be set via variable reference are:
+
+* The ``desc`` attribute of all steps.
+* The ``title`` attribute of all steps with child steps (:ref:`group<tdl-step-group>`, :ref:`if<tdl-step-if>`, :ref:`flow<tdl-step-flow>`,
+  :ref:`foreach<tdl-step-foreach>`, :ref:`repuntil<tdl-step-repuntil>`, :ref:`while<tdl-step-while>`).
+* The ``inputTitle`` of user interaction steps (:ref:`interact<tdl-step-interact>`).
+* The ``from`` and ``to`` actor references in all messaging and interaction steps (:ref:`btxn<tdl-step-btxn>`, :ref:`send<tdl-step-send>`,
+  :ref:`receive<tdl-step-receive>`, :ref:`interact<tdl-step-interact>`).
+
+Values set in this way need to be provided as **inputs** to the scriptlet and resolve to constants before the test begins. In practical terms this
+means that you will need to:
+
+1. Define in the scriptlet's :ref:`params section<scriptlets_elements_params>` the relevant input(s).
+2. Reference the parameters within the scriptlet where you want to use them.
+3. Pass as fixed values or :ref:`configuration value references<test-case-configuration>` the values for the parameters when you 
+   :ref:`call the scriptlet<tdl-step-call>`.
+
+As an example of this consider the following scriptlet:
+
+.. code-block:: xml
+
+    <scriptlet id="receiveData" xmlns="http://www.gitb.com/tdl/v1/">
+        <params>
+            <var name="descriptionToUse" type="string"/>
+            <var name="from" type="string"/>
+            <var name="to" type="string"/>
+        </params>
+        <steps>
+            ...
+            <receive id="receiveStep" desc="$descriptionToUse" from="$from" to="$to" txnId="t1">
+                <input name="countryCode">$ORGANISATION{countryCode}</input>
+            </receive>
+            ...
+        </steps>
+    </scriptlet>
+
+The ``desc``, ``from`` and ``to`` in this case are set dynamically based on the values passed as parameters. In a test case that
+will make use of this scriptlet we then add a :ref:`call<tdl-step-call>` step as follows:
+
+.. code-block:: xml
+
+    <call path="scriptlets/receiveData.xml">
+        <input name="descriptionToUse">'Receive a message'</input>
+        <input name="from">'Actor1'</input>
+        <input name="to">'Actor2'</input>
+    </call>
+
+Notice here how the parameters defined in the scriptlet are supplied with constant values. This allows the test engine to calculate a
+specific test execution graph when the test case is loaded but provides the flexibility for the scriptlet to be used in various
+scenarios.
+
 .. _scriptlets_embedded:
 
 Scriptlets embedded in test cases

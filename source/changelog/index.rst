@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.16.1
+What's new in release 1.17.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.16.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.16.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,13 +19,14 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Namespaces can now be defined to simplify XPath expressions in GITB TDL steps and the XPathValidator. | GITB TDL | :ref:`test-case-namespaces`
-    Actors defined in test cases are considered by default as SIMULATED. | GITB TDL | :ref:`test-case-actors`
-    Introduction of the ``STEP_STATUS`` variable to record and query the specific status of each step. | GITB TDL | :ref:`test-case-expressions-step-status`
-    Reuse of steps' ``desc`` attribute to identify them in the test session log to make log entries more meaningful. | GITB software | :ref:`tdl-steps`
-    Support for test session log contributions from custom test services used as remote service handlers. | GITB TDL | :ref:`tdl-step-log`
-    Support for the parallel or sequential execution of a test suite's test cases when a test suite is executed in the background. | GITB software | :ref:`test-suite-test-cases`
-    Test cases now feature the ``supportsParallelExecution`` attribute that can be used to enforce a test case's execution in isolation. | GITB TDL | :ref:`test-case`
+    Steps' ``desc``, ``from``, ``to``, ``title`` and ``inputTitle`` values can be set as constant variable references when used within scriptlets. | GITB TDL | :ref:`scriptlets_dynamic_references`
+    New ``TemplateProcessor`` embedded processing handler for complex generation of data based on templates. | GITB TDL | :ref:`handlers-TemplateProcessor`
+    New ``XSLTProcessor`` embedded processing handler for XSLT transformations of XML content. | GITB TDL | :ref:`handlers-XSLTProcessor`
+    New ``DisplayProcessor`` embedded processing handler for displaying arbitrary content to users in a non-obtrusive manner. | GITB TDL | :ref:`handlers-DisplayProcessor`
+    New ``SimulatedMessaging`` embedded messaging handler to add simulated message exchanges between actors. | GITB TDL | :ref:`handlers-simulatedmessaging`
+    Messaging transactions (defined via ``btxn``) are no longer mandatory for ``send`` and ``receive`` messaging steps. | GITB TDL | :ref:`tdl-step-send`, :ref:`tdl-step-receive`
+    Non-transactional, non-embedded (external) ``process``, ``send`` and ``receive`` steps can now also specify authentication properties for the handler service call. | GITB TDL | :ref:`handlers-authentication`
+    The GITB TDL's expression language is now upgraded from XPath 1.0 to XPath 3.0. | GITB TDL | :ref:`test-case-expressions`
 
 Previous documentation versions
 -------------------------------
@@ -41,6 +38,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.16.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.16.1/
     1.16.0| Namespace support, introduction of ``STEP_STATUS`` variable, and ``supportsParallelExecution`` setting for test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.16.0/
     1.15.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.15.1/
     1.15.0| Logging levels, simplified ``process`` and call ``steps``, and styling of replies in messaging steps.| https://www.itb.ec.europa.eu/docs/tdl/1.15.0/

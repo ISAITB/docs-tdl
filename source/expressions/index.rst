@@ -5,7 +5,7 @@ Expressions
 -----------
 
 Expressions are used in GITB TDL to perform arbitrary operations on context variables and to provide more control over the input and
-output of specific steps. The expression language assumed by GITB TDL is **XPath 1.0** given that processing XML constructs is one of the more
+output of specific steps. The expression language assumed by GITB TDL is **XPath 3.0** given that processing XML constructs is one of the more
 frequent needs when conformance testing for content specifications. However, the use of XPath does not restrict us to using XML documents as variables; 
 XPath provides sufficient expressiveness to define most operation you would need to support (albeit not always in the most intuitive way).
 
@@ -16,66 +16,61 @@ The following ``assign`` operations illustrate some interesting examples:
     <!-- 
         Assign to text to a string variable.
     -->
-    <assign to="$myString">"aText"</assign>
+    <assign to="myString">"aText"</assign>
     <!-- 
         Assign a number to a number variable.
     -->
-    <assign to="$myNumber">1</assign>
+    <assign to="myNumber">1</assign>
     <!-- 
         From an object variable fileContent (i.e. an XML document), extract part matching 
         /testcase/steps into another object variable named targetElement.
     -->
-    <assign to="$targetElement" source="$fileContent">/*[local-name() = 'testcase']/*[local-name() = 'steps']</assign>
+    <assign to="targetElement" source="$fileContent">/*[local-name() = 'testcase']/*[local-name() = 'steps']</assign>
     <!-- 
         From an object variable fooContent (i.e. an XML document), extract part matching 
         /ns1:foo/ns2:bar into another object variable named barElement. Using "ns1" and "ns2" in the 
         expression assumes they are defined in the test case's "namespaces" section.
     -->
-    <assign to="$barElement" source="$fooContent">/ns1:foo/ns2:bar</assign>
+    <assign to="barElement" source="$fooContent">/ns1:foo/ns2:bar</assign>
     <!-- 
         Assign to a number variable named result the result of adding 1 to another number 
         variable named counter.
     -->
-    <assign to="$result">$counter + 1</assign>
+    <assign to="result">$counter + 1</assign>
     <!-- 
         Create a custom XML fragment from a string variable named value and assign it to 
         the tempXml string variable
     -->
-    <assign to="$tempXml">concat('<temp>', $value, '</temp>')</assign>
+    <assign to="tempXml"><![CDATA['<temp>' || $value || '</temp>']]></assign>
     <!--
         Assign to the boolean result variable the result of checking that a string variable 
         named input has at least 10 characters (expression wrapped in CDATA block to use '>' 
         character without escaping it
     -->
-    <assign to="$result"><![CDATA[string-length($input) >= 10]]></assign>
+    <assign to="result"><![CDATA[string-length($input) >= 10]]></assign>
     <!-- 
         Assign to string variable result the value "result1" if the number var is 1, or 
         "result2" otherwise
     -->
-    <assign to="$result">concat(substring('result1', 1 div number(boolean($var = 1))), substring('result2', 1 div number(not(boolean($var = 1)))))</assign>
+    <assign to="result">if ($var = 1) then "result1" else "result2"</assign>
 
-As you can see the expressions you can use are limited only to the functions available in XPath 1.0. Using these there is typically always 
+As you can see the expressions you can use are limited only to the functions available in XPath 3.0. Using these there is typically always 
 a way to express what is needed, potentially by first wrapping one or more values in a custom XML wrapper and then using XPath functions
 on that:
 
 .. code-block:: xml
 
     <!-- 
-        Store custom content as a string in the string tempStr.
+        Store custom text content as an XML object in the string tempXml.
     -->
-    <assign to="$tempStr"><![CDATA[concat('<toc>', $toc{tocEntries}, '</toc>')]]></assign>
-    <!-- 
-        Convert tempStr to an object tempXml.
-    -->
-    <assign to="$tempXml">$tempStr</assign>
+    <assign to="tempXml" type="object"><![CDATA['<toc>' || $toc{tocEntries} || '</toc>']]></assign>
     <!-- 
         Use object tempXml to evaluate an XPath expression and store the result in a boolean result.
     -->
-    <assign to="$result" source="$tempXml">contains(/toc/text(), 'file.xml')</assign>
+    <assign to="result" source="$tempXml">contains(/toc/text(), 'file.xml')</assign>
 
-In the above example, we are using the value contained in a ``map`` variable named "toc" to construct a temporary ``string`` with 
-XML content. We then assign this to an ``object`` variable named "tempXml" to convert it into an XML document (i.e. a variable
-of type ``object``). We can then use the "tempXml" variable for any XPath manipulation that requires a source document.
+In the above example, we are using the value contained in a ``map`` variable named "toc" to construct a temporary XML content.
+We can then use the "tempXml" variable for any XPath manipulation that requires a source document.
 
 When manipulating XML content through expressions we most likely want to use **namespaces** to ensure we correctly identify our target elements.
 To directly use namespaces in XPath expressions via their declared prefixes we need to first define them in the test case's :ref:`namespaces section<test-case-namespaces>`.
@@ -644,6 +639,11 @@ the resulting output. In simple terms this means that if the input to an express
 if they match variables already present in the test session context at the time of the expression's evaluation. Using this feature,
 text content (either imported as an artefact, received from a service call or constructed in the test case itself) can act as a template
 that is instantiated with specific values when needed.
+
+.. note::
+    **Using templates to generate complex data:** The templating approach listed here as well as subsequent examples assume basic templating needs
+    based on simple placeholder replacements. If your templates need to be more complex, for example including loops and conditional blocks, the advised 
+    approach is to use the :ref:`TemplateProcessor<handlers-TemplateProcessor>` with `FreeMarker templates <https://freemarker.apache.org/>`_.
 
 As an example consider the following scenario. A XML file is provided in the test suite as an artefact named "metadata-template.xml" that 
 serves as a template for metadata responses to be provided by the test bed. This file contains variable references as follows:

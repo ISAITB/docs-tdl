@@ -278,13 +278,13 @@ Defining alternative expression languages
 +++++++++++++++++++++++++++++++++++++++++
 
 A further, experimental use case for the ``namespaces`` element is to define additional expression languages for use within the test case. This needs to
-be done when expressions are used that should not be processed using the default XPath 1.0 language. A detailed discussion on GITB expressions as well 
+be done when expressions are used that should not be processed using the default XPath language. A detailed discussion on GITB expressions as well 
 as where and how you can use them is provided in :ref:`test-case-expressions`.
 
 In this case the alternative languages are defined using ``ns`` elements, of which the ``prefix`` attributes define how they are to be referenced. A TDL step
 that supports expressions can then define the expression language to consider using its ``lang`` attribute. To illustrate how this works consider a test case
-in which we declare to be using expressions as JavaScript. We will use JavaScript for conditional checks on a number to determine a result given that doing 
-this in XPath 1.0 is rather cumbersome.
+in which we declare to be using expressions as JavaScript. We will use JavaScript for conditional checks on a number to determine a result and
+illustrate how this is done in the default XPath.
 
 .. code-block:: xml
 
@@ -292,31 +292,27 @@ this in XPath 1.0 is rather cumbersome.
         <namespaces>
             <ns prefix="JavaScript"/>
         </namespaces>
-        <variables>
-            <var name="var" type="number"/>
-            <var name="result" type="string"/>
-        </variables>
         <steps>
             <!-- 
-                Assignment using the default XPath 1.0.
+                Assignment using the default XPath.
             -->
-            <assign to="$result">concat(substring('result1', 1 div number(boolean($var = 1))), substring('result2', 1 div number(not(boolean($var = 1)))))</assign>
+            <assign to="result">if ($var = 1) then 'result1' else 'result2'</assign>
             <!-- 
                 Assignment using JavaScript.
             -->
-            <assign to="$result" lang="JavaScript">if ($var == 1) { return 'result1' } else { return 'result2' }</assign>
+            <assign to="result" lang="JavaScript">if ($var == 1) { return 'result1' } else { return 'result2' }</assign>
         </steps>
     </testcase>
 
-Needless to say the assignment using JavaScript is much more natural and easy to understand. However use of alternative expression languages, and their definition
-through the ``namespaces`` element, is tricky because we need to know exactly how the target test bed refers to the language (i.e. "JavaScript" in our case) to 
-correctly identify it. Furthermore it must be clear how the test bed will process the expression and how session context variables are looked up. In the above example
-we assume that context variables (e.g. "$var") are looked up in exactly the same way as with XPath 1.0 expressions and that the entire expression will be evaluated
-by first wrapping it in a function, the result of which is returned as the assignment output. Apart from actually supporting JavaScript for expressions, these 
-additional details need to first be defined unambiguously by the test bed and made known to its users. Only then can we use them in a deterministic and portable manner.
+Use of alternative expression languages, and their definition through the ``namespaces`` element, is tricky because we need to know exactly how the target test bed refers
+to the language (i.e. "JavaScript" in our case) to correctly identify it. Furthermore it must be clear how the test bed will process the expression and how session context
+variables are looked up. In the above example we assume that context variables (e.g. "$var") are looked up in exactly the same way as with XPath expressions and that the 
+entire expression will be evaluated by first wrapping it in a function, the result of which is returned as the assignment output. Apart from actually supporting JavaScript
+for expressions, these additional details need to first be defined unambiguously by the test bed and made known to its users. Only then can we use them in a deterministic
+and portable manner.
 
 .. note::
-    **GITB software support:** Using the ``namespaces`` element to define expression languages other than the default XPath 1.0 is currently not supported.
+    **GITB software support:** Using the ``namespaces`` element to define expression languages other than the default XPath is currently not supported.
 
 .. index:: imports (Test case)
 .. index:: artifact (Test case imports)
@@ -538,7 +534,7 @@ or more ``var`` elements, one per variable, with the following structure:
 
 Variables can be used to record arbitrary information for the duration of the test session. These can be fixed values defined along with the
 variable's definition or dynamically produced values resulting from test steps. The way to reference variables is defined based on the expression
-language in place. Using the default XPath 1.0 expression language a variable named ``myVar`` is referenced as ``$myVar``. More information on 
+language in place. Using the default XPath 3.0 expression language a variable named ``myVar`` is referenced as ``$myVar``. More information on 
 expressions to reference variable values is provided in :ref:`test-case-expressions`.
 
 Definition of variables using the ``variables`` element is **optional** given that test steps resulting in output will automatically create 
