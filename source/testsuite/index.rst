@@ -274,7 +274,7 @@ defining prerequisites) can be achieved as follows:
             <!-- Define the allowed values and provide user-friendly labels. -->
             <gitb:config name="size" kind="SIMPLE" use="R" allowedValues="l,s" allowedValueLabels="Large,Small"/>
             <!-- Enable this parameter if "size" is set as "l". -->
-            <gitb:config name="capacity" kind="SIMPLE" use="R" depends="size" dependsOnValue="l"/>
+            <gitb:config name="capacity" kind="SIMPLE" use="R" dependsOn="size" dependsOnValue="l"/>
         </gitb:endpoint>
     </gitb:actor>
 
