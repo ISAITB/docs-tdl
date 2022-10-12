@@ -18,7 +18,7 @@ their purpose can be:
 .. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
 .. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
-Another important distinction for handlers is whether they are embedded within the test bed software or external.
+Another important distinction for handlers is whether they are **embedded** within the test bed software or **external**.
 Considering that handlers are typically used to extend the test bed for domain-specific operations, the norm
 is to externalise them as remotely callable services. Embedded handlers are typically defined for generic and
 simple use cases that are frequently encountered in test cases.
@@ -138,28 +138,27 @@ HttpMessaging
 Used to send or receive content over HTTP.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
 
-    http_version, Input, No, ``string``, The HTTP version to consider.
-    http_headers, Input, No, ``map``, The ``map`` of HTTP headers to send.
-    http_body, Input, No, ``binary``, The HTTP request body's bytes.
-    http_parts, Input, No, ``map``, A ``map`` including the definition of the parts (see description below).
-    http_method, Output, No, ``string``, The HTTP method.
-    http_version, Output, No, ``string``, The HTTP version.
-    http_path, Output, No, ``string``, The HTTP request path.
-    http_headers, Output, No, ``map``, The ``map`` of received headers.
-    http_body, Output, No, ``binary``, The bytes of the received body.
-    http_parts, Output, No, ``map``, A ``map`` including the received parts (see description below).
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
-    http.uri, Actor configuration, No, ``string``, The request path for the request.
-    status.code, Receive configuration, No, ``string``, The status code for responses.
-    http.method, Send configuration, Yes, ``string``, The HTTP method to use when sending.
-    http.uri, Send configuration, No, ``string``, The request path URI to send to.
-    http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
-    status.code, Send configuration, No, ``string``, Status for responses.
-    http.ssl, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+    ``http_version``, Input, No, ``string``, The HTTP version to consider.
+    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
+    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
+    ``http_parts``, Input, No, ``map``, A ``map`` including the definition of the parts (see description below).
+    ``http_method``, Output, No, ``string``, The HTTP method.
+    ``http_version``, Output, No, ``string``, The HTTP version.
+    ``http_path``, Output, No, ``string``, The HTTP request path.
+    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
+    ``http_body``, Output, No, ``binary``, The bytes of the received body.
+    ``http_parts``, Output, No, ``map``, A ``map`` including the received parts (see description below).
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
+    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
+    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
+    ``http.uri``, Send configuration, No, ``string``, The request path URI to send to.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``status.code``, Send configuration, No, ``string``, Status for responses.
+    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
 
 .. code-block:: xml
 
@@ -315,23 +314,22 @@ Used to send or receive content over HTTPS.
     which can now be configured to support HTTPS.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
 
-    http_headers, Input, No, ``map``, The ``map`` of HTTP headers to send.
-    http_body, Input, No, ``binary``, The HTTP request body's bytes.
-    http_method, Output, No, ``string``, The HTTP method.
-    http_version, Output, No, ``string``, The HTTP version.
-    http_uri, Output, No, ``string``, The HTTP request path.
-    http_headers, Output, No, ``map``, The ``map`` of received headers.
-    http_body, Output, No, ``binary``, The bytes of the received body.
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
-    http.uri, Actor configuration, No, ``string``, The request path for the request.
-    status.code, Receive configuration, No, ``string``, The status code for responses.
-    http.method, Send configuration, Yes, ``string``, The HTTP method to use when sending.
-    http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
-    status.code, Send configuration, No, ``string``, Status for responses.
+    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
+    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
+    ``http_method``, Output, No, ``string``, The HTTP method.
+    ``http_version``, Output, No, ``string``, The HTTP version.
+    ``http_uri``, Output, No, ``string``, The HTTP request path.
+    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
+    ``http_body``, Output, No, ``binary``, The bytes of the received body.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
+    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
+    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
+    ``http.uri``.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``status.code``, Send configuration, No, ``string``, Status for responses.
 
 .. code-block:: xml
 
@@ -367,17 +365,16 @@ HttpProxyMessaging
 Used to proxy HTTP requests and responses between two actors.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
     :delim: ~
 
-    request_data~ Input~ No~ ``map``~ The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
-    http_method~ Output~ No~ ``string``~ The HTTP method.
-    http_version~ Output~ No~ ``string``~ The HTTP version.
-    http_path~ Output~ No~ ``string``~ The HTTP request path.
-    network.host~ Actor configuration~ Yes~ ``string``~ The host of the actor.
-    network.port~ Actor configuration~ Yes~ ``number``~ The listen port for the actor.
-    proxy.address~ Send configuration~ No~ ``string``~ Address of the proxied service.
+    ``request_data``~ Input~ No~ ``map``~ The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
+    ``http_method``~ Output~ No~ ``string``~ The HTTP method.
+    ``http_version``~ Output~ No~ ``string``~ The HTTP version.
+    ``http_path``~ Output~ No~ ``string``~ The HTTP request path.
+    ``network.host``~ Actor configuration~ Yes~ ``string``~ The host of the actor.
+    ``network.port``~ Actor configuration~ Yes~ ``number``~ The listen port for the actor.
+    ``proxy.address``~ Send configuration~ No~ ``string``~ Address of the proxied service.
 
 In this case the ``request_data`` input ``map`` is defined as a convenience considering that we will always be receiving
 a call that we want to proxy to a final destination. The HTTP-related parameters to send to the destination need to match
@@ -395,6 +392,7 @@ the initial parameters received.
 
 .. index:: SimulatedMessaging
 .. index:: parameters (SimulatedMessaging)
+.. index:: contentTypes (SimulatedMessaging)
 .. index:: result (SimulatedMessaging)
 .. index:: delay (SimulatedMessaging)
 
@@ -407,12 +405,16 @@ Used to add simulated messaging steps to the test execution diagram without any 
 place.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :delim: |
 
-    parameters, Send/receive input, No, ``map``, An optional ``map`` of data to display in the step report.
-    result, Send/receive input, No, ``string``, Set to ``SUCCESS``, ``WARNING`` or ``FAILURE`` to specify the step's result (default is ``SUCCESS``).
-    delay, Receive input, No, ``number``, An optional number of milliseconds to delay before presenting the receive step as completed.
+    ``parameters``| Send/receive input| No| ``map``| An optional ``map`` of data to display in the step report.
+    ``contentTypes``| Send/receive input| No| ``map``| An optional ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
+    ``result``| Send/receive input| No| ``string``| Set to ``SUCCESS``, ``WARNING`` or ``FAILURE`` to specify the step's result (default is ``SUCCESS``).
+    ``delay``| Receive input| No| ``number``| An optional number of milliseconds to delay before presenting the :ref:`receive step<tdl-step-receive>` as completed.
+
+The following example illustrates usage of the ``SimulatedMessaging`` handler to present a simulated exchange between actors, each
+with its own report:
 
 .. code-block:: xml
 
@@ -428,6 +430,75 @@ place.
         <input name="result">'FAILURE'</input>
         <input name="delay">3000</input>
     </receive>
+
+In case the ``SimulatedMessaging`` handler displays reports with **large content** or **complete files**, we can also provide a hint to the test engine
+on how such data is to be displayed. This is done by means of the ``contentTypes`` input, an optional ``map`` that can be set with 
+the content types (e.g. ``application/json``) to consider per parameter. When a content type is set for a given parameter this will
+affect its syntax highlighting when displaying it within editors and also the type of file generated when it is downloaded.
+
+The approach used to specify content types is to match fully, in terms of parameter names and structure, the corresponding
+``parameters`` map. Matching of specific parameters is done on the basis of their map key and nesting level, whereas the 
+content type values are of type ``string``.
+
+To clarify this, consider the following example where a ``SimulatedMessaging`` handler is used for a :ref:`send<tdl-step-send>` step,
+displaying a report with two files (named ``input`` and ``output``). Notice how the ``contentTypes`` input is defined in a manner identical
+to the actual data to be displayed.
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{input}">$file1</assign>
+    <assign to="params{output}">$file2</assign>
+    <!-- Define the content types. -->
+    <assign to="contentTypes{input}">'application/json'</assign>
+    <assign to="contentTypes{output}">'application/xml'</assign>
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$contentTypes</input>
+    </send>
+
+Content types don't need to cover all parameters, only those for which they are relevant or known. For example in the following case
+we only define a content type for the first displayed file, omitting it for simple strings and for the second file for which the 
+content type is unknown.
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{aFile}">$file</assign>
+    <assign to="params{countryCode}">$countryCode</assign>
+    <assign to="params{message}">"Transformation was successful."</assign>
+    <assign to="params{aSecondFile}">$secondFile</assign>
+    <!-- Define the content type only for the first file. -->
+    <assign to="contentTypes{aFile}">'application/xml'</assign>
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$contentTypes</input>
+    </send>
+
+Finally, the following example illustrates how content types can be provided when the parameters are defined within complex
+structures (maps and lists, nested at different levels).
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{input}{file1}">$file1</assign>
+    <assign to="params{input}{file2}">$file2</assign>
+    <assign to="params{input}{messageId}">$messageIdentifier</assign>
+    <assign to="params{input}{attachments}" append="true">$attachment1</assign>
+    <assign to="params{input}{attachments}" append="true">$attachment2</assign>
+    <assign to="params{output}{response}">$response</assign>
+    <assign to="params{output}{message}">"Input processed successfully."</assign>
+    <!-- Define the content types. -->
+    <assign to="types{input}{file1}">"application/xml"</assign>
+    <assign to="types{input}{file2}">"application/xml"</assign>
+    <assign to="types{input}{attachments}" append="true">"text/plain"</assign>
+    <assign to="types{input}{attachments}" append="true">"application/pdf"</assign>
+    <assign to="types{output}{response}">"application/json"</assign>
+    <!-- Call the send step. -->
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$types</input>
+    </send>
 
 .. index:: SoapMessaging
 .. index:: http_headers (SoapMessaging)
@@ -455,27 +526,26 @@ SoapMessaging
 Used to send or receive payloads via SOAP web service calls.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
 
-    http_headers, Input, No, ``map``, A ``map`` of HTTP headers to include.
-    soap_message, Input, Yes, ``object``, The SOAP envelope to send.
-    soap_attachments, Input, No, ``map``, A ``map`` of ``binary`` attachments.
-    http_headers, Output, No, ``map``, The HTTP headers received.
-    soap_header, Output, Yes, ``object``, The received SOAP header.
-    soap_body, Output, Yes, ``object``, The received SOAP body.
-    soap_message, Output, Yes, ``object``, The received SOAP envelope.
-    soap_content, Output, Yes, ``object``, The XML content of the received SOAP body.
-    soap_attachments, Output, No, ``map``, A ``map`` of received ``binary`` attachments.
-    soap_attachments_size, Output, No, ``number``, The number of attachments received.
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
-    http.uri, Actor configuration, No, ``string``, The request path to send the SOAP request to.
-    soap.version, Receive configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
-    soap.version, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
-    soap.encoding, Send configuration, No, ``string``, Character set encoding.
-    http.uri.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
-    http.ssl, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+    ``http_headers``, Input, No, ``map``, A ``map`` of HTTP headers to include.
+    ``soap_message``, Input, Yes, ``object``, The SOAP envelope to send.
+    ``soap_attachments``, Input, No, ``map``, A ``map`` of ``binary`` attachments.
+    ``http_headers``, Output, No, ``map``, The HTTP headers received.
+    ``soap_header``, Output, Yes, ``object``, The received SOAP header.
+    ``soap_body``, Output, Yes, ``object``, The received SOAP body.
+    ``soap_message``, Output, Yes, ``object``, The received SOAP envelope.
+    ``soap_content``, Output, Yes, ``object``, The XML content of the received SOAP body.
+    ``soap_attachments``, Output, No, ``map``, A ``map`` of received ``binary`` attachments.
+    ``soap_attachments_size``, Output, No, ``number``, The number of attachments received.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path to send the SOAP request to.
+    ``soap.version``, Receive configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
+    ``soap.version``, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
+    ``soap.encoding``, Send configuration, No, ``string``, Character set encoding.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
 
 .. code-block:: xml
 
@@ -536,13 +606,12 @@ TCPMessaging
 Used to send or receive an arbitrary byte stream over TCP.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
 
-    content, Input, Yes, ``binary``, The stream of bytes to send.
-    content, Output, Yes, ``binary``, The stream of bytes received.
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
+    ``content``, Output, Yes, ``binary``, The stream of bytes received.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
 
 .. code-block:: xml
 
@@ -565,13 +634,12 @@ UDPMessaging
 Used to send or receive arbitrary bytes over UDP.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Element name", "Element type", "Required?", "Type", "Description"
 
-    content, Input, Yes, ``binary``, The stream of bytes to send.
-    content, Output, Yes, ``binary``, The stream of bytes received.
-    network.host, Actor configuration, Yes, ``string``, The host of the actor.
-    network.port, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
+    ``content``, Output, Yes, ``binary``, The stream of bytes received.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
 
 .. code-block:: xml
 
@@ -602,7 +670,6 @@ Used to manipulate Base64-encoded content for use in test cases. This processing
 transaction to be established. The following operations are supported:
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Operation", "Description", "Input(s)", "Output(s)"
 
     ``encode``, Receive a ``binary`` input and return a ``string`` with its Base64-encoded representation., Yes, A ``string`` named ``output`` in the resulting step's ``map``.
@@ -611,7 +678,6 @@ transaction to be established. The following operations are supported:
 The input parameters expected by the different operations are as follows:
 
 .. csv-table::
-    :stub-columns: 2
     :header: "Operation", "Input name", "Required?", "Description"
 
     ``encode``, ``input``, Yes, The ``binary`` value that will be encoded as a Base64 string.
@@ -676,7 +742,6 @@ a processing transaction to be established. The following operations are support
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
-    :stub-columns: 1
     :delim: |
 
     ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
@@ -686,7 +751,6 @@ The input parameters expected by the different operations are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
     ``size`` | ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
@@ -765,6 +829,7 @@ necessary. The following examples illustrate how this works for lists and maps:
 
 .. index:: DisplayProcessor
 .. index:: parameters (DisplayProcessor)
+.. index:: contentTypes (DisplayProcessor)
 .. _handlers-DisplayProcessor:
 
 DisplayProcessor
@@ -776,7 +841,6 @@ for including additional information in the test's output without distracting th
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
-    :stub-columns: 1
     :delim: |
 
     ``display`` | Include the provided data in a step report that the user may choose to view. | Yes | No.
@@ -785,10 +849,10 @@ The input parameters expected by the ``display`` operation are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
-    ``display`` | ``parameters`` | No | The ``map`` including the values to display (labelled using the ``map`` keys).
+    ``display`` | ``parameters`` | No | A ``map`` including the values to display (labelled using the ``map`` keys).
+    ``display`` | ``contentTypes`` | No | A ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
 
 The following example illustrates usage of the ``DisplayProcessor`` to create a step report for a given set of data that the user may
 choose to view:
@@ -800,6 +864,74 @@ choose to view:
     <assign to="parameters{listValues}" append="true">'Value 2'</assign>
     <assign to="parameters{listValues}" append="true">`Value 3`</assign>
     <process desc="Show values" hidden="false" handler="DisplayProcessor" input="$parameters"/> 
+
+In case the ``DisplayProcessor`` is used to display **large content** or **complete files**, we can also provide a hint to the test engine
+on how such data is to be displayed. This is done by means of the ``contentTypes`` input, an optional ``map`` that can be set with 
+the content types (e.g. ``application/json``) to consider per parameter. When a content type is set for a given parameter this will
+affect its syntax highlighting when displaying it within editors and also the type of file generated when it is downloaded.
+
+The approach used to specify content types is to match fully, in terms of parameter names and structure, the corresponding
+``parameters`` map. Matching of specific parameters is done on the basis of their map key and nesting level, whereas the 
+content type values are of type ``string``.
+
+To clarify this, consider the following example where a ``DisplayProcessor`` is used to display two files (named ``input`` and ``output``).
+Notice how the ``contentTypes`` input is defined in a manner identical to the actual data to be displayed.
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{input}">$file1</assign>
+    <assign to="params{output}">$file2</assign>
+    <!-- Define the content types. -->
+    <assign to="contentTypes{input}">'application/json'</assign>
+    <assign to="contentTypes{output}">'application/xml'</assign>
+    <process desc="Process data" hidden="false" handler="DisplayProcessor">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$contentTypes</input>
+    </process>
+
+Content types don't need to cover all parameters, only those for which they are relevant or known. For example in the following case
+we only define a content type for the first displayed file, omitting it for simple strings and for the second file for which the 
+content type is unknown.
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{aFile}">$file</assign>
+    <assign to="params{countryCode}">$countryCode</assign>
+    <assign to="params{message}">"Transformation was successful."</assign>
+    <assign to="params{aSecondFile}">$secondFile</assign>
+    <!-- Define the content type only for the first file. -->
+    <assign to="contentTypes{aFile}">'application/xml'</assign>
+    <process desc="Process data" hidden="false" handler="DisplayProcessor">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$contentTypes</input>
+    </process>
+
+Finally, the following example illustrates how content types can be provided when the parameters are defined within complex
+structures (maps and lists, nested at different levels).
+
+.. code-block:: xml
+
+    <!-- Define the data. -->
+    <assign to="params{input}{file1}">$file1</assign>
+    <assign to="params{input}{file2}">$file2</assign>
+    <assign to="params{input}{messageId}">$messageIdentifier</assign>
+    <assign to="params{input}{attachments}" append="true">$attachment1</assign>
+    <assign to="params{input}{attachments}" append="true">$attachment2</assign>
+    <assign to="params{output}{response}">$response</assign>
+    <assign to="params{output}{message}">"Input processed successfully."</assign>
+    <!-- Define the content types. -->
+    <assign to="types{input}{file1}">"application/xml"</assign>
+    <assign to="types{input}{file2}">"application/xml"</assign>
+    <assign to="types{input}{attachments}" append="true">"text/plain"</assign>
+    <assign to="types{input}{attachments}" append="true">"application/pdf"</assign>
+    <assign to="types{output}{response}">"application/json"</assign>
+    <!-- Call the process step. -->
+    <process desc="Process data" hidden="false" handler="DisplayProcessor">
+        <input name="parameters">$params</input>
+        <input name="contentTypes">$types</input>
+    </process>
 
 .. note::
     **DisplayProcessor in non-hidden steps:** :ref:`Process steps<tdl-step-process>` are by default set as ``hidden``, meaning
@@ -822,7 +954,6 @@ does not require a processing transaction to be established. The following opera
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
-    :stub-columns: 1
     :delim: |
 
     ``check`` | Check to see if a ``string`` matches an expression. | Yes | Yes, a ``boolean`` named ``output`` in the resulting step's ``map``.
@@ -832,7 +963,6 @@ The input parameters expected by the different operations are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
     ``check`` | ``input`` | Yes | The ``string`` to check.
@@ -903,7 +1033,6 @@ data generation that is not limited to simple placeholder replacements.
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
-    :stub-columns: 1
     :delim: |
 
     ``process`` | Process the provided template and parameters to produce the output. | Yes | Yes, a ``string`` named ``data`` in the resulting step's ``map``.
@@ -912,7 +1041,6 @@ The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
     ``process`` | ``template`` | Yes | The template content to use (can be of any type that results in a ``string``).
@@ -988,7 +1116,6 @@ Used to generate tokens that can be used as data in test cases. This processing 
 transaction to be established. The following operations are supported:
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Operation", "Description", "Input(s)", "Output(s)"
 
     ``uuid``, Generate a random UUID text value matching a Java UUID (e.g. "123e4567-e89b-12d3-a456-556642440000"). This is a value that can be considered as unique for test purposes., No, A ``string`` named ``value`` in the resulting step's ``map``.
@@ -999,10 +1126,11 @@ The input parameters expected by the different operations are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
 
+    ``uuid`` | ``prefix`` | No | An optional ``string`` to add as a prefix to the generated part of the UUID.
+    ``uuid`` | ``postfix`` | No | An optional ``string`` to add as a postfix to the generated part of the UUID.
     ``timestamp`` | ``format`` | No | The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
     ``timestamp`` | ``zone`` | No | The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
     ``timestamp`` | ``time`` |  No | A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
@@ -1013,10 +1141,11 @@ The input parameters expected by the different operations are as follows:
 
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
 e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
-The ``uuid`` operation provides a random and unique identifier where special formatting is not required, whereas the ``timestamp`` operation generates a timestamp
-string that includes date/time values but can also have fixed parts (e.g. if you need to generate a text token with a fixed part and a variable part based on the
-current date/time). Finally, the ``string`` operation is noteworthy as it can be used to generate any kind of text token with both fixed and random parts. The template
-to consider for the output is provided as a regular expression with the value to be returned being a random string to match it.
+The ``uuid`` operation provides a random and unique identifier where special formatting is not required (apart from an optional prefix and postfix), 
+whereas the ``timestamp`` operation generates a timestamp string that includes date/time values but can also have fixed parts (e.g. if you need to generate
+a text token with a fixed part and a variable part based on the current date/time). Finally, the ``string`` operation is noteworthy as it can be used to
+generate any kind of text token with both fixed and random parts. The template to consider for the output is provided as a regular expression with the
+value to be returned being a random string to match it.
 
 .. note::
     **Default format for input dates:** If a ``date`` is provided without an ``inputFormat``, the pattern of ``dd/MM/yyyy'T'HH:mm:ss.SSSZ`` is assumed
@@ -1035,10 +1164,18 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
 .. code-block:: xml
 
     <!--
-        Generate a UUID.
+        Generate a UUID (e.g. "971b4df9-4351-4cb8-9ba5-1f6373717ae0").
     -->
     <process id="uuid" handler="TokenGenerator">
         <operation>uuid</operation>
+    </process>
+    <!--
+        Generate a UUID with a prefix and postfix (e.g. "message-971b4df9-4351-4cb8-9ba5-1f6373717ae0@my.org").
+    -->
+    <process id="uuid" handler="TokenGenerator">
+        <operation>uuid</operation>
+        <input name="prefix">"message-"</input>
+        <input name="postfix">"@my.org"</input>
     </process>
     <!--
         Generate a timestamp for the current time without specifying formatting.
@@ -1181,7 +1318,6 @@ Used to transform XML content using an XSLT style sheet, both being provided as 
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
-    :stub-columns: 1
     :delim: |
 
     ``process`` | Process XML content using an XSLT style sheet and return the transformed result. | Yes | Yes, a ``string`` named ``output`` in the resulting step's ``map``.
@@ -1190,7 +1326,6 @@ The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
-    :stub-columns: 2
     :delim: |
 
     ``process`` | ``xml`` | Yes | The XML content to transform.
@@ -1214,9 +1349,36 @@ be :ref:`imported<test-case-imports>` from the test suite's resources.
 Embedded validation handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. index:: ExpressionValidator
+.. index:: expression (ExpressionValidator)
+.. _handlers-ExpressionValidator:
+
+ExpressionValidator
++++++++++++++++++++
+
+Used to verify whether a provided :ref:`expression<test-case-expressions>` evaluates to ``true``. The 
+``ExpressionValidator`` is the most generic validation handler as it can be used to check any arbitrary 
+condition.
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+
+    ``expression``, Yes, :ref:`Expression<test-case-expressions>`, The expression to evaluate.
+
+.. code-block:: xml
+
+    <verify handler="ExpressionValidator" desc="Validate UUID">
+        <input name="expression">$variable != "unwantedValue"</input>
+    </verify>
+
+.. note::
+    The ``expression`` input is not presented in the :ref:`verify step's<tdl-step-verify>` validation report as it
+    would only ever display a "true" or "false".
+
 .. index:: NumberValidator
 .. index:: actualnumber (NumberValidator)
 .. index:: expectednumber (NumberValidator)
+.. _handlers-NumberValidator:
 
 NumberValidator
 +++++++++++++++
@@ -1224,11 +1386,10 @@ NumberValidator
 Used to verify that a provided ``number`` matches an expected value.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    actualnumber, Yes, ``number``, The value to check.
-    expectednumber, Yes, ``number``, The expected value.
+    ``actualnumber``, Yes, ``number``, The value to check.
+    ``expectednumber``, Yes, ``number``, The expected value.
 
 .. code-block:: xml
 
@@ -1248,11 +1409,10 @@ RegExpValidator
 Used to verify that a provided ``string`` matches a regular expression.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    input, Yes, ``string``, The value to check.
-    expression, Yes, ``string``, The expression to match.
+    ``input``, Yes, ``string``, The value to check.
+    ``expression``, Yes, ``string``, The expression to match.
 
 .. code-block:: xml
 
@@ -1265,6 +1425,9 @@ Used to verify that a provided ``string`` matches a regular expression.
 .. index:: schematron (SchematronValidator)
 .. index:: xmldocument (SchematronValidator)
 .. index:: type (SchematronValidator)
+.. index:: showSchematron (SchematronValidator)
+.. index:: sortBySeverity (SchematronValidator)
+.. index:: showTests (SchematronValidator)
 .. _handlers-SchematronValidator:
 
 SchematronValidator
@@ -1273,12 +1436,14 @@ SchematronValidator
 Used to validate an XML document against a Schematron file.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    schematron, Yes, ``schema``, The Schematron file to use for the validation (XSTL or SCH).
-    xmldocument, Yes, ``object``, The XML document to validate.
-    type, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the resource's file suffix. The overall default considered is ``sch``.
+    ``schematron``, Yes, ``schema``, The Schematron file to use for the validation (XSTL or SCH).
+    ``xmldocument``, Yes, ``object``, The XML document to validate.
+    ``type``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the resource's file suffix. The overall default considered is ``sch``.
+    ``showSchematron``, No, ``boolean``, Whether or not to include in the step's report the Schematron used for the validation (default is ``true``).
+    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity (``true``) or location in the input (``false`` - the default).
+    ``showTests``, No, ``boolean``, Whether or not to include in the step's report the assertion performed for each finding (default is ``false``).
 
 .. note::
     **XSLT vs SCH Schematron files:** XSLT versions of Schematron files are pre-processed files and offer significantly better
@@ -1289,6 +1454,10 @@ Used to validate an XML document against a Schematron file.
     <verify handler="SchematronValidator" desc="Validate content">
         <input name="xmldocument">$docToValidate</input>
         <input name="schematron">$schematronFile</input>
+        <!-- Following inputs are optional. -->
+        <input name="showSchematron">false()</input>
+        <input name="sortBySeverity">true()</input>
+        <input name="showTests">true()</input>
     </verify>
 
 .. index:: StringValidator
@@ -1302,11 +1471,10 @@ StringValidator
 Used to verify that a provided ``string`` matches an expected value.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    actualstring, Yes, ``string``, The value to check.
-    expectedstring, Yes, ``string``, The expected value.
+    ``actualstring``, Yes, ``string``, The value to check.
+    ``expectedstring``, Yes, ``string``, The expected value.
 
 .. code-block:: xml
 
@@ -1327,12 +1495,11 @@ XmlMatchValidator
 Used to validate an XML document by matching it against a provided template.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    xml, Yes, ``object``, The XML file to validate.
-    template, Yes, ``object``, The XML file to consider as the validation's template.
-    ignoredPaths, No, ``list[string]``, An optional list of paths provided as XPath expressions identifying sections of the XML to ignore.
+    ``xml``, Yes, ``object``, The XML file to validate.
+    ``template``, Yes, ``object``, The XML file to consider as the validation's template.
+    ``ignoredPaths``, No, ``list[string]``, An optional list of paths provided as XPath expressions identifying sections of the XML to ignore.
 
 The matching process takes place by normalising whitespace, ignoring comments and tolerating naming differences in namespace prefixes. In addition,
 texts of elements or attributes in the provided ``template`` can be specified with the special value ``?``. This means that any value will be allowed
@@ -1367,6 +1534,117 @@ The following example illustrates how this validator can be used:
         <input name="ignoredPaths">$pathsToSkip</input>
     </verify>
 
+
+.. index:: XmlValidator
+.. index:: xml (XmlValidator)
+.. index:: xsd (XmlValidator)
+.. index:: schematron (XmlValidator)
+.. index:: schematronType (XmlValidator)
+.. index:: stopOnXsdErrors (XmlValidator)
+.. index:: sortBySeverity (XmlValidator)
+.. index:: showValidationArtefacts (XmlValidator)
+.. index:: showSchematronTests (XmlValidator)
+.. _handlers-XmlValidator:
+
+XmlValidator
+++++++++++++
+
+Used to validate an XML document against an XML Schema (XSD) and/or zero or more Schematron files.
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+
+    ``xml``, Yes, ``object``, The XML document to validate.
+    ``xsd``, No, ``schema``, The XSD to validate the document's structure against.
+    ``schematron``, No, ``list[schema]``, The list of Schematron files to validate the document's content against.
+    ``schematronType``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the files' suffix. The overall default considered is ``sch``.
+    ``stopOnXsdErrors``, No, ``boolean``, Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is ``true``).
+    ``sortBySeverity``, No, ``boolean``, Whether findings should be sorted by severity (``true``) or by location in the XML content (``false`` - the default).
+    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is ``true``).
+    ``showSchematronTests``, No, ``boolean``, Whether or not the Schematron assertions applied should be displayed for each reported finding (default is ``false``).
+
+Regarding inputs, if you need to supply a single Schematron file you don't need to create a ``list`` and pass it as such. You can
+simply pass the Schematron file as-is and the test engine will automatically convert it to a single-element ``list``. Note that considering
+that both the ``xsd`` and ``schematron`` inputs are optional, if you provide neither, the validation will simply succeed with an empty report.
+
+The following examples illustrate how the ``XmlValidator`` can be used in various scenarios:
+
+.. code-block:: xml
+
+    <!--
+        Validate against an XSD.
+    -->
+    <verify handler="XmlValidator" desc="XML validation">
+        <input name="xml">$content</input>
+        <input name="xsd">$schema</input>
+    </verify> 
+    <!--
+        Validate against a single Schematron file.
+    -->
+    <verify handler="XmlValidator" desc="XML validation">
+        <input name="xml">$content</input>
+        <input name="schematron">$schematron</input>
+    </verify>
+    <!--
+        Validate against two Schematron files.
+    -->
+    <assign to="schematrons" append="true">$schematron1</assign>
+    <assign to="schematrons" append="true">$schematron2</assign>
+    <verify handler="XmlValidator" desc="XML validation">
+        <input name="xml">$content</input>
+        <input name="schematron">$schematrons</input>
+    </verify>
+    <!--
+        Validate against an XSD and two Schematron files:
+        - Without stopping for XSD errors.
+        - Sorting findings by severity.
+        - Hiding the XSD and Schematrons used.
+    -->
+    <assign to="schematrons" append="true">$schematron1</assign>
+    <assign to="schematrons" append="true">$schematron2</assign>
+    <verify handler="XmlValidator" desc="XML validation">
+        <input name="xml">$content</input>
+        <input name="schematron">$schematrons</input>
+        <input name="stopOnXsdErrors">false()</input>
+        <input name="sortBySeverity">true()</input>        
+        <input name="showValidationArtefacts">false()</input>        
+    </verify>
+
+When comparing with the similar :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator`, the  ``XmlValidator`` is more 
+flexible and simple to use. In addition, it allows a better fine-tuning of how validation steps are presented. If for example validating
+XML content requires validation against an XSD and two Schematron files, using the :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator`
+will present three distinct validation steps in the session execution diagram. Using the ``XmlValidator`` you may still display each such
+validation separately but you also have the option of making a single validation for all artefacts. Doing so is typically preferred because:
+
+* It presents a **single logical step**, rather than expose the different resources involved.
+* It aggregates all findings in a **single report**.
+
+For the sake of comparison, the following examples illustrate how two distinct validations carried out with the :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator`
+can be replicated via a single use of the ``XmlValidator``:
+
+.. code-block:: xml
+
+    <!--
+        Using the XSDValidator and SchematronValidator.
+    -->
+    <verify handler="XSDValidator" desc="Validate content">
+        <input name="xmldocument">$docToValidate</input>
+        <input name="xsddocument">$schemaFile</input>
+    </verify>
+    <verify handler="SchematronValidator" desc="Validate content">
+        <input name="xmldocument">$docToValidate</input>
+        <input name="schematron">$schematronFile</input>
+    </verify>
+    <!--
+        Equivalent validation using the XmlValidator.
+    -->
+    <verify handler="XmlValidator" desc="Validate content">
+        <input name="xml">$docToValidate</input>
+        <input name="xsd">$schemaFile</input>
+        <input name="schematron">$schematronFile</input>
+        <input name="stopOnXsdErrors">false()</input>
+    </verify>
+
 .. index:: XPathValidator
 .. index:: xmldocument (XPathValidator)
 .. index:: xpathexpression (XPathValidator)
@@ -1379,11 +1657,10 @@ Used to evaluate an XPath 3.0 expression against a provided XML document. The re
 needs to evaluate to a boolean (i.e. true for success or false for failure).
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    xmldocument, Yes, ``object``, The XML document upon which the XPath expression will be evaluated.
-    xpathexpression, Yes, ``string``, The XPath 3.0 expression passed as a string.
+    ``xmldocument``, Yes, ``object``, The XML document upon which the XPath expression will be evaluated.
+    ``xpathexpression``, Yes, ``string``, The XPath 3.0 expression passed as a string.
 
 An important note here is that the XPath expression passed in ``xpathexpression`` is meant to be a string.
 This means that to run an expression as-is you need to wrap it in quotes. This is because the content of
@@ -1440,6 +1717,8 @@ The following example illustrates how you can use namespace prefixes with your X
 .. index:: XSDValidator
 .. index:: xsddocument (XSDValidator)
 .. index:: xmldocument (XSDValidator)
+.. index:: showSchema (XSDValidator)
+.. index:: sortBySeverity (XSDValidator)
 .. _handlers-XSDValidator:
 
 XSDValidator
@@ -1448,17 +1727,21 @@ XSDValidator
 Used to validate an XML document against an XML Schema (XSD) instance.
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Input name", "Required?", "Type", "Description"
 
-    xsddocument, Yes, ``schema``, The XSD to validate the document against.
-    xmldocument, Yes, ``object``, The XML document to validate.
+    ``xsddocument``, Yes, ``schema``, The XSD to validate the document against.
+    ``xmldocument``, Yes, ``object``, The XML document to validate.
+    ``showSchema``, No, ``boolean``, Whether to include in the step's report the XSD used for the validation (default is ``true``).
+    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity (``true``) or location in the input (``false`` - the default).
 
 .. code-block:: xml
 
     <verify handler="XSDValidator" desc="Validate content">
         <input name="xmldocument">$docToValidate</input>
         <input name="xsddocument">$schemaFile</input>
+        <!-- Following inputs are optional. -->
+        <input name="showSchema">false()</input>        
+        <input name="sortBySeverity">true()</input>        
     </verify>
 
 .. index:: Handler authentication
@@ -1496,14 +1779,13 @@ The authentication possibilities currently supported are:
 The properties that are supported in the ``property`` elements are listed in the following table:
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Property name", "Value", "Description"
 
-    auth.basic.username, Any ``string``, The username to provide when prompted for basic HTTP authentication.
-    auth.basic.password, Any ``string``, The password to provide when prompted for basic HTTP authentication.
-    auth.token.username, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
-    auth.token.password, Any ``string``, The password to include in the SOAP header as the UsernameToken's password.
-    auth.token.password.type, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
+    ``auth.basic.username``, Any ``string``, The username to provide when prompted for basic HTTP authentication.
+    ``auth.basic.password``, Any ``string``, The password to provide when prompted for basic HTTP authentication.
+    ``auth.token.username``, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
+    ``auth.token.password``, Any ``string``, The password to include in the SOAP header as the UsernameToken's password.
+    ``auth.token.password``.type, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
 
 Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
 where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
@@ -1587,13 +1869,12 @@ The ``input`` and ``output`` elements used with handlers are what GITB refers to
 They share the following structure:
 
 .. csv-table::
-    :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @name, no, The name of the input or output element.
-    @lang, no, The expression language that should be considered when evaluating its contained expression (see :ref:`test-case-expressions`).
-    @source, no, A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
-    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    ``@name``, no, The name of the input or output element.
+    ``@lang``, no, The expression language that should be considered when evaluating its contained expression (see :ref:`test-case-expressions`).
+    ``@source``, no, A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
+    ``@asTemplate``, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The text content of the element is considered to be an expression (see :ref:`test-case-expressions`). In the case a ``source`` attribute is provided
 the contained expression is evaluated on the variable identified by ``source`` to produce the value. If no ``source`` attribute is present the value

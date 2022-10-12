@@ -139,8 +139,8 @@ identifier of which it references. The structure of the ``listen`` element is as
     @handler, no, The :ref:`messaging handler<handlers>` to use for this messaging step. If not specified (for transactional messaging) the ``txnid`` attribute is required.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply (default is ``false``). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements containing configuration values pertinent to the message exchange.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -193,8 +193,8 @@ The structure of the ``receive`` element is as follows:
     @timeoutFlag, no, An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
     @timeoutIsError, no, Whether or not a timeout being triggered should be considered as an error or success (the default). This is provided as a ``boolean`` or a variable reference.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply (default is ``false``). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements containing configuration values pertinent to receiving.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -283,8 +283,8 @@ The structure of the ``send`` element is as follows:
     @desc, no, A description for this step to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @id, no, The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
-    @reply, no, A boolean flag indicating that this communication should be presented as a reply.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
+    @reply, no, A boolean flag indicating that this communication should be presented as a reply (default is ``false``). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     documentation, no, Rich text content that provides further information on the current step.
     property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config, no, Zero or more elements containing configuration values pertinent to sending.  Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -440,7 +440,7 @@ The structure of the ``process`` element is as follows:
     @desc, no, A description for this step to display to the user (meaningful if ``hidden`` is ``false``) and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler, no, A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``true``).
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``true``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @input, no, An alternative to input elements to provide a single input when the processing handler expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-process__simplified`.
     @operation, no, An alternative to the operation element providing the operation to carry out by the processing handler. See also :ref:`tdl-step-process__simplified`.
     @output, no, The name to use for the session context variable to store the processing output as an alternative to using the ``id``. See also :ref:`tdl-step-process__simplified`.
@@ -581,10 +581,22 @@ Simplified processing steps
 Test cases often include basic processing steps as utilities that don't need transactions and multiple inputs, or produce only single
 output values. To reduce the verbosity of the ``process`` step in such cases, you can make use of three syntax alternatives:
 
-    * The ``input`` attribute to provide a single input. This is possible when a single input is expected, or in case of multiple expected
-      inputs, there is one mandatory one.
+    * The ``input`` attribute to provide a single input.
     * The ``operation`` attribute to define the operation.
     * The ``output`` attribute to directly name the result rather than use an intermediate ``map``.
+
+In case the ``process`` step's handler expects multiple parameters, the single ``input`` attribute is assigned to a parameter as follows
+(rules listed with decreasing priority):
+
+    #. The first mandatory parameter matching the input's type.
+    #. The first mandatory parameter regardless of type.
+    #. The first optional parameter matching the input's type.
+    #. The first optional parameter regardless of type.
+    #. An unnamed parameter set to the input's value.
+
+.. note::
+    To avoid ambiguity, use of the simplified ``process`` syntax should be preferred when a single input is expected, or in case of multiple expected
+    inputs, there is one mandatory one.
 
 In the case of inputs and operations, defining them both as attributes and child elements is superfluous. If nonetheless both are defined,
 the child elements take precedence.
@@ -647,7 +659,7 @@ The ``exit`` step is used to immediately exit the test case from any execution b
 
     @desc, no, A description for the step to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a variable reference.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     documentation, no, Rich text content that provides further information on the current step.
 
 The following example shows a test case that exits as a success based on the user's input:
@@ -692,6 +704,7 @@ on whether or not the user provides a "true" of "false" input:
 .. index:: documentation (flow)
 .. index:: thread (flow)
 .. index:: hidden (flow)
+.. index:: hidden (thread)
 .. index:: collapsed (flow)
 .. _tdl-step-flow:
 
@@ -709,7 +722,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     @title, no, A short title to display for this step (default is "flow"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @desc, no, A description for this thread fork to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     thread, yes, One or more elements containing as children any sequence of steps to execute in the thread (including other ``flow`` steps).
@@ -754,6 +767,29 @@ The following example sends a SOAP request to two actors in parallel and proceed
     </send>
     <etxn txnId="t3"/>
 
+A ``flow`` separate threads can also be **individually hidden** through use of their ``hidden`` attribute. This could be useful 
+if you need to execute and display a set of parallel test branches, but at the same time carry out a parallel operation that
+shouldn't be displayed. The following example illustrates a scenario where two messages are sent in parallel, with an additional
+notification that is hidden.
+
+.. code-block:: xml
+    :emphasize-lines: 10
+
+    <flow desc="Send messages">
+        <thread>
+            <log>"Sending message to A"</log>
+            <send id="dataSendA" desc="Send data to A" from="Sender" to="ReceiverA" txnId="t1"/>
+        </thread>
+        <thread>
+            <log>"Sending message to B"</log>
+            <send id="dataSendB" desc="Send data to B" from="Sender" to="ReceiverB" txnId="t2"/>
+        </thread>
+        <thread hidden="true">
+            <log>"Notifying controller node"</log>
+            <send id="cleanUp" from="Sender" to="Controller" txnId="t3"/>
+        </thread>
+    </flow>
+
 .. note::
     **Parallel receives:** In case you use the :ref:`receive<tdl-step-receive>` step within a ``flow`` step's threads and a
     :ref:`custom messaging service<handlers>`, you need to make sure your service manages the specific receive call's identifier.
@@ -787,7 +823,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
     @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute for a loop iteration.
@@ -829,7 +865,9 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
 .. index:: then (if)
 .. index:: else (if)
 .. index:: hidden (if)
+.. index:: hidden (then)
 .. index:: collapsed (if)
+.. index:: static (if)
 .. _tdl-step-if:
 
 if
@@ -844,12 +882,15 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     @title, no, A short title to display for this step (default is "decision"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @desc, no, A description for this check to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
+    @static, no, A boolean flag determining whether the step's conditions is evaluated at test case load time (``true``) or at runtime (``false`` - the default). See also :ref:`scriptlets_dynamic_steps`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the ``then`` set of steps (if true) or ``else`` (if false). This is provided as an expression (see :ref:`test-case-expressions`).
     then, yes, Contains as children any sequence of steps to execute if the condition results to true.
     else, no, Contains as children any sequence of steps to execute if the condition results to false.
+
+The following example illustrates use of the ``if`` step to conditionally validate received content based on a condition.
 
 .. code-block:: xml
 
@@ -866,6 +907,62 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
             <assign to="$formatType">'CSV'</assign>
         </else>
     </if>
+
+.. _tdl-step-if_hide_boundary:
+
+Displaying contained steps without a boundary
++++++++++++++++++++++++++++++++++++++++++++++
+
+Aside from using an ``if`` step to represent logical branches to users, we can also use it as an **internal control structure** for 
+our testing logic. In such a case, we may want to only present the step's included child steps, and not the boundary structure,
+title and description of the ``if`` step itself.
+
+Displaying only an ``if`` step's children is possible via two approaches:
+
+* Use of the ``if`` step's ``static`` attribute.
+* Use of the ``hidden`` attribute on the ``if`` step and its contained ``then`` block.
+
+The **first approach**, defining a static ``if``, means that the step's condition is evaluated when the test case is loaded as opposed
+to a runtime evaluation when the step is executed. The result of this is the inclusion of either the step's ``then`` or ``else``
+block in the test case without the ``if`` step's overall boundary. Using this feature is meaningful for ``if`` steps within 
+:ref:`scriptlets<scriptlets>` as it allows their content to be dynamically adapted based on the needs of the given test case.
+For more details on this check :ref:`how scriptlets can dynamically define their steps <scriptlets_dynamic_steps>`.
+
+The **second approach**, using the ``hidden`` attribute, achieves a similar effect as the ``static`` flag but with the key difference
+that the ``if`` condition is evaluated at runtime. To use this approach you need to set the ``if`` step as ``hidden`` but also
+specify its ``then`` block as explicitly visible (``hidden`` set to ``true``). This results in hiding the ``if`` step's boundary
+and displaying directly the steps contained within the ``then`` block. These steps may subsequently be skipped (and displayed as
+such) if the ``if`` step's condition evaluates to ``false``. Displaying steps directly, only to potentially mark them as skipped
+may seem confusing but could be useful for single optional steps. An example scenario is including a check to stop execution
+which me way want to display as an :ref:`exit step<tdl-step-exit>` that ends up getting skipped. In such a case, whether you
+show or not such a step's containing ``if`` structure is effectively the same, and only affects the display you want to achieve.
+
+The following example illustrates exactly this use case of including an :ref:`exit step<tdl-step-exit>` directly and displaying it
+as skipped if the exit condition is not met.
+
+.. code-block:: xml
+
+    <!-- Validate content. -->
+    <receive id="receiveData" from="Actor1" to="Actor2" handler="..."/>
+
+    <!-- 
+        Check and exit if needed. We set 'hidden' to 'true' to hide the if step's boundary.
+    -->
+    <if hidden="true">
+        <cond>$receiveData{messageType} != $expectedType</cond>
+        <!-- 
+            Only the 'exit' step will be displayed and skipped if the condition is not matched.
+            This is achieved by setting 'hidden' explicitly to 'false'.
+        -->
+        <then hidden="false">
+            <exit desc="Stop due to unexpected message type"/>
+        </then>
+    </if>     
+
+.. note::
+    A hidden ``if`` step can only have a visible ``then`` block. If an ``else`` block is defined it will never be displayed although
+    it may be executed in case the ``if`` condition evaluates to ``false``. If you want to conditionally include and display either the ``then`` or
+    the ``else`` block, you should check out how a static ``if`` can be :ref:`used within scriptlets<scriptlets_dynamic_steps>`.
 
 .. index:: repuntil
 .. index:: title (repuntil)
@@ -891,7 +988,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     @title, no, A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @desc, no, A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     do, yes, Contains as children any sequence of steps to execute at least once and then again if the condition in ``cond`` is true.
@@ -941,7 +1038,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     @title, no, A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @desc, no, A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -1061,7 +1158,7 @@ its required input parameters and receive its output. The structure of the ``cal
     @path, yes, The identifier scriptlet to call. The value provided here depends on the whether the scriptlet is :ref:`external to the test case<scriptlets>` or :ref:`defined within it<test-case-scriptlets>`.
     @from, no, The identifier of the test suite from which the scriptlet will be loaded. If not provided this is assumed to be the current test suite.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @input, no, An alternative to input elements to provide a single input when the scriptlet expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-call__simplified`.
     @output, no, The name to use for the session context variable to store the scriptlet output as an alternative to using the ``id``. See also :ref:`tdl-step-call__simplified`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
@@ -1211,7 +1308,7 @@ a visual grouping and label to the display. Its structure is as follows:
     @title, no, A short title to display for this step (default is "group"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @desc, no, A description for this group to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
 
@@ -1301,7 +1398,7 @@ The structure of the ``interact`` element is as follows:
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is ``false``). See also :ref:`tdl-steps-common-collapsed`.
     documentation, no, Rich text content that provides further information on the current step.
     instruct, no, Zero or more elements to appear as instructions to the user.
@@ -1598,7 +1695,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
     @output~ no~ A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
-    @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is ``false``). See also :ref:`tdl-steps-common-hidesteps`.
+    @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is ``false``). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     documentation~ no~ Rich text content that provides further information on the current step.
     property~ no~ Zero or more elements to provide configuration regarding the setup of the validation handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
     config~ no~ Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.

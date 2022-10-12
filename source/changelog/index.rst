@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.17.0
+What's new in release 1.18.0
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,14 +19,25 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Steps' ``desc``, ``from``, ``to``, ``title`` and ``inputTitle`` values can be set as constant variable references when used within scriptlets. | GITB TDL | :ref:`scriptlets_dynamic_references`
-    New ``TemplateProcessor`` embedded processing handler for complex generation of data based on templates. | GITB TDL | :ref:`handlers-TemplateProcessor`
-    New ``XSLTProcessor`` embedded processing handler for XSLT transformations of XML content. | GITB TDL | :ref:`handlers-XSLTProcessor`
-    New ``DisplayProcessor`` embedded processing handler for displaying arbitrary content to users in a non-obtrusive manner. | GITB TDL | :ref:`handlers-DisplayProcessor`
-    New ``SimulatedMessaging`` embedded messaging handler to add simulated message exchanges between actors. | GITB TDL | :ref:`handlers-simulatedmessaging`
-    Messaging transactions (defined via ``btxn``) are no longer mandatory for ``send`` and ``receive`` messaging steps. | GITB TDL | :ref:`tdl-step-send`, :ref:`tdl-step-receive`
-    Non-transactional, non-embedded (external) ``process``, ``send`` and ``receive`` steps can now also specify authentication properties for the handler service call. | GITB TDL | :ref:`handlers-authentication`
-    The GITB TDL's expression language is now upgraded from XPath 1.0 to XPath 3.0. | GITB TDL | :ref:`test-case-expressions`
+    New ``XmlValidator`` validation handler to validate XML against both XSDs and Schematrons. | GITB TDL | :ref:`handlers-XmlValidator`
+    New ``ExpressionValidator`` validation handler to check arbitrary expressions. | GITB TDL | :ref:`handlers-ExpressionValidator`
+    The ``TokenGenerator`` now accepts an optional prefix and postfix to add to generated UUIDs. | GITB TDL | :ref:`handlers-TokenGenerator`
+    The ``SimulatedMessaging`` and ``DisplayProcessor`` handlers can now also specify the content types of data in their reports. | GITB TDL | :ref:`handlers-simulatedmessaging`, :ref:`handlers-DisplayProcessor`
+    The ``reply`` attribute of messaging steps can now be set dynamically within scriptlets. | GITB TDL | :ref:`scriptlets_dynamic_references`
+    The ``call`` step can now also be set as ``hidden`` to hide all steps of the referenced scriptlet. | GITB TDL | :ref:`tdl-step-call`
+    The ``SchematronValidator`` can now show the assertions made for each finding. | GITB TDL | :ref:`handlers-SchematronValidator`
+    The ``XSDValidator`` and ``SchematronValidator`` can now present findings sorted by their severity. | GITB TDL | :ref:`handlers-XSDValidator`, :ref:`handlers-SchematronValidator`
+    The ``XSDValidator`` and ``SchematronValidator`` can now hide from their report the XSD or Schematron used for the validation. | GITB TDL | :ref:`handlers-XSDValidator`, :ref:`handlers-SchematronValidator`
+    Scriptlet parameters can now be set with default values. | GITB TDL | :ref:`scriptlets_elements_params`
+    ``flow`` steps can now have individually hidden ``thread`` blocks. | GITB TDL | :ref:`tdl-step-flow`
+    Steps' ``hidden`` attribute can now be set in scriptlets via variable reference. | GITB TDL | :ref:`scriptlets_dynamic_steps`
+    ``if`` steps can be set as ``static`` for dynamic inclusion of steps within scriptlets. | GITB TDL | :ref:`tdl-step-if_hide_boundary`, :ref:`scriptlets_dynamic_steps`
+    ``if`` steps can now be set as ``hidden`` with visible child steps. | GITB TDL | :ref:`tdl-step-if_hide_boundary`
+    New ``SESSION`` map allowing access to test session metadata (session identifier, test case identifier, TDL version). | GITB TDL | :ref:`test-case-expressions-session-metadata`
+    Actor configuration (endpoint) parameters can now be set with default values and user friendly names. | GITB TDL | :ref:`test-suite-actors`
+    Using a ``process`` step via its simplified syntax now supports mapping of the input to a parameter based on the defined types. | GITB TDL | :ref:`tdl-step-process__simplified`
+    Allow the ``assign`` step to create on-the-fly maps and lists at any nesting level. | GITB TDL | :ref:`tdl-step-assign`
+    New ``TestCaseOverviewReport`` root element of type ``TestCaseOverviewReportType`` in the ``gitb_tr.xsd`` for an XML test case overview report. | GITB TDL | :ref:`introduction_spec_links`
 
 Previous documentation versions
 -------------------------------
@@ -38,6 +49,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.17.0| Dynamic information display within scriptlets, new ``TemplateProcessor``, ``XSLTProcessor``, ``DisplayProcessor`` and ``SimulatedMessaging`` handlers, non-transactional messaging steps, upgrade to XPath 3.0.|https://www.itb.ec.europa.eu/docs/tdl/1.17.0/
     1.16.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.16.1/
     1.16.0| Namespace support, introduction of ``STEP_STATUS`` variable, and ``supportsParallelExecution`` setting for test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.16.0/
     1.15.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.15.1/

@@ -214,6 +214,7 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
 .. index:: config (Test suite actor endpoint)
+.. index:: label (Test suite actor endpoint parameter)
 .. index:: desc (Test suite actor endpoint parameter)
 .. index:: use (Test suite actor endpoint parameter)
 .. index:: kind (Test suite actor endpoint parameter)
@@ -224,6 +225,7 @@ Such actor configuration is captured in configuration sets named "endpoints" wit
 .. index:: dependsOnValue (Test suite actor endpoint parameter)
 .. index:: allowedValues (Test suite actor endpoint parameter)
 .. index:: allowedValueLabels (Test suite actor endpoint parameter)
+.. index:: defaultValue (Test suite actor endpoint parameter)
 
 The ``config`` elements defining an endpoint's parameters are structured as follows:
 
@@ -233,6 +235,7 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
     :delim: |
 
     @name| yes| The name of the parameter that must be unique for the endpoint.
+    @label| no| A user friendly name to display for the parameter. If not set this will be set to the value of the ``name`` attribute.
     @desc| no| A description to explain the purpose of this parameter.
     @use| no| Whether this is a required (value "R" - the default) or optional ("O") parameter. 
     @kind| no| Whether this is a simple text (value "SIMPLE" - the default), file (value "BINARY") or a secret value (value "SECRET").
@@ -243,6 +246,7 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
     @dependsOnValue| no| In case ``dependsOn`` is defined, this is the value that the prerequisite property should have in order for the current one to be enabled.
     @allowedValues| no| A comma-separated list of values that are allowed for this parameter.
     @allowedValueLabels| no| In case ``allowedValues`` is defined, this is a comma-separated list of labels for the provided values (their number must match the values). If not provided, the values themselves are used as labels.
+    @defaultValue| no| An optional default value to set for new instances of this parameter (ignored if parameter is not of "SIMPLE" kind).
 
 In terms of the ``kind`` attribute, the values "SIMPLE" and "SECRET" both represent text values. The difference is that ones 
 defined as "SECRET" are never presented to users nor are they ever transferred to client software. The two attributes ``adminOnly``
@@ -272,9 +276,9 @@ defining prerequisites) can be achieved as follows:
         <gitb:name>System</gitb:name>
         <gitb:endpoint name="systemInfo">
             <!-- Define the allowed values and provide user-friendly labels. -->
-            <gitb:config name="size" kind="SIMPLE" use="R" allowedValues="l,s" allowedValueLabels="Large,Small"/>
+            <gitb:config name="size" label="Size" kind="SIMPLE" use="R" allowedValues="l,s" allowedValueLabels="Large,Small"/>
             <!-- Enable this parameter if "size" is set as "l". -->
-            <gitb:config name="capacity" kind="SIMPLE" use="R" dependsOn="size" dependsOnValue="l"/>
+            <gitb:config name="capacity" label="Capacity" kind="SIMPLE" use="R" dependsOn="size" dependsOnValue="l"/>
         </gitb:endpoint>
     </gitb:actor>
 

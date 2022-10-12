@@ -1,3 +1,5 @@
+.. _introduction:
+
 Introduction
 ============
 
@@ -259,6 +261,8 @@ Step 7: Consult
 The results of the test session can be consulted either immediately following completion or by looking up the results in the organisation's test session
 history. A test session records its output per step that can be used to produce detailed test step reports or an overview report for the complete
 test session.
+
+.. _introduction_spec_links:
 
 Specification links
 -------------------

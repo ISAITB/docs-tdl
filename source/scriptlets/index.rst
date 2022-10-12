@@ -152,11 +152,15 @@ element with the following structure:
 
     @name, Yes, The name of the parameter. It is with this name that the parameter can be referenced within the scriptlet.
     @type, Yes, The type of the parameter. One of the GITB data types can be used (see :ref:`test-case-types`).
+    value, no, One or more values for the parameter acting as the parameter's default value. More than one values are applicable in case of a ``map`` or ``list`` type.
 
-Whenever a scriptlet is called using a :ref:`call<tdl-step-call>` step, each of its declared parameters must be matched
-by a provided input. Once provided, such parameters are available in the scope of the scriptlet and can be used in the same way
-as other variables. For scriptlets that are not :ref:`embedded within test cases<scriptlets_embedded>`, using parameters
-is the only way to provide state from the test session's context to the scriptlet.
+Whenever a scriptlet is called using a :ref:`call<tdl-step-call>` step, each of its declared parameters for which no default value
+has been defined, must be matched by a provided input. Parameters for which defaults are specified may also be provided as input, in
+which case the input overrides the default value.
+
+Once provided, such parameters are available in the scope of the scriptlet and can be used in the same way as other variables. 
+For scriptlets that are not :ref:`embedded within test cases<scriptlets_embedded>`, using parameters provides state from the test 
+session's context to the scriptlet.
 
 .. index:: variables (Scriptlets)
 .. _scriptlets_elements_variables:
@@ -315,10 +319,10 @@ completed the overall results are recorded as ``boolean`` variables which are th
 
 .. _scriptlets_dynamic_references:
 
-Dynamic labels and actor references
------------------------------------
+Dynamic presentation within scriptlets
+--------------------------------------
 
-Certain information relative to :ref:`test steps<tdl-steps>` are expected to have fixed values that are known before the a test session is
+Certain information relative to presenting :ref:`test steps<tdl-steps>` are expected to have fixed values that are known before the a test session is
 executed. Such information includes step descriptions, titles and actor references (e.g. used in :ref:`messaging steps<tdl-messaging-steps>`)
 which remain unchanged during a test session to allow a consistent execution diagram to be presented to the user.
 
@@ -336,6 +340,8 @@ The cases where otherwise fixed values can be set via variable reference are:
 * The ``inputTitle`` of user interaction steps (:ref:`interact<tdl-step-interact>`).
 * The ``from`` and ``to`` actor references in all messaging and interaction steps (:ref:`btxn<tdl-step-btxn>`, :ref:`send<tdl-step-send>`,
   :ref:`receive<tdl-step-receive>`, :ref:`interact<tdl-step-interact>`).
+* The ``reply`` attribute of messaging steps (:ref:`tdl-step-send`, :ref:`tdl-step-receive`, :ref:`tdl-step-listen`).
+* The ``hidden`` attribute of all steps (see also how this can be used to :ref:`dynamically adapt the content of scriptlets<scriptlets_dynamic_steps>`).
 
 Values set in this way need to be provided as **inputs** to the scriptlet and resolve to constants before the test begins. In practical terms this
 means that you will need to:
@@ -378,6 +384,107 @@ will make use of this scriptlet we then add a :ref:`call<tdl-step-call>` step as
 Notice here how the parameters defined in the scriptlet are supplied with constant values. This allows the test engine to calculate a
 specific test execution graph when the test case is loaded but provides the flexibility for the scriptlet to be used in various
 scenarios.
+
+.. index:: hidden
+.. index:: static
+.. _scriptlets_dynamic_steps:
+
+Dynamic steps within scriptlets
+-------------------------------
+
+Similar to :ref:`dynamically changing labels and actors<scriptlets_dynamic_references>`, a scriptlet can also have its contained
+steps be dynamically defined. This is achieved via specific ``boolean`` flags, covered in this section, that in the case of
+scriptlets can be set as :ref:`variable references<test-case-referring-to-variables>` as long as their values can be determined
+at test case load time and remain constant during execution. Such flags, defining the visual representation of a test case, need
+to remain fixed given that a test case's presentation cannot change during test execution.
+
+Dynamically changing a scriptlet's contained steps can be achieved via the following flags:
+
+* The ``hidden`` attribute :ref:`supported by all test steps<tdl-steps-common-hidesteps>`. This allows you to hide steps while
+  ensuring they **will still be executed**.
+* The ``static`` attribute of :ref:`if steps<tdl-step-if>`. This allows you to conditionally include steps, ensuring that non-included
+  steps are **not executed**.
+
+In the case of the ``hidden`` attribute, setting this to ``true`` will result in a step being executed but not displayed. 
+Setting this to a :ref:`variable reference<test-case-referring-to-variables>` is allowed only within scriptlets
+in which case the variable needs to match one of the scriptlet's :ref:`parameters<scriptlets_elements_params>`. The variable reference
+is evaluated when the test case is loaded, with the resulting value being determined either from the 
+scriptlet's inputs (provided via its :ref:`call step<tdl-step-call>`) or the default value defined for the parameter.
+
+The :ref:`if step's<tdl-step-if>` ``static`` attribute goes further, allowing you to fully skip sets of steps. In this
+case, when ``static`` is set to ``true`` the test engine will expect to find the step's condition (its ``cond`` element) set
+with a :ref:`variable reference<test-case-referring-to-variables>`. It is this variable reference that is then evaluated at load
+time to determine whether to include the steps in the ``then`` block (if ``true``), or the ``else`` block (if ``false`` and if defined).
+One important additional point here is that a statically evaluated :ref:`if step<tdl-step-if>` **does not display a boundary box and title**,
+but rather directly displays the steps of the selected branch. This means that you can use a static ``if`` as other languages use
+"include" and "import" constructs.
+
+.. note::
+    A similar result to an :ref:`if step<tdl-step-if>` defined as ``static`` can be achieved by using a hidden ``if`` step with an
+    explicitly visible ``then`` block. Check the :ref:`if step's documentation<tdl-step-if>` for more details.
+
+The cases described above are presented in the sample scriptlet below to highlight their use.
+
+.. code-block:: xml
+
+    <scriptlet id="receiveData" xmlns="http://www.gitb.com/tdl/v1/">
+        <params>
+            <!-- Parameter that must be specified as an input. -->
+            <var name="hideMessage" type="boolean"/>
+            <!-- Parameter that may be optionally specified as an input. -->
+            <var name="validateAsExpression" type="boolean">
+                <value>true</value>
+            </var>
+        </params>
+        <steps>
+            ...
+            <!-- If 'hideMessage' is set to true, this message exchange will take place but will not be displayed. -->
+            <receive hidden="$hideMessage" id="receiveStep" desc="Receive message" from="Actor1" to="Actor2" txnId="t1">
+                <input name="countryCode">$ORGANISATION{countryCode}</input>
+            </receive>
+            <!-- 
+                Static 'if' to determine the steps used to process the received message.
+                No 'if' boundary will be displayed and the steps of the rejected branch will be excluded.
+            -->
+            <if static="true">
+                <cond>$validateAsExpression</cond>
+                <then>
+                    <log>"Validating input as a TDL expression"</log>
+                    <verify handler="ExpressionValidator" desc="Validate value">
+                        <input name="expression">$value = $expectedValue</input>
+                    </verify>
+                </then>
+                <else>
+                    <log>"Validating input as a regular expression"</log>
+                    <verify handler="RegExpValidator" desc="Validate value">
+                        <input name="input">$value</input>
+                        <input name="expression">'^REF\-\d+$'</input>
+                    </verify>    
+                </else>
+            </if>             
+            ...
+        </steps>
+    </scriptlet>
+
+As you see the scriptlet expects two parameters, ``hideMessage`` and ``validateAsExpression``, that determine the display
+and content of the scriptlet. They are used respectively in the :ref:`receive step's<tdl-step-receive>` ``hidden`` attribute,
+and the condition of the :ref:`if step<tdl-step-if>` that is marked as ``static``.
+
+When calling this scriptlet we need to ensure that both these variables can be evaluated at load time. The ``validateAsExpression``
+parameter already has a default value, so a :ref:`call step<tdl-step-call>` needs to only override it if needed. The following
+example illustrates this (note how ``false()`` is used as opposed to ``false`` given that this is an :ref:`expression<test-case-expressions>`).
+
+.. code-block:: xml
+
+    <call path="scriptlets/receiveData.xml">
+        <input name="hideMessage">false()</input>
+        <!--
+            No need to specify 'validateAsExpression' as true given
+            that this is already the default.
+
+            <input name="validateAsExpression">true()</input>
+        -->
+    </call>
 
 .. _scriptlets_embedded:
 

@@ -53,6 +53,24 @@ The following ``assign`` operations illustrate some interesting examples:
         "result2" otherwise
     -->
     <assign to="result">if ($var = 1) then "result1" else "result2"</assign>
+    <!--
+        Create a map with two entries set to strings.
+    -->
+    <assign to="myMap{key1}">"Value 1"</assign>
+    <assign to="myMap{key2}">"Value 2"</assign>
+    <!--
+        Create a list with two strings (note the use of 'append').
+    -->
+    <assign to="myList" append="true">"Value 1"</assign>
+    <assign to="myList" append="true">"Value 2"</assign>
+    <!-- 
+        Create a map containing another map and a list.
+    -->
+    <assign to="myMap{myInnerMap}{value1}">"Value 1"</assign>
+    <assign to="myMap{myInnerMap}{value2}">"Value 2"</assign>
+    <assign to="myMap{myInnerList}" append="true">"Value 1"</assign>
+    <assign to="myMap{myInnerList}" append="true">"Value 2"</assign>
+
 
 As you can see the expressions you can use are limited only to the functions available in XPath 3.0. Using these there is typically always 
 a way to express what is needed, potentially by first wrapping one or more values in a custom XML wrapper and then using XPath functions
@@ -137,38 +155,38 @@ The following examples illustrate ``assign`` steps that showcase the possible as
     <!-- 
         Assign map "myMap" to another map named "anotherMap". 
     -->
-    <assign to="$myMap">$anotherMap</assign>
+    <assign to="myMap">$anotherMap</assign>
     <!-- 
         Assign the entry of "myMap" named "myKey" to the string "A value". 
     -->
-    <assign to="$myMap{myKey}" type="string">"A value"</assign>
+    <assign to="myMap{myKey}" type="string">"A value"</assign>
     <!-- 
         Assign the entry of "myMap" named "myOtherKey" to an entry of "anotherMap" 
         named "anotherKey" as a string. 
     -->
-    <assign to="$myMap{myOtherKey}" type="string">$anotherMap{anotherKey}</assign>
+    <assign to="myMap{myOtherKey}" type="string">$anotherMap{anotherKey}</assign>
     <!-- 
         Assign value "key1" to the string variable "k1". 
         Then use the "k1" variable to pick the target entry of "myMap" 
         to set as the string "A value".
     -->
-    <assign to="$k1">"key1"</assign>
-    <assign to="$myMap{$k1}" type="string">"A value"</assign>
+    <assign to="k1">"key1"</assign>
+    <assign to="myMap{k1}" type="string">"A value"</assign>
     <!-- 
         Assign value "key1" to the string variable "k1". 
         Assign value "key2" to the string variable "k2". 
         Then use the "k1" variable to pick the target entry of "myMap" to set as a string matching 
         the entry of "anotherMap" for the key matching the value of "k2".
     -->
-    <assign to="$k1">"key1"</assign>
-    <assign to="$k2">"key2"</assign>
-    <assign to="$myMap{$k1}" type="string">$anotherMap{$k2}</assign>
+    <assign to="k1">"key1"</assign>
+    <assign to="k2">"key2"</assign>
+    <assign to="myMap{k1}" type="string">$anotherMap{$k2}</assign>
     <!-- 
         Assume that "myMap" is a map that contains a nested map named "myNestedMap" that itself 
         contains a nested map named "myFurtherNestedMap". Set key "myKey" of "myFurtherNestedMap"
         a the string "A value".
     -->
-    <assign to="$myMap{myNestedMap}{myFurtherNestedMap}{myKey}" type="string">"A value"</assign>
+    <assign to="myMap{myNestedMap}{myFurtherNestedMap}{myKey}" type="string">"A value"</assign>
 
 .. _test-case-referring-to-variables_list:
 
@@ -502,6 +520,39 @@ And the "config_test_1" test case is defined as follows:
             <assign to="$temp">$Sender{Receiver}{address}</assign>
         </steps>
     </testcase>
+
+.. index:: SESSION
+.. index:: sessionId
+.. index:: testCaseId
+.. index:: testEngineVersion
+.. _test-case-expressions-session-metadata:
+
+Accessing test session metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The test engine automatically makes available **metadata** to your test cases relevant to the **ongoing test session**. This is
+information that does not necessarily need to be used but could prove useful for :ref:`logging purposes<tdl-step-log>` or as input to
+:ref:`external test service<handlers>` calls.
+
+Test session metadata are included in a special purpose ``map`` named ``SESSION`` that is automatically included in the test
+session's context. This map contains child items for each metadata item of type ``string``, specifically:
+
+* ``sessionId``: The unique identifier assigned to the test session.
+* ``testCaseId``: The identifier of the test session's test case.
+* ``testEngineVersion``: The version of the test engine, matching also the version of the GITB TDL.
+
+Through this map, these metadata elements can be accessed as any other information recorded in the test session context, and in
+any scenario where TDL expressions can be used. The following example illustrates logging of metadata, as well as
+using it as input to a `remote validator <https://www.itb.ec.europa.eu/docs/services/latest/validation/index.html>`_ via
+the :ref:`verify<tdl-step-verify>` step:
+
+.. code-block:: xml
+
+    <log>'Launched session '||$SESSION{sessionId}||' (TDL version: '||$SESSION{testEngineVersion}||')'</log>
+
+    <verify id="validateData" handler="$DOMAIN{validatorAddress}">
+        <input name="testCase">$SESSION{testCaseId}</input>
+    </verify>
 
 .. _test-case-expressions-step-results:
 
