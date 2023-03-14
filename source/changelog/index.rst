@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.18.1
+What's new in release 1.19.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.18.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.18.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,25 +19,8 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    New ``XmlValidator`` validation handler to validate XML against both XSDs and Schematrons. | GITB TDL | :ref:`handlers-XmlValidator`
-    New ``ExpressionValidator`` validation handler to check arbitrary expressions. | GITB TDL | :ref:`handlers-ExpressionValidator`
-    The ``TokenGenerator`` now accepts an optional prefix and postfix to add to generated UUIDs. | GITB TDL | :ref:`handlers-TokenGenerator`
-    The ``SimulatedMessaging`` and ``DisplayProcessor`` handlers can now also specify the content types of data in their reports. | GITB TDL | :ref:`handlers-simulatedmessaging`, :ref:`handlers-DisplayProcessor`
-    The ``reply`` attribute of messaging steps can now be set dynamically within scriptlets. | GITB TDL | :ref:`scriptlets_dynamic_references`
-    The ``call`` step can now also be set as ``hidden`` to hide all steps of the referenced scriptlet. | GITB TDL | :ref:`tdl-step-call`
-    The ``SchematronValidator`` can now show the assertions made for each finding. | GITB TDL | :ref:`handlers-SchematronValidator`
-    The ``XSDValidator`` and ``SchematronValidator`` can now present findings sorted by their severity. | GITB TDL | :ref:`handlers-XSDValidator`, :ref:`handlers-SchematronValidator`
-    The ``XSDValidator`` and ``SchematronValidator`` can now hide from their report the XSD or Schematron used for the validation. | GITB TDL | :ref:`handlers-XSDValidator`, :ref:`handlers-SchematronValidator`
-    Scriptlet parameters can now be set with default values. | GITB TDL | :ref:`scriptlets_elements_params`
-    ``flow`` steps can now have individually hidden ``thread`` blocks. | GITB TDL | :ref:`tdl-step-flow`
-    Steps' ``hidden`` attribute can now be set in scriptlets via variable reference. | GITB TDL | :ref:`scriptlets_dynamic_steps`
-    ``if`` steps can be set as ``static`` for dynamic inclusion of steps within scriptlets. | GITB TDL | :ref:`tdl-step-if_hide_boundary`, :ref:`scriptlets_dynamic_steps`
-    ``if`` steps can now be set as ``hidden`` with visible child steps. | GITB TDL | :ref:`tdl-step-if_hide_boundary`
-    New ``SESSION`` map allowing access to test session metadata (session identifier, test case identifier, TDL version). | GITB TDL | :ref:`test-case-expressions-session-metadata`
-    Actor configuration (endpoint) parameters can now be set with default values and user friendly names. | GITB TDL | :ref:`test-suite-actors`
-    Using a ``process`` step via its simplified syntax now supports mapping of the input to a parameter based on the defined types. | GITB TDL | :ref:`tdl-step-process__simplified`
-    Allow the ``assign`` step to create on-the-fly maps and lists at any nesting level. | GITB TDL | :ref:`tdl-step-assign`
-    New ``TestCaseOverviewReport`` root element of type ``TestCaseOverviewReportType`` in the ``gitb_tr.xsd`` for an XML test case overview report. | GITB TDL | :ref:`introduction_spec_links`
+    Extensions to step status checks (``STEP_SUCCESS``, ``STEP_STATUS``) to uniquely refer to steps within scriptlets. | GITB TDL | :ref:`test-case-expressions-step-status-scriptlets` 
+    New operations (``contains``, ``randomKey``, ``randomValue``, ``remove``) for the ``CollectionUtils`` processor. | GITB TDL | :ref:`handlers-CollectionUtils`
 
 Previous documentation versions
 -------------------------------
@@ -53,6 +32,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.18.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.18.1/
     1.18.0| New ``XmlValidator`` and ``ExpressionValidator``; updates to ``TokenGenerator``, ``SimulatedMessaging``, ``DisplayProcessor``, ``XSDValidator`` and ``SchematronValidator``; static ``if`` steps, dynamic ``hidden`` settings in scriptlets, ``SESSION`` map with test session metadata.|https://www.itb.ec.europa.eu/docs/tdl/1.18.0/
     1.17.0| Dynamic information display within scriptlets, new ``TemplateProcessor``, ``XSLTProcessor``, ``DisplayProcessor`` and ``SimulatedMessaging`` handlers, non-transactional messaging steps, upgrade to XPath 3.0.|https://www.itb.ec.europa.eu/docs/tdl/1.17.0/
     1.16.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.16.1/

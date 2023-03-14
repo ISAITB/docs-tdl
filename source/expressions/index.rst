@@ -602,6 +602,9 @@ The following example illustrates use of this feature to conditionally present a
         </then>
     </if>
 
+In case the step you want to check is contained within a :ref:`scriptlet<scriptlets>`, the step's identifier is prefixed by the identifier from the 
+scriptlet's :ref:`call step<tdl-step-call>`. For more information on this specific case :ref:`check here<test-case-expressions-step-status-scriptlets>`.
+
 .. note::
     For ``verify`` steps (see :ref:`tdl-step-verify`) the step ID is directly set in the test session context with a ``boolean`` flag to match the validation result. The
     **STEP_SUCCESS** ``map`` makes this possible for any other step as well (including ``verify`` steps).
@@ -654,7 +657,9 @@ is recorded as a ``string`` that takes the following values:
     * "SKIPPED", for steps that were skipped.
     * Empty, for steps that are currently pending.
 
-Note that in case an unknown step ID is looked up the result is an empty string, similar to the case of pending steps.
+Note that in case an unknown step ID is looked up the result is an empty string, similar to the case of pending steps. In case the step you want to check 
+is contained within a :ref:`scriptlet<scriptlets>`, the step's identifier is prefixed by the identifier from the scriptlet's :ref:`call step<tdl-step-call>`.
+For more information on this specific case :ref:`check here<test-case-expressions-step-status-scriptlets>`.
 
 The following example illustrates use of the **STEP_STATUS** variable to determine a test session's output message by checking specific steps for failures:
 
@@ -676,6 +681,78 @@ The following example illustrates use of the **STEP_STATUS** variable to determi
             <default>"The test session resulted in a failure. Please check the validation reports and apply required corrections."</default>
         </failure>
     </output>
+
+.. _test-case-expressions-step-status-scriptlets:
+
+Status checks for scriptlet steps
++++++++++++++++++++++++++++++++++
+
+When you need to refer to steps within :ref:`scriptlets<scriptlets>`, the steps' identifiers need to be prefixed with the identifier of the scriptlet's
+:ref:`call step<tdl-step-call>` followed by an underscore. This is done to make sure we can distinguish a scriptlet's steps from other scriptlets and
+from the top-level test case, as well as across different calls of the same scriptlet. In case scriptlets are in turn used within scriptlets, each call step's identifier is
+additionally prefixed to produce the final one. Nonetheless, the identifier used for the step status lookup is always considered relative to the current
+scope.
+
+To illustrate how this works, consider the following example. We define a scriptlet that contains a :ref:`verify step<tdl-step-verify>` with 
+identifier "validateData". 
+
+.. code-block:: xml
+
+    <scriptlet>
+        ...
+        <verify id="validateData" handler="$DOMAIN{validatorAddress}">
+            <input name="data">$data</input>
+        </verify>
+        ...
+    </scriptlet>
+
+Let's now use this scriptlet within a test case and call it twice via two separate :ref:`call steps<tdl-step-call>`. In this case if we
+want to check the status of the ``verify`` step, we will prefix its identifier with the relevant ``call`` steps' identifiers.
+
+.. code-block:: xml
+
+    <testcase>
+        ...
+        <call id="call1" path="scriptlets/scriptlet.xml"/>
+        <call id="call2" path="scriptlets/scriptlet.xml"/>
+        ...
+        <!-- Log steps' status -->
+        <log>$STEP_STATUS{call1_validateData}</log>
+        <log>$STEP_STATUS{call2_validateData}</log>
+        <!-- Applies also to STEP_SUCCESS -->
+        <log>$STEP_SUCCESS{call1_validateData}</log>
+        <log>$STEP_SUCCESS{call2_validateData}</log>
+        ...
+    </testcase>
+
+Now let's consider that we have an additional scriptlet that in turn calls the initial one that contains the ``verify`` step. Within this scriptlet
+we refer to the ``verify`` step in a relative manner as follows:
+
+.. code-block:: xml
+
+    <scriptlet>
+        ...
+        <call id="validate" path="scriptlets/scriptlet.xml"/>
+        <log>$STEP_STATUS{validate_validateData}</log>
+        ...
+    </scriptlet>
+
+In the test case, to refer to the ``verify`` step we would use its identifier prefixed by the identifiers of all intermediate ``call`` steps:
+
+.. code-block:: xml
+
+    <testcase>
+        ...
+        <call id="call" path="scriptlets/otherScriptlet.xml"/>
+        <!--
+            The step identifier used for the lookup consists of:
+            1. The call step id for the top level scriptlet call ("call").
+            2. The call step id for the internal scriptlet call ("validate").
+            3. The verify step id ("validateData").
+        -->
+        <log>$STEP_SUCCESS{call_validate_validateData}</log>
+        ...
+    </testcase>
 
 .. index:: Templates
 .. index:: asTemplate

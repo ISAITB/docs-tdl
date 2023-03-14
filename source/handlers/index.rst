@@ -730,8 +730,14 @@ The following examples illustrate use of this handler to work with Base64 encodi
 .. index:: CollectionUtils
 .. index:: size (CollectionUtils)
 .. index:: clear (CollectionUtils)
+.. index:: contains (CollectionUtils)
+.. index:: randomKey (CollectionUtils)
+.. index:: randomValue (CollectionUtils)
+.. index:: remove (CollectionUtils)
 .. index:: map (CollectionUtils)
 .. index:: list (CollectionUtils)
+.. index:: value (CollectionUtils)
+.. index:: item (CollectionUtils)
 .. _handlers-CollectionUtils:
 
 CollectionUtils
@@ -744,8 +750,12 @@ a processing transaction to be established. The following operations are support
     :header: "Operation", "Description", "Input(s)", "Output(s)"
     :delim: |
 
-    ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
     ``clear`` | Receive a collection as input and empty it. | Yes | No.
+    ``contains`` | Check to see whether a collection contains a given value. | Yes | Yes, a ``boolean`` representing the check result.
+    ``randomKey`` | Return a random key from a map. | Yes | Yes, one of the map's ``string`` keys.
+    ``randomValue`` | Return a random value from a collection. | Yes | Yes, the selected value (type varies depending on the content).
+    ``remove`` | Remove an entry from a collection. | Yes | No.
+    ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
 
 The input parameters expected by the different operations are as follows:
 
@@ -753,10 +763,19 @@ The input parameters expected by the different operations are as follows:
     :header: "Operation", "Input name", "Required?", "Description"
     :delim: |
 
-    ``size`` | ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``size`` | ``list`` | No | The ``list`` of which the elements are to be counted (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``clear`` | ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
     ``clear`` | ``list`` | No | The ``list`` to be cleared (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``clear`` | ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``contains`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``contains`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``contains`` | ``value`` | Yes | The value to look for.
+    ``randomKey`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``randomValue`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``randomValue`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``remove`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``remove`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``remove`` | ``item`` | Yes | In case of a ``list`` this is a ``number`` set with the zero-based index of the element to remove. For a ``map`` this is the ``string`` key of the entry to be removed.
+    ``size`` | ``list`` | No | The ``list`` of which the elements are to be counted (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``size`` | ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
 
 Collection or *container* variables represent flexible means of recording arbitrary sequences of data or hierarchical data structures. In particular
 ``map`` variables are very common as these are used to store results of :ref:`processing<tdl-step-process>`, :ref:`messaging<tdl-messaging-steps>` and :ref:`validation<tdl-step-verify>` operations.
@@ -825,6 +844,106 @@ necessary. The following examples illustrate how this works for lists and maps:
     <process handler="CollectionUtils">
         <operation>clear</operation>
         <input name="list">$aList</input>
+    </process>
+
+The ``contains`` operation allows for a simple lookup of a value with a collection. In case the collection is a ``map``, the lookup is
+done on the basis of the entries' keys. Otherwise for a ``list`` the lookup considers the contained elements' values. The following examples
+illustration the operation's use:
+
+.. code-block:: xml
+
+    <!-- Create a map -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <assign to="aMap{c}">'Value 3'</assign>
+    <!-- Lookup an existing value -->
+    <process handler="CollectionUtils" output="mapCheck1" operation="contains">
+        <input name="map">$aMap</input>
+        <input name="value">'b'</input>
+    </process>
+    <!-- Prints "true" -->
+    <log>$mapCheck1</log>
+    <!-- Lookup an non-existing value -->
+    <process handler="CollectionUtils" output="mapCheck2" operation="contains">
+        <input name="map">$aMap</input>
+        <input name="value">'x'</input>
+    </process>
+    <!-- Prints "false" -->
+    <log>$mapCheck2</log>
+
+    <!-- Create a list -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <assign to="aList" append="true">'Value 3'</assign>
+    <!-- Lookup an existing value -->
+    <process handler="CollectionUtils" output="listCheck1" operation="contains">
+        <input name="map">$aList</input>
+        <input name="value">'Value 1'</input>
+    </process>
+    <!-- Prints "true" -->
+    <log>$listCheck1</log>
+    <!-- Lookup an non-existing value -->
+    <process handler="CollectionUtils" output="listCheck2" operation="contains">
+        <input name="map">$aList</input>
+        <input name="value">'Value X'</input>
+    </process>
+    <!-- Prints "false" -->
+    <log>$listCheck2</log>
+
+Using the ``randomKey`` and ``randomValue`` operations we can retrieve random entries from collections. The following
+examples illustrate their usage:
+
+.. code-block:: xml
+
+    <!-- Create a map -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <!-- Get one of the map's keys -->
+    <process handler="CollectionUtils" output="value1" operation="randomKey">
+        <input name="map">$aMap</input>
+    </process>
+    <!-- Prints either "a" or "b" -->
+    <log>$value1</log>
+    <!-- Get one of the map's values -->
+    <process handler="CollectionUtils" output="value2" operation="randomValue">
+        <input name="map">$aMap</input>
+    </process>
+    <!-- Prints either "Value 1" or "Value 2" -->
+    <log>$value2</log>
+
+    <!-- Create a list -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <!-- Get one of the list's values -->
+    <process handler="CollectionUtils" output="value3" operation="randomValue">
+        <input name="list">$aList</input>
+    </process>
+    <!-- Prints either "Value 1" or "Value 2" -->
+    <log>$value3</log>    
+
+The ``remove`` operation is used to remove specific entries from a collection. When using a map the removed entry is matched
+based on its key. For lists, the entry to remove is identified by its zero-based index. The following examples illustrate the
+operation's use:
+
+.. code-block:: xml
+
+    <!-- Create a map -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <!-- Remove the entry with key "a" -->
+    <process handler="CollectionUtils" operation="remove">
+        <input name="map">$aMap</input>
+        <input name="item">'a'</input>
+    </process>
+
+    <!-- Create a list -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <!-- Remove the second entry from the list -->
+    <process handler="CollectionUtils" operation="remove">
+        <input name="list">$aList</input>
+        <!-- Providing "1" given that indexes are zero-based -->
+        <input name="item">1</input>
     </process>
 
 .. index:: DisplayProcessor
@@ -986,7 +1105,7 @@ whether an optional set of steps should be followed. The following example illus
     <process id="check" handler="RegExpProcessor">
         <operation>check</operation>
         <input name="input">$someTextData</input>
-        <!-- Flags are passed in embedded format -->
+        <!-- Flags are passed in embedded format (e.g. case insensitive match). -->
         <input name="expression">"(?i)test"</input>
     </process>
     <if desc="Optional steps">
@@ -1127,7 +1246,6 @@ The input parameters expected by the different operations are as follows:
 .. csv-table::
     :header: "Operation", "Input name", "Required?", "Description"
     :delim: |
-
 
     ``uuid`` | ``prefix`` | No | An optional ``string`` to add as a prefix to the generated part of the UUID.
     ``uuid`` | ``postfix`` | No | An optional ``string`` to add as a postfix to the generated part of the UUID.
@@ -1419,6 +1537,17 @@ Used to verify that a provided ``string`` matches a regular expression.
     <verify handler="RegExpValidator" desc="Check string">
         <input name="input">$aString</input>
         <input name="expression">'^REF\-\d+$'</input>
+    </verify>
+
+The regular expression provided for the ``expression`` input is expected to be provided using the `syntax used by the Java language`_.
+This syntax also supports expression flags provided in an embedded manner, within an expression.
+
+.. code-block:: xml
+
+    <verify handler="RegExpValidator" desc="Check string">
+        <input name="input">$aString</input>
+        <!-- Same expression but executed in a case insensitive (?i) and multiline (?m) manner. -->
+        <input name="expression">'(?im)^REF\-\d+$'</input>
     </verify>
 
 .. index:: SchematronValidator
