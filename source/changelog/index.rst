@@ -7,11 +7,11 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.20.0
+What's new in release 1.20.1
 ----------------------------
 
 .. note::
-    **Maintenance release:** Release 1.20.0 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    **Maintenance release:** Release 1.20.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
     in this section correspond to the latest release that did introduce changes, i.e. release 1.19.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -36,6 +36,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.20.0| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.0/
     1.19.0| New operations for the ``CollectionUtils`` embedded processor, extensions to the ``STEP_SUCCESS``, ``STEP_STATUS`` maps to refer to steps within scriptlets.| https://www.itb.ec.europa.eu/docs/tdl/1.19.0/
     1.18.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.18.1/
     1.18.0| New ``XmlValidator`` and ``ExpressionValidator``; updates to ``TokenGenerator``, ``SimulatedMessaging``, ``DisplayProcessor``, ``XSDValidator`` and ``SchematronValidator``; static ``if`` steps, dynamic ``hidden`` settings in scriptlets, ``SESSION`` map with test session metadata.|https://www.itb.ec.europa.eu/docs/tdl/1.18.0/
