@@ -16,7 +16,7 @@ The following is an example test suite that defines a single actor and two inclu
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <testsuite id="UBL_invoice_validation" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gitb.com/tdl/v1/ ../gitb_tdl.xsd">
+    <testsuite id="UBL_invoice_validation" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
             <gitb:name>UBL_invoice_validation</gitb:name>
             <gitb:type>CONFORMANCE</gitb:type>
@@ -61,6 +61,7 @@ Here we will see how a test suite breaks down into its individual sections and d
 .. index:: published (Test suite metadata)
 .. index:: lastModified (Test suite metadata)
 .. index:: documentation (Test suite metadata)
+.. index:: update (Test suite metadata)
 .. _test-suite-metadata:
 
 Metadata
@@ -81,11 +82,22 @@ manage existing test suites but also for end users to understand the test suite'
     published, no, A string acting as an indication of the test suite's publishing time.
     lastModified, no, A string acting as an indication of the last modification time for the test suite.
     documentation, no, Rich text content that provides further information on the current test suite.
+    update, no, Instructions determining the default choices when an update of this test suite is taking place.
+
+.. note::
+    **GITB software support:** The test suite's ``id`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
+    within a given specification. An uploaded test suite whose ``id`` matches that of an existing test suite will result in the existing test suite
+    being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
+    values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
 
 .. index:: documentation (Test suite)
 .. index:: import (Test suite documentation)
 .. index:: from (Test suite documentation)
 .. index:: encoding (Test suite documentation)
+.. _test-suite-metadata-documentation:
+
+documentation
++++++++++++++
 
 The ``documentation`` element complements the test suite's ``description`` by allowing the test suite's author to include extended rich text documentation as HTML. The structure of this element is as follows:
 
@@ -140,11 +152,49 @@ Note that documentation such as this is also supported for:
     * The :ref:`test cases<test-case-metadata>` included in the test suite.
     * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
-.. note::
-    **GITB software support:** The ``name`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
-    within a given specification. An uploaded test suite whose ``name`` matches that of an existing test suite will result in the existing test suite
-    being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
-    values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
+.. index:: update (Test suite)
+.. index:: updateMetadata (Test suite update)
+.. index:: updateSpecification (Test suite update)
+.. _test-suite-metadata-update:
+
+update
+++++++
+
+The ``update`` element allows the test suite's developer to prescribe what should happen when this test suite is being uploaded and
+an existing test suite with the same identifier is found. Through this you can define if the test suite's existing metadata 
+(e.g. name, description and documentation) and the existing specification actors should be updated to match the definitions from
+the new archive. Note that these choices represent the default selected options during the test suite upload, and can always be verified
+and replaced by the Test Bed's operator.
+
+It could be interesting to use the ``update`` element if the test developer is not the one performing the test suite upload. Doing so,
+avoids providing detailed instruction to operations staff, by already encoding the relevant choices within the test suite archive itself.
+
+The structure of the ``update`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @updateMetadata, no, A boolean value determining whether the existing test suite's metadata should be updated based on the new archive (default is ``false``).
+    @updateSpecification, no, A boolean value determining whether the existing test suite's actor information should be updated based on the new archive (default is ``false``).
+
+The following example shows how you can specify that the test suite's metadata should be updated to reflect the new values in the archive
+(see attribute ``updateMetadata``). Any existing definitions of actors are left unchanged (see attribute ``updateSpecification``).
+
+.. code-block:: xml
+    :emphasize-lines: 6
+
+    <testsuite id="TS1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test suite to offer a short summary of its purpose.</gitb:description>
+            <gitb:update updateMetadata="true" updateSpecification="false"/>
+        </metadata>    
+        ...
+    </testsuite>
+
+Relevant options to manage updates for existing test cases are possible through a similar ``update`` element of the :ref:`test case <test-case-metadata-update>` definitions.
 
 .. index:: actors (Test suite)
 .. index:: id (Test suite actors)

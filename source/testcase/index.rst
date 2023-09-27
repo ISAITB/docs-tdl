@@ -13,7 +13,7 @@ The following example represents a complete, simple test case for the validation
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <testcase id="UBL_invoice_validation_test_1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gitb.com/tdl/v1/ ../../gitb_tdl.xsd">
+    <testcase id="UBL_invoice_validation_test_1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
             <gitb:name>UBL_invoice_validation_test_1</gitb:name>
             <gitb:type>CONFORMANCE</gitb:type>
@@ -67,6 +67,8 @@ The following example represents a complete, simple test case for the validation
 .. index:: steps (Test case)
 .. index:: output (Test case)
 .. index:: scriptlets (Test case)
+.. index:: optional (Test case)
+.. index:: disabled (Test case)
 
 The following table provides an overview of the attributes and child elements that a ``testcase`` may have. A more detailed discussion per case 
 follows in the subsequent sections.
@@ -77,6 +79,8 @@ follows in the subsequent sections.
 
     @id, yes, A string to uniquely identify the test case by. This is referenced in the test suite XML.
     @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is ``true``).
+    @optional, no, A boolean flag indicating whether this test case is optional (default is ``false``). Optional test cases may be executed but their results don't count towards a conformance statement's status.
+    @disabled, no, A boolean flag indicating whether this test case is disabled (default is ``false``). Disabled test cases cannot be executed and any existing test results don't count towards a conformance statement's status.
     metadata, yes, A block containing the metadata used to describe the test case.
     namespaces, no, An optional set of namespace declarations to define the namespace prefixes used in the test case's expressions.
     imports, no, An optional set of imports used to load additional resources from the test suite.
@@ -121,6 +125,8 @@ We will now see how a test case breaks down into its individual sections and dis
 .. index:: published (Test case metadata)
 .. index:: lastModified (Test case metadata)
 .. index:: documentation (Test case metadata)
+.. index:: update (Test case metadata)
+.. index:: tags (Test case metadata)
 .. _test-case-metadata:
 
 Metadata
@@ -141,11 +147,21 @@ about the test case to help users understand its purpose. Its structure is as fo
     published, no, A string acting as an indication of the test case's publishing time.
     lastModified, no, A string acting as an indication of the last modification time for the test case.
     documentation, no, Rich text content that provides further information on the current test case.
+    update, no, Instructions determining the default choices when an update of this test case is taking place.
+    tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
+
+.. note::
+    **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
+    "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
 
 .. index:: documentation (Test case)
 .. index:: import (Test case documentation)
 .. index:: from (Test case documentation)
 .. index:: encoding (Test case documentation)
+.. _test-case-metadata-documentation:
+
+documentation
++++++++++++++
 
 The ``documentation`` element complements the test case's ``description`` by allowing the author to include extended rich text documentation as HTML. The structure of this element is as follows:
 
@@ -200,9 +216,107 @@ Note that documentation such as this is also supported for:
     * The overall :ref:`test suite<test-suite-metadata>`.
     * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
-.. note::
-    **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
-    "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
+.. index:: update (Test case)
+.. index:: updateMetadata (Test case update)
+.. index:: resetTestHistory (Test case update)
+.. _test-case-metadata-update:
+
+update
+++++++
+
+The ``update`` element allows the test suite's developer to prescribe what should happen when this test case is being uploaded and
+an existing test case with the same identifier is found. Through this you can define if the test case's existing metadata 
+(e.g. name, description and documentation) should be updated to match the definitions from the new archive. In addition, you can 
+specify whether the testing history linked to the test case being updated should be reset. Note that these choices represent the
+default selected options during the test suite upload, and can always be verified and replaced by the Test Bed's operator.
+
+It could be interesting to use the ``update`` element if the test developer is not the one performing the test suite upload. Doing so,
+avoids providing detailed instruction to operations staff, by already encoding the relevant choices within the test suite archive itself.
+
+The structure of the ``update`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @updateMetadata, no, A boolean value determining whether the existing test case's metadata should be updated based on the new archive (default is ``false``).
+    @resetTestHistory, no, A boolean value determining whether any previously executed test sessions for the test case being updated should be considered as obsolete (default is ``false``).
+
+The following example shows how you can specify that the test case's metadata should be updated to reflect the new values in the archive
+(see attribute ``updateMetadata``). Also we specify here that any existing test sessions should be considered obsolete, forcing users to 
+re-execute their tests for the updated version (see attribute ``resetTestHistory``).
+
+.. code-block:: xml
+    :emphasize-lines: 6
+
+    <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
+            <gitb:update updateMetadata="true" resetTestHistory="true"/>
+        </metadata>    
+        ...
+    </testcase>
+
+Relevant options to manage updates at test suite level are possible through a similar ``update`` element of the :ref:`test suite <test-suite-metadata-update>` definition.
+
+.. index:: tags (Test case)
+.. index:: tag (Test case)
+.. index:: foreground (Test case tag)
+.. index:: background (Test case tag)
+.. index:: name (Test case tag)
+.. _test-case-metadata-tags:
+
+tags
+++++
+
+The ``tags`` element allows you to specify arbitrary additional metadata for the test case that may help better distinguish it for users. You
+may also use the same tags across multiple test cases as a means of classifying them based on common traits. The meaning you provide to such
+tags is fully up to you, but typical examples would be to highlight test cases linked to "security" or test cases focusing on "unhappy flow"
+scenarios. Other than highlighting certain traits, tags have no impact on a test case's execution or result.
+
+The structure of the ``tags`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    tag, yes, One or more elements representing the test case's tags.
+
+Each ``tag`` element has the following structure:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @name, yes, A string for the name of the tag to be displayed. Although no restrictions are applied this is expected to be concise.
+    @foreground, no, A string for the `hexadecimal code <https://en.wikipedia.org/wiki/Web_colors>`_ of the tag's foreground colour (its text). If not specified a generic default colour will be selected by the Test Bed.
+    @background, no, A string for the `hexadecimal code <https://en.wikipedia.org/wiki/Web_colors>`_ of the tag's background colour. If not specified a generic default colour will be selected by the Test Bed.
+
+The ``tag`` element can also have an optional text content. If this is provided it is considered as a explanation over the meaning of this tag and 
+is treated depending on how the tag is viewed. If through the Test Bed's user interface this would be a tooltip, otherwise in a PDF report
+this would be a description added in a legend section.
+
+The following example illustrates the definition of two tags to be displayed for a test case. The first one highlights that it relates to
+security features and is expressed as a white-on-red "security" label. The second one specifies a white-on-black tag to 
+highlight that this is a new test case in "version 2.0".
+
+.. code-block:: xml
+    :emphasize-lines: 6-9
+
+    <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
+            <gitb:tags>
+                <gitb:tag foreground="#FFFFFF" background="#FF2E00" name="security">Test case related to security features.</gitb:tag>
+                <gitb:tag foreground="#FFFFFF" background="#000000" name="version 2.0">New test case added in version 2.0.</gitb:tag>
+            </gitb:tags>	            
+        </metadata>    
+        ...
+    </testcase>
 
 .. index:: namespaces (Test case)
 .. index:: ns (Test case namespaces)

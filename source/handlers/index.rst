@@ -946,6 +946,45 @@ operation's use:
         <input name="item">1</input>
     </process>
 
+.. index:: DelayProcessor
+.. index:: delay (DelayProcessor)
+.. index:: duration (DelayProcessor)
+.. _handlers-DelayProcessor:
+
+DelayProcessor
+++++++++++++++
+
+Used to pause a test session for a given duration. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``delay`` | Delay the test session for a given duration. | Yes | No.
+
+The input parameters expected by the ``delay`` operation are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :delim: |
+
+    ``delay`` | ``duration`` | Yes | A ``number`` representing the duration (expressed in milliseconds) to delay for.
+
+The following examples illustrate how the ``DelayProcessor`` can be used to force the test session to wait.
+
+.. code-block:: xml
+
+    <!-- Wait for a fixed 5 seconds before proceeding. -->
+    <process handler="DelayProcessor" operation="delay" input="5000"/> 
+
+    <!-- Wait for a random duration between 5 and 10 seconds. -->
+    <process handler="TokenGenerator" operation="random" output="randomDelay">
+        <input name="minimum">5</input>
+        <input name="maximum">10</input>
+        <input name="integer">true()</input>
+    </process>
+    <process handler="DelayProcessor" operation="delay" output="$randomDelay"/> 
+
 .. index:: DisplayProcessor
 .. index:: parameters (DisplayProcessor)
 .. index:: contentTypes (DisplayProcessor)
@@ -1056,6 +1095,62 @@ structures (maps and lists, nested at different levels).
     **DisplayProcessor in non-hidden steps:** :ref:`Process steps<tdl-step-process>` are by default set as ``hidden``, meaning
     that they execute but are not displayed and do not produce a visible report. When using the ``DisplayProcessor`` you need
     to ensure that ``hidden`` is set to ``false`` for its use to be meaningful.
+
+.. index:: process (JSONPointerProcessor)
+.. index:: content (JSONPointerProcessor)
+.. index:: pointer (JSONPointerProcessor)
+.. _handlers-JSONPointerProcessor:
+
+JSONPointerProcessor
+++++++++++++++++++++
+
+Used to extract values or complete elements from JSON content based on a provided `JSON Pointer expression <https://datatracker.ietf.org/doc/html/rfc6901>`_.
+The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``process`` | Use a JSON Pointer expression to extract a value or full elements from the provided JSON content. | Yes | A ``string`` named ``output`` in the resulting step's ``map``.
+
+The input parameters expected by the ``process`` operation are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :delim: |
+
+    ``process`` | ``content`` | Yes | A ``string`` representing the JSON content to process.
+    ``process`` | ``pointer`` | Yes | A ``string`` representing the JSON Pointer expression to use.
+
+The following example illustrates how the ``JSONPointerProcessor`` can be used to extract a value from JSON content provided by the user via 
+an :ref:`interact<tdl-step-interact>` step:
+
+.. code-block:: xml
+
+    <!--
+        Have the user enter the JSON content to process.
+    -->
+    <interact id="data" desc="Receive input">
+        <request name="json" desc="Enter JSON content:" inputType="CODE" mimeType="application/json"/>
+    </interact>
+    <!--
+        Retrieve a value from the provided JSON content. The content is expected to structured as follows:
+        {
+            "user": {
+                "address": {
+                    "streetName": "An address"
+                }
+            }
+        }
+    -->
+    <process handler="JSONPointerProcessor" operation="process" output="result">
+        <input name="content">$data{json}</input>
+        <input name="pointer">"#/user/address/streetName"</input>
+    </process>
+    <!--
+        Log the result.
+    -->
+    <log>$result</log>
 
 .. index:: RegExpProcessor
 .. index:: check (RegExpProcessor)
@@ -1226,6 +1321,10 @@ Notice here how the template defines FreeMarker constructs (a list iteration) to
 .. index:: diff (TokenGenerator)
 .. index:: date (TokenGenerator)
 .. index:: inputFormat (TokenGenerator)
+.. index:: random (TokenGenerator)
+.. index:: minimum (TokenGenerator)
+.. index:: maximum (TokenGenerator)
+.. index:: integer (TokenGenerator)
 .. _handlers-TokenGenerator:
 
 TokenGenerator
@@ -1240,6 +1339,7 @@ transaction to be established. The following operations are supported:
     ``uuid``, Generate a random UUID text value matching a Java UUID (e.g. "123e4567-e89b-12d3-a456-556642440000"). This is a value that can be considered as unique for test purposes., No, A ``string`` named ``value`` in the resulting step's ``map``.
     ``timestamp``, Generate a timestamp for the current or a provided time based on a format string., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
     ``string``, Generate a text token with potentially fixed and/or random parts to match a provided regular expression., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
+    ``random``, Generate a random integer of double precision number between optional minimum and maximum bounds., Yes, A ``number`` named ``value`` in the resulting step's ``map``.
 
 The input parameters expected by the different operations are as follows:
 
@@ -1256,14 +1356,17 @@ The input parameters expected by the different operations are as follows:
     ``timestamp`` | ``inputFormat`` |  No | The formatting pattern to use to interpret the ``date`` input (if provided), matching the Java date/time formatting specifications (see `Formatting configuration`_).
     ``timestamp`` | ``diff`` | No | A ``number`` representing the milliseconds to consider as a diff from the considered ``time`` or ``date``. This value (default 0) is added to the considered ``time`` or ``date`` before formatting (i.e. a negative value signals an earlier time).
     ``string`` | ``format`` | Yes | A regular expression acting as a template to determine the generated token's format.
+    ``random`` | ``minimum`` | No | A ``number`` representing the minimum bound (inclusive) for the value to produce. If not provided the default considered is zero.
+    ``random`` | ``maximum`` | No | A ``number`` representing the maximum bound (exclusive) for the value to produce.
+    ``random`` | ``integer`` | No | A ``boolean`` determining whether the produced value will be an integer (when ``true``) or a double-precision number (when ``false``). By default a double-precision number is produced.
 
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
 e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
 The ``uuid`` operation provides a random and unique identifier where special formatting is not required (apart from an optional prefix and postfix), 
 whereas the ``timestamp`` operation generates a timestamp string that includes date/time values but can also have fixed parts (e.g. if you need to generate
-a text token with a fixed part and a variable part based on the current date/time). Finally, the ``string`` operation is noteworthy as it can be used to
-generate any kind of text token with both fixed and random parts. The template to consider for the output is provided as a regular expression with the
-value to be returned being a random string to match it.
+a text token with a fixed part and a variable part based on the current date/time). The ``string`` operation can be used to
+generate any kind of text token with both fixed and random parts following a pattern based on a provided regular expression. Finally, the ``random`` operation
+is used to generate random numbers that can be used as-is, or help in selecting random elements from a ``list``, or as part of XPath expressions.
 
 .. note::
     **Default format for input dates:** If a ``date`` is provided without an ``inputFormat``, the pattern of ``dd/MM/yyyy'T'HH:mm:ss.SSSZ`` is assumed
@@ -1400,6 +1503,15 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <input name="format">"PREFIX-\d{5}-[abc]{5}-\d{2}-POSTFIX"</input>
     </process>
     <!--
+        Generate a random integer between 1 and 10 (exclusive).
+    -->
+    <process id="numberRandom" handler="TokenGenerator">
+        <operation>random</operation>
+        <input name="minimum">1</input>
+        <input name="maximum">10</input>
+        <input name="integer">true()</input>
+    </process>
+    <!--
         Display all generated tokens to the user.
     -->
     <interact desc="Generated tokens">
@@ -1414,6 +1526,7 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         <instruct desc="Plus one hour of default formatted string:">$timestampFromFormattedString2{value}</instruct>
         <instruct desc="A random string:">$stringRandom{value}</instruct>
         <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
+        <instruct desc="A random number:">$numberRandom{value}</instruct>
     </interact>
 
 .. note:: 

@@ -1412,6 +1412,7 @@ The structure of the ``interact`` element is as follows:
 .. index:: source (instruct)
 .. index:: asTemplate (instruct)
 .. index:: mimeType (instruct)
+.. index:: forceDisplay (instruct)
 
 The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
@@ -1427,6 +1428,7 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @mimeType~ no~ A `mime type`_ value (e.g. ``text/xml``) to hint how this value should be highlighted when displayed. In case an invalid or unsupported mime type is provided no such highlighting will be applied.
     @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @forceDisplay~ no~ Whether the content should be always displayed inline rather than in an editor. By default this is "false".
 
 .. index:: request (interact)
 .. index:: desc (request)
@@ -1519,9 +1521,11 @@ The following examples illustrate user interactions presenting instructions and 
     <interact desc="Some information and inputs">
         <!-- type="string" omitted as default. Displays the text as a message to the user. -->
         <instruct desc="This is a simple message"/>
-        <instruct desc="A text value:">concat("A text value ", $aTextValue)</instruct>
+        <instruct desc="A text value:">"A text value " || $aTextValue</instruct>
         <!-- Present a download button and XML editor for file "schema.xsd" (not specifying a name would produce a "downloadedFile" file). -->
         <instruct name="schema.xsd" desc="A file to download:" mimeType="text/xml">$schemaFile</instruct>
+        <!-- Present an instruction forcing an inline display rather than using an editor. -->
+        <instruct desc="Message:" forceDisplay="true">"A long text such as detailed instructions, that would otherwise be displayed in an editor rather than follow an inline display."</instruct>
         <!-- Present a text input field storing the result in variable aStringInputValue. -->
         <request desc="Enter a text value:" inputType="TEXT">$aStringInputValue</request>
         <!-- Present a text area input storing the result in variable aLongStringInputValue. -->
