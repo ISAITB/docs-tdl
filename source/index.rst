@@ -8,7 +8,7 @@ realise a specification's conformance testing needs. This documentation provides
 involved in the definition of test cases, as well as code snippets and guidelines to use during test development.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Table of contents
    :includehidden:
 
