@@ -7,8 +7,12 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.21.0
+What's new in release 1.21.1
 ----------------------------
+
+.. note::
+    **Maintenance release:** Release 1.21.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    in this section correspond to the latest release that did introduce changes, i.e. release 1.21.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -37,6 +41,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.21.0| New ``forceDisplay`` for interact step, new embedded processing handlers and operations (``DelayProcessor``, ``JSONPointerProcessor``, ``random`` operation of ``TokenGenerator``), test case tags, test suite update metadata, optional and disabled test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.21.0/
     1.20.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.1/
     1.20.0| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.0/
     1.19.0| New operations for the ``CollectionUtils`` embedded processor, extensions to the ``STEP_SUCCESS``, ``STEP_STATUS`` maps to refer to steps within scriptlets.| https://www.itb.ec.europa.eu/docs/tdl/1.19.0/
