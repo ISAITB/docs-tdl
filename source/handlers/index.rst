@@ -1145,7 +1145,7 @@ an :ref:`interact<tdl-step-interact>` step:
     -->
     <process handler="JSONPointerProcessor" operation="process" output="result">
         <input name="content">$data{json}</input>
-        <input name="pointer">"#/user/address/streetName"</input>
+        <input name="pointer">"/user/address/streetName"</input>
     </process>
     <!--
         Log the result.
