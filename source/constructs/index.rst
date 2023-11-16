@@ -1490,7 +1490,7 @@ its ``name``. These two approaches are illustrated in the snippet that follows:
         <request desc="Enter a text value:">$aValue</request>
         <!-- Approach 2, stored in variable data{value}. -->
         <request desc="Enter another text value:" name="value"/>
-    <interact>
+    </interact>
 
 To determine the type of input control to present to the user you use the ``inputType`` attribute. The supported values for this are:
 
