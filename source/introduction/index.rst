@@ -206,6 +206,7 @@ test management before and after the test's execution and also during the test s
 
 .. figure:: images/lifecycle.png
   :align: center
+  :figclass: no-bottom-margin
 
   The test session lifecycle
 
