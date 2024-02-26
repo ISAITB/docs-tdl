@@ -52,7 +52,7 @@ One of the goals of GITB TDL is also to help reuse existing work by ideally shar
 implementations. To this effect the `GITB Test Registry and Repository (TRR)`_ aims to act as a reuse portal for 
 GITB TDL test cases by facilitating their discovery and listing their expected and used constructs.
 
-.. _published taxonomy: http://data.europa.eu/itw
+.. _published taxonomy: https://www.itb.ec.europa.eu/skos/gitb_tdl_skos.rdf
 .. _GITB Test Registry and Repository (TRR): https://joinup.ec.europa.eu/collection/gitb-trr
 
 .. index:: Interoperability Test Bed Action
