@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.21.1
+What's new in release 1.22.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.21.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.21.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,13 +19,13 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Interaction steps now support the ``forceDisplay`` attribute to ensure an inline display of their content. | GITB TDL | :ref:`tdl-step-interact`
-    The ``TokenGenerator`` now allows the generation of random numbers via the new ``random`` operation. | GITB TDL | :ref:`handlers-TokenGenerator`
-    New ``DelayProcessor`` to make it simpler to pause test sessions for a given duration. | GITB TDL | :ref:`handlers-DelayProcessor`
-    New ``JSONPointerProcessor`` to extract data from JSON content using JSON Pointer expressions. | GITB TDL | :ref:`handlers-JSONPointerProcessor`
-    Test cases can now be defined as ``optional`` and ``disabled`` restricting whether they can be executed and how their results are considered. | GITB TDL | :ref:`test-case`
-    Test suite and test case definitions now support an ``update`` metadata element to define how to carry out the update of existing test suites and test cases. | GITB TDL | :ref:`update (test suite) <test-suite-metadata-update>`, :ref:`update (test case) <test-case-metadata-update>`
-    Test cases can now define ``tags`` as part of their metadata to classify them and visually distinguish them for users. | GITB TDL | :ref:`test-case-metadata-tags`
+    Interaction steps now support the ``admin`` attribute to specify that they should be completed by an administrator. | GITB TDL | :ref:`tdl-step-interact`
+    Interaction steps now support the ``timeout`` attribute to automatically complete them after the timeout period. | GITB TDL | :ref:`tdl-step-interact`
+    Interaction steps can now be minimised and also completed asynchronously. | GITB software | :ref:`tdl-step-interact`
+    The interaction step's ``mimeType`` attribute can now be set via variable reference. | GITB TDL | :ref:`tdl-step-interact`
+    Test suites and test cases support the definition of structured normative reference information. | GITB TDL | :ref:`reference (test suite)<test-suite-metadata-specification>`, :ref:`reference (test case)<test-case-metadata-specification>`, 
+    The ``DisplayProcessor`` can now be set with a configurable result to mark its report as a success, failure or warning. | GITB TDL | :ref:`handlers-DisplayProcessor`
+    The documentation on service handlers for test steps was extended to list **reusable external services** available to test developers. | GITB TDL | :ref:`handlers-reusable-handlers`
 
 Previous documentation versions
 -------------------------------
@@ -41,6 +37,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.21.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.21.1/
     1.21.0| New ``forceDisplay`` for interact step, new embedded processing handlers and operations (``DelayProcessor``, ``JSONPointerProcessor``, ``random`` operation of ``TokenGenerator``), test case tags, test suite update metadata, optional and disabled test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.21.0/
     1.20.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.1/
     1.20.0| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.0/

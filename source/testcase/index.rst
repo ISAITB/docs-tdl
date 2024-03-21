@@ -149,6 +149,7 @@ about the test case to help users understand its purpose. Its structure is as fo
     documentation, no, Rich text content that provides further information on the current test case.
     update, no, Instructions determining the default choices when an update of this test case is taking place.
     tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
+    specification, no, Optional information regarding the test case's normative specification reference.
 
 .. note::
     **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
@@ -317,6 +318,56 @@ highlight that this is a new test case in "version 2.0".
         </metadata>    
         ...
     </testcase>
+
+.. index:: specification (Test case)
+.. index:: reference (Test case reference)
+.. index:: description (Test case reference)
+.. index:: link (Test case reference)
+.. _test-case-metadata-specification:
+
+specification
++++++++++++++
+
+The ``specification`` element is an optional part of a test case's metadata, that allows you to record in a structured manner a normative specification
+reference for the test case. Besides being present in the test case definition, this information will also be rendered appropriately in the test case's
+on-screen display and in reports.
+
+The structure of the ``specification`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    reference, no, The reference identifier or code.
+    description, no, A text describing the referred specification.
+    link, no, A link to allow navigation to the referred specification's online documentation.
+
+All the above elements are optional, meaning that you can choose to provide any documentation you see fit for the specification. Depending on what is provided,
+this information will be displayed accordingly, presenting for example the reference as a link if both are provided, or presenting only a link icon if only the
+link is present.
+
+The following example illustrates how this metadata could be used to identify the specification section relevant to the test case and point to its online
+documentation.
+
+.. code-block:: xml
+    :emphasize-lines: 6-10
+
+    <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
+            <gitb:specification>
+                <gitb:reference>Section-1.2.A</gitb:reference>
+                <gitb:description>Security requirements</gitb:description>
+                <gitb:link>https://my.spec.wiki.org</gitb:link>
+            </gitb:specification> 
+        </metadata>    
+        ...
+    </testcase>
+
+.. note::
+    Similar specification reference information can also be added to :ref:`test suites<test-suite-metadata-specification>`.
 
 .. index:: namespaces (Test case)
 .. index:: ns (Test case namespaces)

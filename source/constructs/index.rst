@@ -1425,7 +1425,7 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
     @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
-    @mimeType~ no~ A `mime type`_ value (e.g. ``text/xml``) to hint how this value should be highlighted when displayed. In case an invalid or unsupported mime type is provided no such highlighting will be applied.
+    @mimeType~ no~ A `mime type`_ value (e.g. ``text/xml``) provided as a string or a variable reference, to hint how this value should be highlighted when displayed. In case an invalid or unsupported mime type is provided no such highlighting will be applied.
     @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @forceDisplay~ no~ Whether the content should be always displayed inline rather than in an editor. By default this is "false".
@@ -1442,6 +1442,9 @@ The ``instruct`` elements define what is going to presented to the user. They ha
 .. index:: asTemplate (request)
 .. index:: inputType (request)
 .. index:: mimeType (request)
+.. index:: report (request)
+.. index:: admin(interact)
+.. index:: timeout(interact)
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -1459,8 +1462,20 @@ The ``request`` elements define how information shall be requested from the user
     @optionLabels~ no~ Used as the labels for the option values (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings). If provided the number of values needs to match the options. If not provided the option values are used.
     @multiple~ no~ A ``boolean`` value to determine whether the dropdown list (if the ``options`` attribute is defined) shall be a single or multiple selection list (default is ``false`` for single selection).
     @inputType~ no~ The input control type to use when prompting users for the relevant value. By default a value of ``TEXT`` is assumed unless this input is mapped to an existing ``binary`` variable.
-    @mimeType~ no~ In case the ``inputType`` is set as ``CODE`` (i.e. a code editor) this is the content's expected `mime type`_ (e.g. ``text/xml``) to be considered for presenting appropriate syntax highlighting.
-    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @mimeType~ no~ In case the ``inputType`` is set as ``CODE`` (i.e. a code editor) this is the content's expected `mime type`_ (e.g. ``text/xml``), provided as a string or a variable reference, to be considered for presenting appropriate syntax highlighting.
+    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is ``false``.
+    @report~ no~ Whether or not this value will be included in the presentation of the test step's report (by default ``true``). When set to ``false`` the requested value will be stored in the test session context but not displayed in the step's report.
+    @timeout~ no~ An optional timeout (in milliseconds) on the time to wait for the interaction to be completed. This is provided as a ``number`` or a variable reference.
+
+Interactions are by default presented to the tester, but can also be reserved for an administrator through the ``admin`` flag in the ``interact`` element.
+This could be useful in case you need to pause a test session while an administrator makes a manual verification. In such cases, you can also 
+fine tune which of the administrator's inputs are presented in the report (via the ``report`` flag on ``request`` elements), and even hide the
+overall step if preferable (via the ``interact`` element's ``hidden`` attribute). Note that all interactions can be minimised and completed at a
+later time, and support the setting of a configurable ``timeout`` to avoid a simple notification message blocking the test session's execution.
+
+.. note::
+    For a test session running in the background, administrator interactions block until completed unless a timeout is set. Tester interactions
+    are in contrast completed immediately with a log warning, unless configured with a timeout.
 
 The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
 meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
@@ -1577,6 +1592,40 @@ To better illustrate how dropdown selections can be defined, the following code 
             <!-- Single selection with options provided by referring to list variables (stored as data{input4}). -->
             <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels" name="input4"/>
         </interact>
+    </steps>
+
+Finally the following code sample illustrates some of the more advanced interaction features, considering an information step to the tester
+followed by an administrator-level verification:
+
+.. code-block:: xml
+
+    <steps>
+
+        <!-- 
+            Display an information prompt to the tester, closing it automatically after 10 seconds. The timeout could also be set
+            via configuration using for example a domain parameter ($DOMAIN{infoTimeout}).
+
+            The step is hidden as it is not interesting to include in the graphical execution diagram, and the message is set as being
+            forced to display as-is, to avoid it being presented in a code editor if it exceeds the inline display limit.
+        -->
+        <interact hidden="true" desc="Test information" timeout="10000">
+            <instruct desc="Message:" forceDisplay="true">"Please wait until the administrator validates your results."</instruct>
+        </interact> 
+
+        <!--
+            Display an interaction prompt to an administrator to provide inputs.
+
+            The administrator is also expected to provide an internal code that will not be presented in the step's report but can
+            be subsequently used in other test steps.
+        -->
+        <interact id="adminData" desc="Confirm results" admin="true">
+            <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
+            <!-- The "code" input will be recorded but not added to reports. -->
+            <request desc="Internal code" name="code" report="false"/>
+        </interact>
+
+        <log>$adminData{code}</log>
+
     </steps>
 
 .. note::

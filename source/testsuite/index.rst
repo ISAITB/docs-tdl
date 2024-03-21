@@ -196,6 +196,56 @@ The following example shows how you can specify that the test suite's metadata s
 
 Relevant options to manage updates for existing test cases are possible through a similar ``update`` element of the :ref:`test case <test-case-metadata-update>` definitions.
 
+.. index:: specification (Test suite)
+.. index:: reference (Test suite reference)
+.. index:: description (Test suite reference)
+.. index:: link (Test suite reference)
+.. _test-suite-metadata-specification:
+
+The ``specification`` element is an optional part of a test suite's metadata, that allows you to record in a structured manner a normative specification
+reference for the test suite. Besides being present in the test suite definition, this information will also be rendered appropriately in the test suite's
+on-screen display and in reports.
+
+The structure of the ``specification`` element is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    reference, no, The reference identifier or code.
+    description, no, A text describing the referred specification.
+    link, no, A link to allow navigation to the referred specification's online documentation.
+
+All the above elements are optional, meaning that you can choose to provide any documentation you see fit for the specification. Depending on what is provided,
+this information will be displayed accordingly, presenting for example the reference as a link if both are provided, or presenting only a link icon if only the
+link is present.
+
+The following example illustrates how this metadata could be used to identify the specification section relevant to the test suite and point to its online
+documentation.
+
+.. code-block:: xml
+    :emphasize-lines: 6-10
+
+    <testsuite id="TS1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            <gitb:name>TS1</gitb:name>
+            <gitb:version>1.0</gitb:version>
+            <gitb:description>A short description of the test suite to offer a short summary of its purpose.</gitb:description>
+            <gitb:specification>
+                <gitb:reference>Section-1.2.A</gitb:reference>
+                <gitb:description>Security requirements</gitb:description>
+                <gitb:link>https://my.spec.wiki.org</gitb:link>
+            </gitb:specification> 
+        </metadata>    
+        ...
+    </testsuite>
+
+.. note::
+    Similar specification reference information can also be added to individual :ref:`test cases<test-case-metadata-specification>`.
+
+specification
++++++++++++++
+
 .. index:: actors (Test suite)
 .. index:: id (Test suite actors)
 .. index:: default (Test suite actors)

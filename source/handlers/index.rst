@@ -18,14 +18,16 @@ their purpose can be:
 .. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
 .. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
-Another important distinction for handlers is whether they are **embedded** within the test bed software or **external**.
-Considering that handlers are typically used to extend the test bed for domain-specific operations, the norm
-is to externalise them as remotely callable services. Embedded handlers are typically defined for generic and
-simple use cases that are frequently encountered in test cases.
+Another important distinction for handlers is whether they are **built-in** within the test bed software or **external**.
+For handlers that relate to domain-specific operations, the norm is to externalise them as remotely callable services.
+Nonetheless several common tasks that are frequently encountered in test cases are also available as built-in capabilities
+of the test engine.
 
-One thing that needs to be clear to test case authors is that the use of embedded handlers limits the 
-portability of their test cases. Each embedded handler used needs to be implemented in exactly the same
-way in another test bed and furthermore needs to be identified using the same name.
+In the sections that follow you can find:
+
+* The supported :ref:`built-in handlers<handlers-predefined-handlers>` covering common tasks encountered in test cases.
+* The list of :ref:`reusable external services <handlers-reusable-handlers>` maintained by the Test Bed (also usable locally as components).
+* Guidelines to implement :ref:`custom external services <handlers-custom-handlers>` to cover project-specific needs.
 
 .. _handlers-implementation:
 
@@ -35,26 +37,30 @@ Specifying the handler implementation
 Handlers are defined in the following steps:
  
 * :ref:`tdl-step-btxn`: When beginning a messaging transaction.
+* :ref:`tdl-step-send`: When sending a message outside of a messaging transaction.
+* :ref:`tdl-step-receive`: When receiving a message outside of a messaging transaction.
+* :ref:`tdl-step-listen`: When proxying a call to another service outside of a messaging transaction.
 * :ref:`tdl-step-bptxn`: When beginning a processing transaction.
+* :ref:`tdl-step-process`: When making a processing operation outside of a processing transaction.
 * :ref:`tdl-step-verify`: When validating content.
 
 The element corresponding to each of these steps defines a ``handler`` attribute to identify the handler implementation.
-In case an embedded handler is to be used the value specified here is the name of the handler (see :ref:`handlers-predefined-handlers`). Using an external
+In case an built-in handler is to be used the value specified here is the name of the handler (see :ref:`handlers-predefined-handlers`). Using an external
 handler implementation is achieved by specifying as the ``handler`` value the address where the service's WSDL file is 
 located. The test bed will automatically detect in this case that the handler is external and will internally replace local method
 invocations with web service calls.
 
 The value provided for the ``handler`` attribute can also be provided with a pure variable reference (see :ref:`test-case-referring-to-variables`)
 allowing the actual value to be determined from configuration or even dynamically based on the test session context. In such a case the variable
-reference is first evaluated to a ``string`` that is then considered to determine whether the handler is a remote or embedded one.
+reference is first evaluated to a ``string`` that is then considered to determine whether the handler is a remote or built-in one.
 
-The following example shows three validation steps taking place, the first one using an embedded :ref:`handlers-XSDValidator`, the second one using 
+The following example shows three validation steps taking place, the first one using the built-in :ref:`handlers-XSDValidator`, the second one using 
 an external validation service, and the third one using an external validation service whose address is configurable:
 
 .. code-block:: xml
 
     <!-- 
-        Call a local, embedded validation handler called "XSDValidator"
+        Call a local, built-in validation handler called "XSDValidator"
     -->
     <verify handler="XSDValidator" desc="Validate content local">
         <input name="xmldocument">$docToValidate</input>
@@ -64,44 +70,36 @@ an external validation service, and the third one using an external validation s
         Call a remote validation service handler
     -->
     <verify handler="https://serviceaddress?wsdl" desc="Validate content remote">
-        <input name="xmldocument">$docToValidate</input>
-        <input name="xsddocument">$schemaFile</input>
+        <input name="xml">$docToValidate</input>
+        <input name="schema">$schemaFile</input>
     </verify>
     <!-- 
         Call a remote validation service handler (address in configuration)
     -->
     <verify handler="$DOMAIN{validationHandlerAddress}" desc="Validate content remote">
-        <input name="xmldocument">$docToValidate</input>
-        <input name="xsddocument">$schemaFile</input>
+        <input name="xml">$docToValidate</input>
+        <input name="schema">$schemaFile</input>
     </verify>
 
-Using remote service handlers is considered a best practice based on the benefits they offer:
-
-* **Scalability:** Potentially heavy processing is handled by a dedicated service outside the test bed that can be 
-  scaled appropriately.
-* **Separation of concerns:** The test bed focuses on test orchestration whereas domain specific logic is captured only
-  in the test case and the services it uses.
-* **Extensibility:** New capabilities can be added to the test bed by simply making available a new service to call.
-* **Maintenance:** Updates to service handlers can take place without impacting test bed operations or requiring new
-  versions of the test bed software. Similarly external service updates would not require new test suite versions.
-* **Better presentation:** Remote service handlers can encapsulate multiple custom actions leading to better test session
-  presentation. If e.g. a document needs to be validated by one XSD and two Schematron files we would only show a single,
-  concise validation step versus three separate validations.
-
-.. index:: Embedded handlers
+.. index:: Built-in handlers
 .. _handlers-predefined-handlers:
 
-Embedded handlers
+Built-in handlers
 -----------------
 
-The sections that follow list the handler implementations that already exist as predefined embedded implementations
+The sections that follow list the handler implementations that already exist as predefined built-in implementations
 in the GITB test bed software.
 
-.. index:: Embedded messaging handlers
+.. index:: Built-in messaging handlers
 .. _handlers-predefined-handlers-messaging:
 
-Embedded messaging handlers
+Built-in messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+    All built-in messaging handlers with the exception of the :ref:`SimulatedMessaging<handlers-simulatedmessaging>` handler are **deprecated**
+    as they cannot be effectively customised and require the direct exposure of the internal test engine to systems under test. For any test
+    cases involving the sending and receiving messages, you should define instead a custom :ref:`custom messaging handler<handlers-custom-handlers>`.
 
 Each following section defines a table with the information expected by each messaging handler. The meaning of this information is
 as follows:
@@ -134,6 +132,9 @@ The title of each section corresponds to the name of the handler that needs to b
 
 HttpMessaging
 +++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
 
 Used to send or receive content over HTTP.
 
@@ -193,7 +194,6 @@ The following example illustrates its use:
 
 .. code-block:: xml
     :emphasize-lines: 2
-
 
     <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
         <config name="http.ssl">true</config>
@@ -307,11 +307,10 @@ test part):
 HttpsMessaging
 ++++++++++++++
 
-Used to send or receive content over HTTPS.
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
 
-.. note::
-    **Deprecation of HttpsMessaging:** As of release 1.4.1 handler ``HttpsMessaging`` is deprecated in favour of the more flexible :ref:`handlers-httpmessaging`
-    which can now be configured to support HTTPS.
+Used to send or receive content over HTTPS.
 
 .. csv-table::
     :header: "Element name", "Element type", "Required?", "Type", "Description"
@@ -328,7 +327,7 @@ Used to send or receive content over HTTPS.
     ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
     ``status.code``, Receive configuration, No, ``string``, The status code for responses.
     ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
-    ``http.uri``.extension, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
     ``status.code``, Send configuration, No, ``string``, Status for responses.
 
 .. code-block:: xml
@@ -361,6 +360,9 @@ Used to send or receive content over HTTPS.
 
 HttpProxyMessaging
 ++++++++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
 
 Used to proxy HTTP requests and responses between two actors.
 
@@ -523,6 +525,9 @@ structures (maps and lists, nested at different levels).
 SoapMessaging
 +++++++++++++
 
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+
 Used to send or receive payloads via SOAP web service calls.
 
 .. csv-table::
@@ -603,6 +608,9 @@ the system's configuration, as in the following example (assuming an endpoint na
 TCPMessaging
 ++++++++++++
 
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+
 Used to send or receive an arbitrary byte stream over TCP.
 
 .. csv-table::
@@ -631,6 +639,9 @@ Used to send or receive an arbitrary byte stream over TCP.
 UDPMessaging
 ++++++++++++
 
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+
 Used to send or receive arbitrary bytes over UDP.
 
 .. csv-table::
@@ -650,10 +661,10 @@ Used to send or receive arbitrary bytes over UDP.
     <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
     <etxn txnId="t1"/>
 
-.. index:: Embedded processing handlers
+.. index:: Built-in processing handlers
 .. _handlers-predefined-handlers-processing:
 
-Embedded processing handlers
+Built-in processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. index:: Base64Processor
@@ -986,6 +997,7 @@ The following examples illustrate how the ``DelayProcessor`` can be used to forc
     <process handler="DelayProcessor" operation="delay" output="$randomDelay"/> 
 
 .. index:: DisplayProcessor
+.. index:: result (DisplayProcessor)
 .. index:: parameters (DisplayProcessor)
 .. index:: contentTypes (DisplayProcessor)
 .. _handlers-DisplayProcessor:
@@ -995,7 +1007,7 @@ DisplayProcessor
 
 Used to display arbitrary content to users as a report. Using this instead of a :ref:`user interaction step<tdl-step-interact>` allows you
 to display content when the user clicks the relevant step report, as opposed to always producing a popup. This makes it a useful mechanism
-for including additional information in the test's output without distracting the user.  The following operation is supported:
+for including additional information in the test's output without distracting the user. The following operation is supported:
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
@@ -1009,6 +1021,7 @@ The input parameters expected by the ``display`` operation are as follows:
     :header: "Operation", "Input name", "Required?", "Description"
     :delim: |
 
+    ``display`` | ``result`` | No | A ``string`` with the status (``SUCCESS``, ``FAILURE`` or ``WARNING``) to use for the relevant :ref:`process<tdl-step-process>` step (default is ``SUCCESS``).
     ``display`` | ``parameters`` | No | A ``map`` including the values to display (labelled using the ``map`` keys).
     ``display`` | ``contentTypes`` | No | A ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
 
@@ -1017,11 +1030,20 @@ choose to view:
 
 .. code-block:: xml
 
+    <!-- Display a report based on a set of parameters. -->
     <assign to="parameters{textValue}">'A sample value'</assign>
     <assign to="parameters{listValues}" append="true">'Value 1'</assign>
     <assign to="parameters{listValues}" append="true">'Value 2'</assign>
     <assign to="parameters{listValues}" append="true">`Value 3`</assign>
-    <process desc="Show values" hidden="false" handler="DisplayProcessor" input="$parameters"/> 
+    <process desc="Show values" hidden="false" handler="DisplayProcessor" input="$parameters"/>
+
+    <!-- Display a report but also mark the step as failed if we have errors. -->
+    <assign to="result">if ($status = "OK") then "SUCCESS" else "FAILURE"</assign>
+    <assign to="report{comments}">$errorDescription</assign>    
+    <process desc="Show values" hidden="false" handler="DisplayProcessor">
+        <input name="result">$result</input>
+        <input name="parameters">$report</input>
+    </process>
 
 In case the ``DisplayProcessor`` is used to display **large content** or **complete files**, we can also provide a hint to the test engine
 on how such data is to be displayed. This is done by means of the ``contentTypes`` input, an optional ``map`` that can be set with 
@@ -1574,10 +1596,10 @@ be :ref:`imported<test-case-imports>` from the test suite's resources.
     </process>
     <log>$result</log>
 
-.. index:: Embedded validation handlers
+.. index:: Built-in validation handlers
 .. _handlers-predefined-validation-handlers:
 
-Embedded validation handlers
+Built-in validation handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. index:: ExpressionValidator
@@ -1986,6 +2008,520 @@ Used to validate an XML document against an XML Schema (XSD) instance.
         <input name="sortBySeverity">true()</input>        
     </verify>
 
+.. index:: Reusable external handlers
+.. _handlers-reusable-handlers:
+
+Reusable external handlers
+--------------------------
+
+The sections that follow list handler implementations that are maintained by the Test Bed team but that are not :ref:`built-into<handlers-predefined-handlers>`
+the test engine itself. In all cases such handlers are defined as **service references** in the test steps that support them, and are available in two ways:
+
+* As a **reusable service** hosted on Test Bed infrastructure that can be used as-is.
+* As a **Docker image** registered on the `Docker Hub <https://hub.docker.com/>`_ that can be used to install a local instance of the service.
+
+.. _handlers-reusable-handlers_messaging:
+
+Messaging services
+~~~~~~~~~~~~~~~~~~
+
+The following sections summarise reusable messaging services that can be used as handler implementations for :ref:`messaging transactions<tdl-step-btxn>`,
+as well as directly in :ref:`send<tdl-step-send>` and :ref:`receive<tdl-step-receive>` steps.
+
+.. index:: AS4 (Reusable messaging services)
+.. _handlers-reusable-handlers_messaging_as4:
+
+AS4 messaging
++++++++++++++
+
+The AS4 messaging component allows integration with a `Domibus eDelivery access point <https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus>`_
+to send and receive messages over eDelivery using the AS4 protocol. This component allows you to:
+
+* **Send** a message using a prepared header and payload as inputs.
+* **Check** for an acknowledgement received for a given message (previously sent) based on a message identifier.
+* **Receive** a message based on an expected message identifier. This will poll the Domibus backend API until the specific message is received.
+
+To use this component, pull the `isaitb/asx-messaging-v4 <https://hub.docker.com/r/isaitb/asx-messaging-v4>`_ Docker image to install it on your
+environment. The resulting service must be accessible by the Test Bed, and also have access to the relevant Domibus backend API that will handle the messaging.
+
+To **send** a message use a :ref:`send<tdl-step-send>` step with the following inputs:
+
+* ``as4.send.header``, the AS4 message XML header (of type ``string``, ``object`` or ``binary``).
+* ``as4.send.payload``, the list of payloads to send (of type ``list[binary]``).
+
+.. code-block:: xml
+    :emphasize-lines: 5-8
+
+    <steps>
+       <btxn from="sender" to="received" txnId="t1" handler="http://localhost:8080/ms/api/as4messaging?wsdl"/>
+       <assign to="header">$headerToUse</assign>
+       <assign to="payloads" append="true">$payloadToInclude</assign>
+       <send id="data" desc="Send message" from="sender" to="receiver" txnId="t1">
+          <input name="as4.send.header">$header</input>
+          <input name="as4.send.payload">$payloads</input>
+       </send>
+       <!-- Assigned message ID returned as "as4.send.messageId" -->
+       <log>$data{as4.send.messageId}</log>
+       <!--
+          Sent content returned as a map named "sentContent" including entries:
+          - "as4.send.header": The header of the message.
+          - "as4.send.payload": The list of payloads.
+       -->
+       <assign to="headerSent">$data{sentContent}{as4.send.header}</assign>
+       <assign to="firstPayloadSent">$data{sentContent}{as4.send.payload}{0}</assign>
+       <etxn txnId="t1"/>
+    </steps>    
+
+To check for a message's **acknowledgement** use a :ref:`receive<tdl-step-receive>` step with the following inputs:
+
+* ``as4.receive.type``, set to "ack_check".
+* ``as4.receive.messageId``, the ID of the message to check for (of type ``string``).
+
+.. code-block:: xml
+    :emphasize-lines: 9-12
+
+    <steps>
+       <btxn from="sender" to="received" txnId="t1" handler="http://localhost:8080/ms/api/as4messaging?wsdl"/>
+       ...
+       <send id="data" desc="Send message" from="sender" to="receiver" txnId="t1">
+          <input name="as4.send.header">$header</input>
+          <input name="as4.send.payload">$payloads</input>
+       </send>
+       ...
+       <receive id="ackData" desc="Receive acknowledgement" from="receiver" to="sender" txnId="t1">
+          <input name="as4.receive.messageId">$data{as4.send.messageId}</input>
+          <input name="as4.receive.type">'ack_check'</input>
+       </receive>   
+       <!-- 
+          The receive step returns a map of two entries:
+          - "as4.send.messageId": The message ID that was acknowledged.
+          - "as4.message.send.reason": The acknowledgement text.
+          Whether the step is a success or failure depends on the state returned and the service's "messaging.ackFailureStates" environment variable.
+       -->
+       <log>$ackData{as4.send.messageId}</log>
+       <log>$ackData{as4.message.send.reason}</log>
+       <etxn txnId="t1"/>
+    </steps>
+
+To **receive** a message use a :ref:`receive<tdl-step-receive>` step with the following input:
+
+* ``as4.receive.messageId``, the ID of the message to lookup (of type ``string``).
+
+.. code-block:: xml
+    :emphasize-lines: 3-5
+
+    <steps>
+       <btxn from="sender" to="receiver" txnId="t1" handler="http://localhost:8080/ms/api/as4messaging?wsdl"/>
+       <receive id="data" desc="Receive message" from="sender" to="receiver" txnId="t1">
+          <input name="as4.receive.messageId">$messageId</input>
+       </receive>
+       <!-- 
+          The receive step returns a map of the following entries:
+          - "header": The message header (of type "object").
+          - "payload": A map containing the payload data. Each separate payload received is added in a separate map named "payload.N" (where N is a 1-based index). Each of these includes the following entries:
+             - "payload.id": The ID of the payload (of type string).
+             - "payload.contentType": The payload's content/mime type (of type string).
+             - "payload.content": The payload's data (of type binary).
+       -->
+       <assign to="firstReceivedPayload">$data{payload}{payload.1}{payload.content}</assign>
+       <etxn txnId="t1"/> 
+    </steps>
+
+.. _handlers-reusable-handlers_processing:
+
+Processing services
+~~~~~~~~~~~~~~~~~~~
+
+The following sections summarise reusable processing services that can be used as handler implementations for :ref:`process<tdl-step-process>` steps.
+
+.. index:: ZIP (Reusable processing services)
+.. _handlers-reusable-handlers_processing_zip:
+
+ZIP processing
+++++++++++++++
+
+The ZIP processing service allows you to extract files from received ZIP archives, or ZIP-like archives such as ASiC containers. Using this service you can:
+
+* Obtain the **table of contents** of a provided archive.
+* **Extract** one or more files from the archive based on provided search criteria.
+
+This component functions as a **stateful processing service**, with extraction operations carried out within the scope of a
+:ref:`processing transaction<tdl-step-bptxn>`. This allows the ZIP archive to be provided once to the service and then maintained as state across calls to
+efficiently carry out several extraction operations. The archive in question is removed once the processing transaction or the overall test session ends.
+You can use this component:
+
+* **Locally**, by pulling the `isaitb/zip-processing <https://hub.docker.com/r/isaitb/zip-processing>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/zip/api/processing?wsdl``.
+
+The operations supported by the service are listed in the following table:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: ~
+
+    ``initialize`` ~ Provide the ZIP archive to the service for subsequent extraction operations. ~ Yes ~ A ``map`` with two elements (``entries``, a ``number`` representing the count of entries included in the archive; ``entryPaths``, a ``string`` including a summary of the included paths, listing them one by one in square brackets).
+    ``extract``~ Extract one or more files from the archive. ~ Yes ~ A ``map`` containing two entries (``entries``, a ``number`` representing the count of entries that were matched; ``entry``, a list with one item per matched entry). Each item in the entry list (corresponding to a matched entry) is a ``map`` with two further fields (``path``, a string with the file's precise path; ``content``, the binary content of the file).
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :delim: ~
+
+    ``initialize`` ~ ``zip`` ~ Yes ~ A ``binary`` input corresponding to the archive to process.
+    ``extract`` ~ ``path`` ~ Yes ~ A ``string`` with the path of the archive's entry (or entries) to return.
+    ``extract`` ~ ``case`` ~ No ~ A ``string`` set as "true" or "false" (the default) specifying whether the path matching should be case sensitive.
+    ``extract`` ~ ``match`` ~ No ~ A ``string`` set as "exact" or "regexp" (the default) specifying whether the path should be considered for an exact match or as a regular expression.
+
+The following test case sample illustrates how to use the service to extract a file from a ZIP archive:
+
+.. code-block:: xml
+
+    <steps>
+       <!-- 
+          As a first step create processing transaction pointing to the service
+       -->
+       <bptxn txnId="t1" handler="https://www.itb.ec.europa.eu/zip/api/processing?wsdl"/>
+       <!--
+          Call the 'initialize' operation to pass the binary archiveContent as an input named 'zip'
+       -->
+       <process id="toc" txnId="t1" operation="initialize">
+          <input name="zip">$archiveContent</input>
+       </process>		
+       <!--
+          Call the 'extract' operation to retrieve a file with an exact but not case-sensitive match
+       -->
+       <process output="zip" txnId="t1" operation="extract">
+          <input name="path">'META-INF/manifest.xml'</input>
+          <input name="match">'exact'</input>
+          <input name="case">'false'</input>
+       </process>
+       <!--
+          Use if needed the number of returned entries
+       -->
+       <log>"Extracted " || $zip{entries} || " file(s)"</log>
+       <!--
+          Use the extracted file (first match)
+       -->
+       <log>"Processing file " || $zip{entry}{0}{path} "..."</log>
+       <assign to="file">$zip{entry}{0}{content}</assign>
+       <!--
+          Close the processing transaction to release the processed archive.
+       -->
+       <etxn txnId="t1"/>
+    </steps>
+
+.. _handlers-reusable-handlers_validation:
+
+Validation services
+~~~~~~~~~~~~~~~~~~~
+
+The following sections summarise reusable validation services that can be used as handler implementations for :ref:`verify<tdl-step-verify>` steps.
+
+.. index:: ASiC (Reusable validation services)
+.. _handlers-reusable-handlers_validation_asic:
+
+ASiC validator
+++++++++++++++
+
+The ASiC validation service allows you to validate `ASiC containers <https://en.wikipedia.org/wiki/Associated_Signature_Containers>`_. The validator
+currently supports two validation profiles you can consider in your tests:
+
+* **base**: The base ASiC container definition (considered as the default).
+* **etendering**: The rules relevant to the `PEPPOL Business Interoperability Specifications (BIS) <https://peppol.org/learn-more/peppol-interoperability-framework>`_.
+
+You can use this component:
+
+* **Locally**, by pulling the `isaitb/asic-validator <https://hub.docker.com/r/isaitb/asic-validator>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/asic/api/validation?wsdl``.
+
+When used in a :ref:`verify<tdl-step-verify>` step this validator expects the following inputs:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: ~
+
+    ``file`` ~ Yes ~ A ``binary`` input corresponding to the container to validate.
+    ``profile`` ~ No ~ A ``string`` identifying the profile to consider that can be "base" (the default) or "etendering".
+
+The following test case sample illustrates how to use the validator to verify an ASiC container using the default profile:
+
+.. code-block:: xml
+
+    <steps>
+       <verify id="asicValidation" desc="Validate ASiC container" handler="https://www.itb.ec.europa.eu/asic/api/validation?wsdl">
+          <!-- The binary container to validate -->
+          <input name="file">$container</name>
+          <!-- An optional profile to apply. -->
+          <input name="profile">"base"</name>
+       </verify>
+    </steps>
+
+.. index:: CSV (Reusable validation services)
+.. index:: TableSchema (Reusable validation services)
+.. _handlers-reusable-handlers_validation_csv:
+
+CSV validator
++++++++++++++
+
+The CSV validation service allows you to validate CSV content by means of one or more `Table Schema <https://specs.frictionlessdata.io/table-schema/>`_
+definitions. It is the default, generic configuration of the Test Bed's `CSV validator component <https://hub.docker.com/r/isaitb/csv-validator>`_ that
+expects the schemas to apply as inputs alongside the content to validate.
+
+.. note::
+
+    The generic CSV validator is also available for standalone use via `user interface <https://www.itb.ec.europa.eu/csv/any/upload>`__,
+    `REST API <https://www.itb.ec.europa.eu/csv/swagger-ui/index.html>`__ and `SOAP API <https://www.itb.ec.europa.eu/csv/soap/any/validation?wsdl>`__.
+    Furthermore, a custom validator with a predefinined configuration and specific settings can be defined following the Test Bed's 
+    `CSV validation guide <https://www.itb.ec.europa.eu/docs/guides/latest/validatingCSV/index.html>`_. The API of such a custom instance is identical to
+    the generic instance presented here.
+
+You can use the CSV validator by one of two approaches:
+
+* **Locally**, by pulling the `isaitb/csv-validator <https://hub.docker.com/r/isaitb/csv-validator>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/csv/soap/any/validation?wsdl``.
+
+The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
+`SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingCSV/index.html#validation-via-soap-web-service-api>`__,
+where all listed inputs match exactly those that can be used in test cases through :ref:`verify<tdl-step-verify>` steps.
+
+The following test case sample illustrates how to use the validator for the most common use case of validating JSON content against a schema:
+
+.. code-block:: xml
+
+    <steps>
+        <!-- 
+            You can validate against any number of schemas in one go. In this case we use one schema (defined in $schema)
+            that is typically provided as an import but could also be loaded from configuration or even generated on the
+            fly in a previous test case step.
+         -->
+        <assign to="schema1{content}">$schema</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="schema1{embeddingMethod}">"BASE64"</assign>
+        <assign to="schemasToUse" append="true">$schema1</assign>
+        <!-- 
+            Call the validator.
+        -->
+        <verify handler="https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl" desc="Validate CSV file">
+            <input name="contentToValidate">$fileToValidate</input>
+            <input name="externalSchema">$schemasToUse</input>
+            <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
+            <input name="embeddingMethod">"BASE64"</input>
+        </verify>
+    </steps>
+
+.. index:: JSON (Reusable validation services)
+.. index:: JSON Schema (Reusable validation services)
+.. _handlers-reusable-handlers_validation_json:
+
+JSON validator
+++++++++++++++
+
+The JSON validation service allows you to validate JSON content by means of one or more `JSON Schema <https://json-schema.org/>`_
+definitions. It is the default, generic configuration of the Test Bed's `JSON validator component <https://hub.docker.com/r/isaitb/json-validator>`_ that
+expects the schemas to apply as inputs alongside the content to validate.
+
+.. note::
+
+    The generic JSON validator is also available for standalone use via `user interface <https://www.itb.ec.europa.eu/json/any/upload>`__,
+    `REST API <https://www.itb.ec.europa.eu/json/swagger-ui/index.html>`__ and `SOAP API <https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl>`__.
+    Furthermore, a custom validator with a predefinined configuration and specific settings can be defined following the Test Bed's 
+    `JSON validation guide <https://www.itb.ec.europa.eu/docs/guides/latest/validatingJSON/index.html>`_. The API of such a custom instance is identical to
+    the generic instance presented here.
+
+You can use the JSON validator by one of two approaches:
+
+* **Locally**, by pulling the `isaitb/json-validator <https://hub.docker.com/r/isaitb/json-validator>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl``.
+
+The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
+`SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingJSON/index.html#validation-via-soap-web-service-api>`__,
+where all listed inputs match exactly those that can be used in test cases through :ref:`verify<tdl-step-verify>` steps.
+
+The following test case sample illustrates how to use the validator for the most common use case of validating JSON content against a schema:
+
+.. code-block:: xml
+
+    <steps>
+        <!-- 
+            You can validate against any number of schemas in one go. In this case we use one schema (defined in $schema)
+            that is typically provided as an import but could also be loaded from configuration or even generated on the
+            fly in a previous test case step.
+         -->
+        <assign to="schema1{schema}">$schema</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="schema1{embeddingMethod}">"BASE64"</assign>
+        <assign to="schemasToUse" append="true">$schema1</assign>
+        <!-- 
+            Call the validator.
+        -->
+        <verify handler="https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl" desc="Validate JSON file">
+            <input name="contentToValidate">$fileToValidate</input>
+            <input name="externalSchema">$schemasToUse</input>
+            <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
+            <input name="embeddingMethod">"BASE64"</input>
+        </verify>
+    </steps>
+
+.. index:: RDF (Reusable validation services)
+.. index:: SHACL (Reusable validation services)
+.. _handlers-reusable-handlers_validation_rdf:
+
+RDF validator
++++++++++++++
+
+The RDF validation service allows you to validate RDF content via `SHACL shapes <https://www.w3.org/TR/shacl/>`_
+definitions. It is the default, generic configuration of the Test Bed's `RDF validator component <https://hub.docker.com/r/isaitb/shacl-validator>`_ that
+expects the shapes to apply as inputs alongside the content to validate.
+
+.. note::
+
+    The generic RDF validator is also available for standalone use via `user interface <https://www.itb.ec.europa.eu/shacl/any/upload>`__,
+    `REST API <https://www.itb.ec.europa.eu/shacl/swagger-ui/index.html>`__ and `SOAP API <https://www.itb.ec.europa.eu/shacl/soap/any/validation?wsdl>`__.
+    Furthermore, a custom validator with a predefinined configuration and specific settings can be defined following the Test Bed's 
+    `RDF validation guide <https://www.itb.ec.europa.eu/docs/guides/latest/validatingRDF/index.html>`_. The API of such a custom instance is identical to
+    the generic instance presented here.
+
+You can use the RDF validator by one of two approaches:
+
+* **Locally**, by pulling the `isaitb/shacl-validator <https://hub.docker.com/r/isaitb/shacl-validator>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/shacl/soap/any/validation?wsdl``.
+
+The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
+`SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingRDF/index.html#validation-via-soap-web-service-api>`__,
+where all listed inputs match exactly those that can be used in test cases through :ref:`verify<tdl-step-verify>` steps.
+
+The following test case sample illustrates how to use the validator for the most common use case of validating RDF content against a shape graph:
+
+.. code-block:: xml
+
+    <steps>
+        <!-- 
+            You can validate against any number of shape graph files in one go. In this case we use one file (defined in $shapes)
+            that is typically provided as an import but could also be loaded from configuration or even generated on the
+            fly in a previous test case step.
+         -->
+        <assign to="shapes1{ruleSet}">$shapes</assign>
+        <assign to="shapes1{ruleSyntax}">"application/turtle"</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="shapes1{embeddingMethod}">"BASE64"</assign>
+        <assign to="shapesToUse" append="true">$shapes1</assign>
+        <!-- 
+            Call the validator.
+        -->
+        <verify handler="https://www.itb.ec.europa.eu/shacl/soap/any/validation?wsdl" desc="Validate RDF file">
+            <input name="contentToValidate">$fileToValidate</input>
+            <input name="contentSyntax">"application/rdf+xml"</input>
+            <input name="externalRules">$shapesToUse</input>
+            <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
+            <input name="embeddingMethod">"BASE64"</input>
+        </verify>
+    </steps>
+
+.. index:: XML (Reusable validation services)
+.. index:: XML Schema (Reusable validation services)
+.. index:: Schematron (Reusable validation services)
+.. _handlers-reusable-handlers_validation_xml:
+
+XML validator
++++++++++++++
+
+.. note::
+    Built-in validators for XML are also available, notably the :ref:`handlers-XmlValidator` for validation against XML Schema and Schematron, as
+    well as the :ref:`handlers-XmlMatchValidator` for validation against expected templates.
+
+The XML validation service allows you to validate XML content by means of one or more `XML Schemas <https://www.w3.org/standards/xml/schema>`_ 
+and `Schematron <https://schematron.com/>`_. It is the default, generic configuration of the Test Bed's 
+`XML validator component <https://hub.docker.com/r/isaitb/xml-validator>`_ that expects the schemas and Schematrons to apply as inputs alongside
+the content to validate.
+
+.. note::
+
+    The generic XML validator is also available for standalone use via `user interface <https://www.itb.ec.europa.eu/xml/upload>`__,
+    `REST API <https://www.itb.ec.europa.eu/xml/swagger-ui/index.html>`__ and `SOAP API <https://www.itb.ec.europa.eu/xml/api/validation?wsdl>`__.
+    Furthermore, a custom validator with a predefinined configuration and specific settings can be defined following the Test Bed's 
+    `XML validation guide <https://www.itb.ec.europa.eu/docs/guides/latest/validatingXML/index.html>`_. The API of such a custom instance is identical to
+    the generic instance presented here.
+
+You can use the XML validator by one of two approaches:
+
+* **Locally**, by pulling the `isaitb/xml-validator <https://hub.docker.com/r/isaitb/xml-validator>`_ Docker image.
+* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/xml/api/validation?wsdl``.
+
+The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
+`SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingXML/index.html#validation-via-soap-web-service-api>`__,
+where all listed inputs match exactly those that can be used in test cases through :ref:`verify<tdl-step-verify>` steps.
+
+The following test case sample illustrates how to use the validator for the most common use case of validating XML content against an XML Schema and a
+Schematron rule file:
+
+.. code-block:: xml
+
+    <steps>
+        <!-- 
+            You can validate against any number of schemas in one go. In this case we use one schema (defined in $schema)
+            that is typically provided as an import but could also be loaded from configuration or even generated on the
+            fly in a previous test case step.
+         -->
+        <assign to="schema1{content}">$schema</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="schema1{embeddingMethod}">"BASE64"</assign>
+        <assign to="schemasToUse" append="true">$schema1</assign>
+        <!-- 
+            Prepare also the Schematron rules to use (defined in $schematron) that could similarly be imported, loaded from
+            configuration or generated on the fly.
+        -->
+        <assign to="schematron1{content}">$schematron</assign>
+        <!-- 
+            The Schematron type could be "xsl" (for Schematron transformed to XSLT), or "sch" for the raw Schematron format. Besides
+            experimentation or very simple cases, XSLT rules (so a "xsl" type value) should always be preferred.
+        -->
+        <assign to="schematron1{type}">"xsl"</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="schematron1{embeddingMethod}">"BASE64"</assign>
+        <assign to="schematronsToUse" append="true">$schematron1</assign>
+        <!-- 
+            Call the validator.
+        -->
+        <verify handler="https://www.itb.ec.europa.eu/xml/api/validation?wsdl" desc="Validate XML file">
+            <input name="xml">$fileToValidate</input>
+            <input name="externalSchema">$schemasToUse</input>
+            <input name="externalSchematron">$schematronsToUse</input>
+            <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
+            <input name="embeddingMethod">"BASE64"</input>
+        </verify>
+    </steps>
+
+.. note::
+    When using the generic XML validator you don't need to always validate using XML Schema and Schematron. For example you could skip schema
+    validation and only validate against a set of generated Schematron rules.
+
+.. index:: Custom external handlers
+.. _handlers-custom-handlers:
+
+Custom external handlers
+------------------------
+
+Custom service handlers are meaningful when you have project-specific testing needs that cannot be addressed by the test engine's 
+:ref:`built-in capabilities<handlers-predefined-handlers>` or the :ref:`existing reusable services<handlers-reusable-handlers>` offered by the Test Bed.
+In practice any non-trivial test setup would usually require at least a **custom messaging service implementation** to handle the messaging protocol foreseen
+by the project. This holds true even if a seemingly suitable built-in messaging handler is available, as you will most likely need to add customisations
+when making or receiving calls, but also adapt the reports produced by your messaging steps.
+
+Custom service handler implementations would be defined in a **custom web application** that complements your test suites. This application would include
+implementations (as needed) of the **GITB test service SOAP APIs** that allow it to be orchestrated by the Test Bed. To guide you in the implementation of
+these APIs you can refer to the `GITB test services documentation <https://www.itb.ec.europa.eu/docs/services/latest/index.html>`_ for:
+
+* `Validation services <https://www.itb.ec.europa.eu/docs/services/latest/validation/index.html>`_, to validate content.
+* `Messaging services <https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html>`_, to send and receive messages.
+* `Processing services <https://www.itb.ec.europa.eu/docs/services/latest/processing/index.html>`_, to implement supporting utility functions.
+
+The starting point for the implementation is the Test Bed's set of `published template services <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html>`_.
+These templates are **executable**, allowing you to create new services based on existing demo starting implementations. Although simple, the pre-existing
+implementations fully cover the GITB service APIs and allow you to replace them with your own logic. Moreover, the documentation also includes a
+`sample test case <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html#example-test-case>`_ that illustrates how the demo service
+implementations can be used in test steps.
+
 .. index:: Handler authentication
 .. index:: HTTP Basic
 .. index:: UsernameToken
@@ -1998,7 +2534,7 @@ Used to validate an XML document against an XML Schema (XSD) instance.
 .. _handlers-authentication:
 
 Authentication for external handlers
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Handlers defined as external service implementations may need to be protected with access control. To support such protected services,
 the GITB software foresees the possibility to authenticate as part of each service call. Authentication information needs to be configured
