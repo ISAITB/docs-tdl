@@ -2302,9 +2302,9 @@ The following test case sample illustrates how to use the validator for the most
         <!-- 
             Call the validator.
         -->
-        <verify handler="https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl" desc="Validate CSV file">
+        <verify handler="https://www.itb.ec.europa.eu/csv/soap/any/validation?wsdl" desc="Validate CSV file">
             <input name="contentToValidate">$fileToValidate</input>
-            <input name="externalSchema">$schemasToUse</input>
+            <input name="schema">$schemasToUse</input>
             <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
             <input name="embeddingMethod">"BASE64"</input>
         </verify>
@@ -2357,7 +2357,7 @@ The following test case sample illustrates how to use the validator for the most
         -->
         <verify handler="https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl" desc="Validate JSON file">
             <input name="contentToValidate">$fileToValidate</input>
-            <input name="externalSchema">$schemasToUse</input>
+            <input name="externalSchemas">$schemasToUse</input>
             <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
             <input name="embeddingMethod">"BASE64"</input>
         </verify>
