@@ -1112,8 +1112,8 @@ The following example illustrates assigning a value to a ``number`` variable and
 
 .. code-block:: xml
 
-    <assign to="$value">1</assign>
-    <assign to="$nodeCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
+    <assign to="value">1</assign>
+    <assign to="nodeCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
 
 The ``to`` attribute of an ``assign`` step determines the target variable to which the expression's output will be assigned to. This can be:
 
