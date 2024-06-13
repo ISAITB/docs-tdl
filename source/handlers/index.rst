@@ -2563,7 +2563,7 @@ The properties that are supported in the ``property`` elements are listed in the
     ``auth.basic.password``, Any ``string``, The password to provide when prompted for basic HTTP authentication.
     ``auth.token.username``, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
     ``auth.token.password``, Any ``string``, The password to include in the SOAP header as the UsernameToken's password.
-    ``auth.token.password``.type, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
+    ``auth.token.password.type``, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
 
 Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
 where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
