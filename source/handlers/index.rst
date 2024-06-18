@@ -60,11 +60,11 @@ an external validation service, and the third one using an external validation s
 .. code-block:: xml
 
     <!-- 
-        Call a local, built-in validation handler called "XSDValidator"
+        Call a local, built-in validation handler called "XmlValidator"
     -->
-    <verify handler="XSDValidator" desc="Validate content local">
-        <input name="xmldocument">$docToValidate</input>
-        <input name="xsddocument">$schemaFile</input>
+    <verify handler="XmlValidator" desc="Validate content local">
+        <input name="xml">$docToValidate</input>
+        <input name="xsd">$schemaFile</input>
     </verify>
     <!-- 
         Call a remote validation service handler
@@ -96,199 +96,311 @@ in the GITB test bed software.
 Built-in messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. warning::
-    All built-in messaging handlers with the exception of the :ref:`SimulatedMessaging<handlers-simulatedmessaging>` handler are **deprecated**
-    as they cannot be effectively customised and require the direct exposure of the internal test engine to systems under test. For any test
-    cases involving the sending and receiving messages, you should define instead a custom :ref:`custom messaging handler<handlers-custom-handlers>`.
+.. note::
 
-Each following section defines a table with the information expected by each messaging handler. The meaning of this information is
-as follows:
+    **Custom vs built-in messaging handlers:** Built-in messaging handlers offer simple, out-of-the-box support for sending and receiving content
+    to and from external systems. However, for complex messaging or testing needs you may be better suited by a :ref:`custom implementation<handlers-custom-handlers>`
+    that would allow you to:
 
-* **Input:** These are the inputs provided for the ``send`` step.
-* **Output:** These are the outputs returned from the ``receive`` step.
-* **Actor configuration:** These are configuration properties that will be automatically set for simulated actors using this handler.
-* **Receive configuration:** These are configuration properties expected by the ``receive`` step.
-* **Send configuration:** These are configuration properties expected by the ``send`` step.
-* **Transaction configuration:** These are configuration properties defined in the ``btxn`` or ``bptxn`` step.
+    * Use **non-HTTP** based protocols.
+    * Manage **security aspects** including authentication and use of client certificates.
+    * Produce **customised step reports** rather than a listing of request and response data.
+    * Manage **large payloads** not supported directly by the test engine.
+    * For :ref:`receive <tdl-step-receive>` steps, control fully **exposed APIs** and dynamically **adapt responses** based on received request data.
 
-The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute.
+    To start developing a custom messaging service you can use the `published template <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html>`_ 
+    and follow the `step-by-step development guide <https://www.itb.ec.europa.eu/docs/guides/latest/developingComplexTests/index.html>`_.
 
-.. index:: HttpMessaging
-.. index:: http_headers (HttpMessaging)
-.. index:: http_body (HttpMessaging)
-.. index:: http_parts (HttpMessaging)
-.. index:: http_method (HttpMessaging)
-.. index:: http_version (HttpMessaging)
-.. index:: http_path (HttpMessaging)
-.. index:: network.host (HttpMessaging)
-.. index:: network.port (HttpMessaging)
-.. index:: http.uri (HttpMessaging)
-.. index:: http.uri.extension (HttpMessaging)
-.. index:: http.ssl (HttpMessaging)
-.. index:: status.code (HttpMessaging)
-.. index:: http.method (HttpMessaging)
+The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute (in 
+:ref:`send <tdl-step-send>`, :ref:`receive <tdl-step-receive>` or :ref:`btxn <tdl-step-btxn>` steps).
 
-.. _handlers-httpmessaging:
+.. index:: HttpMessagingV2
 
-HttpMessaging
-+++++++++++++
+.. _handlers-httpmessagingv2:
 
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+HttpMessagingV2
++++++++++++++++
 
 Used to send or receive content over HTTP.
 
-.. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
+.. index:: HttpMessagingV2 (send)
+.. index:: HttpMessagingV2 (send - uri)
+.. index:: HttpMessagingV2 (send - method)
+.. index:: HttpMessagingV2 (send - headers)
+.. index:: HttpMessagingV2 (send - body)
+.. index:: HttpMessagingV2 (send - parameters)
+.. index:: HttpMessagingV2 (send - queryParameters)
+.. index:: HttpMessagingV2 (send - parts)
+.. index:: HttpMessagingV2 (send - followRedirects)
+.. index:: HttpMessagingV2 (send - status)
 
-    ``http_version``, Input, No, ``string``, The HTTP version to consider.
-    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
-    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
-    ``http_parts``, Input, No, ``map``, A ``map`` including the definition of the parts (see description below).
-    ``http_method``, Output, No, ``string``, The HTTP method.
-    ``http_version``, Output, No, ``string``, The HTTP version.
-    ``http_path``, Output, No, ``string``, The HTTP request path.
-    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
-    ``http_body``, Output, No, ``binary``, The bytes of the received body.
-    ``http_parts``, Output, No, ``map``, A ``map`` including the received parts (see description below).
-    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
-    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
-    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
-    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
-    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
-    ``http.uri``, Send configuration, No, ``string``, The request path URI to send to.
-    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
-    ``status.code``, Send configuration, No, ``string``, Status for responses.
-    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+.. _handlers-httpmessagingv2-send:
+
+Use in send steps
+^^^^^^^^^^^^^^^^^
+
+To use this handler to **send a HTTP message** to a external system, set it as the ``handler`` of a :ref:`send <tdl-step-send>` step 
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``uri`` | Yes | ``string`` | The URI of the endpoint to be called.
+    ``method`` | No | ``string`` | The HTTP method to use. Supported methods are GET (the default), POST, PUT, DELETE, HEAD, OPTIONS, PATCH and TRACE.
+    ``headers`` | No | ``map`` | The HTTP headers to include, provided as a map of either strings (for single values) or lists of strings (for multiple values).
+    ``body`` | No | ``binary`` | The HTTP body of the request.
+    ``parameters`` | No | ``map`` | The HTTP request parameters to include, provided as a map of strings (the map keys will be the parameter names).
+    ``queryParameters`` | No | ``map`` | The HTTP request parameters to include in the query string, provided as a map of strings (the map keys will be the parameter names).
+    ``parts`` | No | ``list`` | The parts to include for a multipart request, provided either as a list of maps or a single map. Each map corresponds to a part and includes keys *"name"* (required), *"content"* (required), *"fileName"* and *"contentType"*.
+    ``followRedirects`` | No | ``boolean`` | Whether redirect responses should be followed (default is "true").
+    
+In terms of implicit default values for missing inputs and the processing logic applied, the test engine bases itself on the overall inputs provided. Specifically:
+
+* If no ``method`` is provided but a ``body`` or ``parts`` input is present, the request will be a POST.
+* If ``parameters`` is used on a POST, PUT or PATCH these will be added as form-encoded parameters in the body, adding also the correct content type
+  ("application/x-www-form-urlencoded") as a HTTP header. If a ``body`` is also provided then the parameters will be merged with any ``queryParameters``
+  and added on the query string.
+* If ``parameters`` is used on a GET, DELETE, HEAD, OPTIONS or TRACE they will be merged with any ``queryParameters`` and added on the query string.
+* If ``parts`` are provided for a multipart request, these are added as parts named using the relevant map's "name" value, with content set to the map's
+  "content" value, and a content type set to the "contentType" value (defaulting to "application/octet-stream" if missing). If a "fileName" value is also
+  provided, the part is added as a file part (as opposed to a text part if missing).
+  
+Once the :ref:`send <tdl-step-send>` step completes, the resulting report will include two nested maps named ``request`` and ``response``, corresponding 
+respectively to the submitted request and received response. The ``request`` map includes the following:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``uri`` | Yes | ``string`` | The URI of the endpoint that was called.
+    ``method`` | Yes | ``string`` | The HTTP method used.
+    ``headers`` | No | ``map`` | The HTTP headers explicitly added to the request, provided as a map of key (header name) to comma-separated string values (header values).
+    ``body`` | No | ``binary`` or ``map`` | The HTTP body of the request that will be a map in case of a multipart request, with one entry per part.
+
+The ``response`` map includes the following:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``status`` | Yes | ``number`` | The HTTP status code of the response.
+    ``headers`` | No | ``map`` | The HTTP headers of the response, provided as a map of key (header name) to comma-separated string values (header values).
+    ``body`` | No | ``binary`` or ``map`` | The HTTP body of the response that will be a map in case of a multipart request, with one entry per part.
+
+The following GITB TDL snippets provide various examples using the ``HttpMessagingV2`` handler in :ref:`send <tdl-step-send>` steps, as well as accessing
+outputs (see inline comments for details per case).
 
 .. code-block:: xml
 
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <config name="http.method">"POST"</input>
-        <config name="http.uri">"/path/to/service"</input>
-        <input name="http_body">$binaryContent</input>
+    <!--
+        Make a GET call to https://my.sut.org/api/get.
+    -->
+    <send id="send1" desc="Call system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/get"</input>
     </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
-        <config name="status.code">"200"</input>
-    </receive>
-    <etxn txnId="t1"/>
+    <log>$send1{response}{status}</log> <!-- Print returned status. -->
+
+    <!--
+        Make a POST call to https://my.sut.org/api/post with form-encoded parameters in the request body.
+    -->
+    <assign to="send2Params{key1}">"value1"</assign>
+    <assign to="send2Params{key2}">"value 2"</assign> <!-- URL escaping is automatically handled. -->
+    <send id="send2" desc="Call system with parameters" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/post"</input>
+        <input name="method">"POST"</input>
+        <input name="parameters">$send2Params</input>
+    </send>
+    <log>$send2{response}{body}</log> <!-- Print returned body. -->
+
+    <!--
+        Make a PUT call to https://my.sut.org/api/put with a body, headers and query string parameters.
+    -->
+    <assign to="send3Params{key1}">"value1"</assign>
+    <assign to="send3Params{key2}">"value2"</assign>
+    <assign to="send3Headers{Content-Type}">"application/xml"</assign>
+    <send id="send3" desc="Call system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/put"</input>
+        <input name="method">"PUT"</input>
+        <input name="body">$send3Body</input>
+        <input name="headers">$send3Headers</input>
+        <input name="parameters">$send3Params</input>
+    </send>
+    <log>$send3{request}{body}</log> <!-- Print request body (added by the test session). -->
+    <log>$send3{response}{body}</log> <!-- Print response body (returned by the SUT). -->
+    <log>$send3{response}{headers}{Content-Type}</log> <!-- Print response content type. -->
+
+    <!--
+        Make a DELETE call with a query string parameter.
+    -->
+    <assign to="send4Params{id}">"123"</assign>
+    <send id="send4" desc="Call system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/delete"</input>
+        <input name="method">"DELETE"</input>
+        <input name="parameters">$send4Params</input>
+    </send>
+    <log>$send4{response}{status}</log> <!-- Print returned status. -->
+
+    <!--
+        Make a DELETE call with an identifier in the URI as a path variable.
+    -->
+    <assign to="send5Identifier">"123"</assign>
+    <send id="send5" desc="Call system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/delete/" || $send5Identifier || "/"</input>
+        <input name="method">"DELETE"</input>
+    </send>
+    <log>$send5{response}{status}</log> <!-- Print returned status. -->
+
+    <!-- 
+        Make a multipart POST submission to a variable URI with extra query string parameters.
+    -->
+    <assign to="send6Part1{name}">"file1"</assign> <!-- A file part. -->
+    <assign to="send6Part1{contentType}">"text/xml"</assign>
+    <assign to="send6Part1{fileName}">"file1.xml"</assign>
+    <assign to="send6Part1{content}">$send6Part1Content</assign>
+
+    <assign to="send6Part2{name}" type="string">"text1"</assign> <!-- A text part. -->
+    <assign to="send6Part2{contentType}" type="string">"text/plain"</assign>
+    <assign to="send6Part2{content}" type="string">"A simple text value"</assign>
+
+    <assign to="send6Parts" append="true">$send6Part1</assign> <!-- Put parts together. -->
+    <assign to="send6Parts" append="true">$send6Part2</assign>
+    
+    <assign to="send6Identifier">"123"</assign> <!-- Path variable. -->
+    <assign to="send6Params{key}">"value"</assign> <!-- Query string parameter. -->
+
+    <send id="send6" desc="Call system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/multi/" || $send6Identifier || "/"</input>
+        <input name="method">"POST"</input>
+        <input name="parts">$send6Parts</input>
+        <input name="parameters">$send6Params</input>
+    </send>
+    <log>$send6{response}{status}</log> <!-- Print returned status. -->
+
+.. index:: HttpMessagingV2 (receive)
+.. index:: HttpMessagingV2 (receive - uri)
+.. index:: HttpMessagingV2 (receive - uriExtension)
+.. index:: HttpMessagingV2 (receive - method)
+.. index:: HttpMessagingV2 (receive - headers)
+.. index:: HttpMessagingV2 (receive - body)
+.. index:: HttpMessagingV2 (receive - status)
+
+.. _handlers-httpmessagingv2-receive:
+
+Use in receive steps
+^^^^^^^^^^^^^^^^^^^^
+
+To use this handler to **receive a HTTP message** from an external system, set it as the ``handler`` of a :ref:`receive <tdl-step-receive>` step 
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``uriExtension`` | No | ``string`` | A URI extension following the base endpoint path at which the request will be expected.
+    ``method`` | No | ``string`` | The HTTP method to expect. Supported methods are GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH, TRACE.
+    ``status`` | No | ``number`` | The HTTP status to respond with (default is 200).
+    ``headers`` | No | ``map`` | The HTTP headers to include in the response.
+    ``body`` | No | ``binary`` | The HTTP body of the response.
+
+When the :ref:`receive <tdl-step-receive>` step executes, the test session will be suspended until a matching request is received from the system under test.
+The listening endpoint where this request will be received is constructed by concatenating in sequence:
+
+1. The test engine's **base messaging URL**.
+2. The unique **API key** of the system under test.
+3. If defined, the **URI extension** provided as the step's ``uriExtension`` input.
+
+As an example, for a Test Bed installation running locally with default settings, a system with API key "MY_API_KEY", and a provided URI extension of "/test";
+the listen endpoint will be:
+
+``http://localhost:8080/itbsrv/api/http/MY_API_KEY/test``
+
+Furthermore, if a ``method`` has been provided as an input, a received request will need to have the **same method** to complete the step. If not provided,
+any received request will complete the step. Finally, received query string parameters are ignored when matching incoming requests, except if a query string
+has been included in the ``uriExtension`` input. In any case, once the :ref:`receive <tdl-step-receive>` step executes, the listen endpoint and expected
+method(s) will be added in the test session log.
+
+.. code-block:: none
+
+    ...
+    [2024-06-14 16:31:35] INFO  - Waiting to receive POST at [http://localhost:8080/itbsrv/api/http/7039EC8EX4786X4103XB40FXC7242D11E9B0/search] for step [Receive message 1]
 
 .. note::
-    **Isolating communications:** When using a ``HttpMessaging`` handler to receive communication from a SUT, the test bed dynamically starts listening on 
-    a new port for incoming traffic. This port (along with the host) are presented to the test bed user upon test initiation so that he/she can configure
-    the SUT accordingly. To avoid unwanted communication being received on this port that is unrelated to the test session, the test bed will only 
-    listen to requests originating from the SUT's address, ignoring others originating from other sources. To achieve this, the test bed uses the 
-    ``network.host`` parameter configured for the SUT that needs to be provided by the tester as part of the SUT's configuration before starting a test.
 
-    The value for the ``network.host`` parameter must be set with the **public IP Address** of the SUT endpoint.
+    **Supporting parallel test sessions:** The listen endpoint for a :ref:`receive <tdl-step-receive>` step determines also whether test sessions can execute in parallel. If no ``uriExtension`` is
+    provided, all test sessions for the system (at least the ones with :ref:`receive <tdl-step-receive>` steps) will need to execute sequentially. You can
+    :ref:`configure the relevant test cases <test-case>` with ``supportsParallelExecution`` as "false" to enforce this.
 
-**Using HTTPS**
+    If possible, try to have ``uriExtension`` differ across test cases, and ideally vary per test session.
+    
+Once the :ref:`receive <tdl-step-receive>` step completes, the resulting report will include two nested maps named ``request`` and ``response``, corresponding 
+respectively to the received request and provided response. The ``request`` map includes the following:
 
-The ``HttpMessaging`` handler can be used both for HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
-HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
-is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
-step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
 
-The following example illustrates its use:
+    ``uri`` | Yes | ``string`` | The URI of the endpoint that was called.
+    ``method`` | Yes | ``string`` | The HTTP method used.
+    ``headers`` | No | ``map`` | The HTTP request headers, provided as a map of key (header name) to comma-separated string values (header values).
+    ``body`` | No | ``binary`` or ``map`` | The HTTP body of the request that will be a map in case of a multipart request, with one entry per part.
 
-.. code-block:: xml
-    :emphasize-lines: 2
+The ``response`` map includes the following:
 
-    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
-        <config name="http.ssl">true</config>
-    </btxn>
-    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
-        <config name="http.method">POST</config>
-        <input name="http_body">$content</input>
-    </send>
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
 
-Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
-if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
-test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
-the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+    ``status`` | Yes | ``string`` | The HTTP status code of the response.
+    ``headers`` | No | ``map`` | The HTTP headers of the response, provided as a map of key (header name) to comma-separated string values (header values).
+    ``body`` | No | ``binary`` or ``map`` | The HTTP body of the response that will be a map in case of a multipart request, with one entry per part.
 
-.. code-block:: xml
-    :emphasize-lines: 2
-
-    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
-        <config name="http.ssl">$sutInfo{isHTTPS}</config>
-    </btxn>
-
-**Support for sending and receiving multipart form data**
-
-When **receiving**, a multipart message is detected if the ``ContentType`` header contains a boundary part. The ``http_parts`` output is a ``map`` that contains:
-
-    * ``http_parts{parts}``: A list of all parts in sequence.
-    * ``http_parts{parts}{0}{header}``: The part's header as a string.
-    * ``http_parts{parts}{0}{content}``: The part's content as a binary.
-    * ``http_parts{partsByName}``: A map of parts by name (for easy lookup of named parts):
-    * ``http_parts{partsByName}{NAME}{header}``: The part's header as a string.
-    * ``http_parts{partsByName}{NAME}{content}``: The part's content as a binary.
-
-When **sending**, if a ``http_body`` input is present this takes precedence. If not, and a ``http_parts`` input is provided, then a multipart request is created. The 
-``http_parts`` input is a ``list`` of ``maps`` (one map per part). To send a part as a file the ``file_name`` property needs to be passed. Specifically the information 
-on a part is as follows:
-
-    * ``http_parts{0}{name}``: The name of the part.
-    * ``http_parts{0}{content_type}``: The mime type of the part (text/plain for simple text).
-    * ``http_parts{0}{file_name}``: The name of the file to set for the part if this is a file/binary p
-
-The following TDL example illustrates how to populate and send a multipart request with three parts (two file parts and one
-test part):
+The following GITB TDL snippets provide various examples using the ``HttpMessagingV2`` handler in :ref:`receive <tdl-step-receive>` steps, as well as accessing
+outputs (see inline comments for details per case).
 
 .. code-block:: xml
 
-    <imports>
-        <artifact type="schema" encoding="UTF-8" name="file1">testSuite1/artifacts/file1.xml</artifact>
-        <artifact type="binary" encoding="UTF-8" name="file2">testSuite1/artifacts/file2.zip</artifact>
-    </imports>
-    <variables>
-        <var name="parts" type="list[map]"/>
-        <var name="filePartInfo1" type="map"/>
-        <var name="filePartInfo2" type="map"/>
-        <var name="textPartInfo1" type="map"/>
-    </variables>
-    <actors>
-        ...
-    </actors>
-    <steps>
-        <!--
-            Define first file part.
-        -->
-        <assign to="$filePartInfo1{name}" type="string">"file1"</assign>
-        <assign to="$filePartInfo1{content_type}" type="string">"text/xml"</assign>
-        <assign to="$filePartInfo1{file_name}" type="string">"file1.xml"</assign>
-        <assign to="$filePartInfo1{content}" type="binary">$file1</assign>
-        <!--
-            Define second file part.
-        -->
-        <assign to="$filePartInfo2{name}" type="string">"file2"</assign>
-        <assign to="$filePartInfo2{content_type}" type="string">"application/zip"</assign>
-        <assign to="$filePartInfo2{file_name}" type="string">"file2.zip"</assign>
-        <assign to="$filePartInfo2{content}" type="binary">$file2</assign>
-        <!--
-            Define a third text part.
-        -->
-        <assign to="$textPartInfo1{name}" type="string">"text1"</assign>
-        <assign to="$textPartInfo1{content_type}" type="string">"text/plain"</assign>
-        <assign to="$textPartInfo1{content}" type="string">"A simple text value"</assign>
-        <!--
-            Put all parts in a list.
-        -->
-        <assign to="$parts" append="true">$filePartInfo1</assign>
-        <assign to="$parts" append="true">$filePartInfo2</assign>
-        <assign to="$parts" append="true">$textPartInfo1</assign>
-        <!--
-            Send the request.
-        -->
-        <btxn from="Sender" to="Receiver" txnId="t1" handler="HttpMessaging"/>
-        <send desc="Send file" from="Sender" to="Receiver" txnId="t1">
-            <config name="http.method">POST</config>
-            <input name="http_parts">$parts</input>
-        </send>
-        <etxn txnId="t1"/>
-    </steps>
+    <!--
+        Receive a GET call and respond with a 200 status.
+        The step will complete for a received GET to http://localhost:8080/itbsrv/api/http/MY_API_KEY/.
+    -->
+    <receive id="receive1" desc="Receive call" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="method">"GET"</input>
+        <input name="status">"200"</input>
+    </receive>
+    <log>$receive1{request}{uri}</log> <!-- Print the full URI of the request. -->
+
+    <!--
+        Receive a POST call at a dynamically generated URI extension and respond with a 200 status and JSON body.
+        The step will complete for a received POST to http://localhost:8080/itbsrv/api/http/MY_API_KEY/update/123/all.
+    -->
+    <assign to="receive2Identifier">"123"<assign>
+    <assign to="receive2Headers{Content-Type}">"application/json"<assign>
+    <receive id="receive2" desc="Receive call" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="method">"POST"</input>
+        <input name="uriExtension">"/update/" || $receive1Identifier || "/all"</input>
+        <input name="status">"200"</input>
+        <input name="headers">$receive1Headers</input>
+        <input name="body">$receive2Body</input>
+    </receive>
+    <log>$receive2{request}{body}</log> <!-- Print the request body. -->
+    <log>$receive2{request}{headers}{Content-Type}</log> <!-- Print the request content type header. -->
+    <log>$receive2{response}{body}</log> <!-- Print the response body. -->
+
+    <!--
+        Receive a multipart PUT call and respond with a 500 status and text error message.
+        The step will complete for a received PUT to http://localhost:8080/itbsrv/api/http/MY_API_KEY/multi.
+    -->
+    <assign to="receive3Headers{Content-Type}">"text/plain"<assign>
+    <receive id="receive3" desc="Receive call" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="method">"PUT"</input>
+        <input name="uriExtension">"/multi"</input>
+        <input name="status">"500"</input>
+        <input name="headers">$receive3Headers</input>
+        <input name="body">"Unsupported operation"</input>
+    </receive>
+    <log>$receive3{request}{uri}</log> <!-- Print the request URI. -->
+    <log>$receive3{request}{body}</log> <!-- Print the request body. -->
 
 .. index:: HttpsMessaging
 .. index:: http_headers (HttpsMessaging)
@@ -296,6 +408,7 @@ test part):
 .. index:: http_method (HttpsMessaging)
 .. index:: http_version (HttpsMessaging)
 .. index:: http_path (HttpsMessaging)
+.. index:: http_status (HttpsMessaging)
 .. index:: network.host (HttpsMessaging)
 .. index:: network.port (HttpsMessaging)
 .. index:: http.uri (HttpsMessaging)
@@ -303,94 +416,6 @@ test part):
 .. index:: http.ssl (HttpsMessaging)
 .. index:: status.code (HttpsMessaging)
 .. index:: http.method (HttpsMessaging)
-
-HttpsMessaging
-++++++++++++++
-
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
-
-Used to send or receive content over HTTPS.
-
-.. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
-
-    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
-    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
-    ``http_method``, Output, No, ``string``, The HTTP method.
-    ``http_version``, Output, No, ``string``, The HTTP version.
-    ``http_uri``, Output, No, ``string``, The HTTP request path.
-    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
-    ``http_body``, Output, No, ``binary``, The bytes of the received body.
-    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
-    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
-    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
-    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
-    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
-    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
-    ``status.code``, Send configuration, No, ``string``, Status for responses.
-
-.. code-block:: xml
-
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpsMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <config name="http.method">"POST"</input>
-        <config name="http.uri.extension">"/path/to/service"</input>
-        <input name="http_body">$binaryContent</input>
-    </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
-        <config name="status.code">"200"</input>
-    </receive>
-    <etxn txnId="t1"/>
-
-.. note::
-    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
-    session communications when receiving data. Check it's documentation on what is needed to achieve this.
-
-.. index:: HttpProxyMessaging
-.. index:: request_data (HttpProxyMessaging)
-.. index:: http_method (HttpProxyMessaging)
-.. index:: http_version (HttpProxyMessaging)
-.. index:: http_path (HttpProxyMessaging)
-.. index:: network.host (HttpProxyMessaging)
-.. index:: network.port (HttpProxyMessaging)
-.. index:: proxy.address (HttpProxyMessaging)
-
-.. _handlers-HttpProxyMessaging:
-
-HttpProxyMessaging
-++++++++++++++++++
-
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
-
-Used to proxy HTTP requests and responses between two actors.
-
-.. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
-    :delim: ~
-
-    ``request_data``~ Input~ No~ ``map``~ The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
-    ``http_method``~ Output~ No~ ``string``~ The HTTP method.
-    ``http_version``~ Output~ No~ ``string``~ The HTTP version.
-    ``http_path``~ Output~ No~ ``string``~ The HTTP request path.
-    ``network.host``~ Actor configuration~ Yes~ ``string``~ The host of the actor.
-    ``network.port``~ Actor configuration~ Yes~ ``number``~ The listen port for the actor.
-    ``proxy.address``~ Send configuration~ No~ ``string``~ Address of the proxied service.
-
-In this case the ``request_data`` input ``map`` is defined as a convenience considering that we will always be receiving
-a call that we want to proxy to a final destination. The HTTP-related parameters to send to the destination need to match
-the initial parameters received.
-
-.. code-block:: xml
-
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpProxyMessaging"/>
-    <receive id="receiveData" desc="Receive call" from="Actor1" to="Actor2" txnId="t1" />
-    <send desc="Send call" from="Actor2" to="Actor1" txnId="t1">
-        <config name="proxy.address">http://PROXIED_SERVICE_ADDRESS</config>
-        <input name="request_data" source="$receiveData" />
-    </send>
-    <etxn txnId="t1"/>
 
 .. index:: SimulatedMessaging
 .. index:: parameters (SimulatedMessaging)
@@ -407,7 +432,7 @@ Used to add simulated messaging steps to the test execution diagram without any 
 place.
 
 .. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :header: "Input name", "Input type", "Required?", "Type", "Description"
     :delim: |
 
     ``parameters``| Send/receive input| No| ``map``| An optional ``map`` of data to display in the step report.
@@ -502,170 +527,260 @@ structures (maps and lists, nested at different levels).
         <input name="contentTypes">$types</input>
     </send>
 
-.. index:: SoapMessaging
-.. index:: http_headers (SoapMessaging)
-.. index:: soap_message (SoapMessaging)
-.. index:: soap_attachments (SoapMessaging)
-.. index:: soap_header (SoapMessaging)
-.. index:: soap_body (SoapMessaging)
-.. index:: soap_message (SoapMessaging)
-.. index:: soap_content (SoapMessaging)
-.. index:: soap_attachments (SoapMessaging)
-.. index:: soap_attachments_size (SoapMessaging)
-.. index:: network.host (SoapMessaging)
-.. index:: network.port (SoapMessaging)
-.. index:: http.uri (SoapMessaging)
-.. index:: soap.version (SoapMessaging)
-.. index:: soap.encoding (SoapMessaging)
-.. index:: http.uri.extension (SoapMessaging)
-.. index:: http.ssl (SoapMessaging)
+.. index:: SoapMessagingV2
 
-.. _handlers-soapmessaging:
+.. _handlers-soapmessagingv2:
 
-SoapMessaging
-+++++++++++++
-
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+SoapMessagingV2
++++++++++++++++
 
 Used to send or receive payloads via SOAP web service calls.
 
+.. index:: SoapMessagingV2 (send)
+.. index:: SoapMessagingV2 (send - uri)
+.. index:: SoapMessagingV2 (send - envelope)
+.. index:: SoapMessagingV2 (send - version)
+.. index:: SoapMessagingV2 (send - headers)
+.. index:: SoapMessagingV2 (send - action)
+.. index:: SoapMessagingV2 (send - attachments)
+.. index:: SoapMessagingV2 (send - tolerateNonSoapResponse)
+
+.. _handlers-soapmessagingv2-send:
+
+Use in send steps
+^^^^^^^^^^^^^^^^^
+
+To use this handler to **call a SOAP web service** of an external system, set it as the ``handler`` of a :ref:`send <tdl-step-send>` step 
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
 .. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
 
-    ``http_headers``, Input, No, ``map``, A ``map`` of HTTP headers to include.
-    ``soap_message``, Input, Yes, ``object``, The SOAP envelope to send.
-    ``soap_attachments``, Input, No, ``map``, A ``map`` of ``binary`` attachments.
-    ``http_headers``, Output, No, ``map``, The HTTP headers received.
-    ``soap_header``, Output, Yes, ``object``, The received SOAP header.
-    ``soap_body``, Output, Yes, ``object``, The received SOAP body.
-    ``soap_message``, Output, Yes, ``object``, The received SOAP envelope.
-    ``soap_content``, Output, Yes, ``object``, The XML content of the received SOAP body.
-    ``soap_attachments``, Output, No, ``map``, A ``map`` of received ``binary`` attachments.
-    ``soap_attachments_size``, Output, No, ``number``, The number of attachments received.
-    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
-    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
-    ``http.uri``, Actor configuration, No, ``string``, The request path to send the SOAP request to.
-    ``soap.version``, Receive configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
-    ``soap.version``, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
-    ``soap.encoding``, Send configuration, No, ``string``, Character set encoding.
-    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
-    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+    ``uri`` | Yes | ``string`` | The URI of the SOAP endpoint to be called.
+    ``envelope`` | Yes | ``object`` | The SOAP envelope to send (as an XML object).
+    ``version`` | No | ``string`` | The SOAP protocol version (either "1.1" or "1.2"). If not provided this is calculated from the provided Content-Type HTTP header, otherwise "1.1" is used.
+    ``action`` | No | ``string`` | The SOAPAction header to set. This overrides the value set in the HTTP headers (if present).
+    ``attachments`` | No | ``list`` | The MTOM attachments to set, provided as a list of maps or a single map. Each map corresponds to an attachment and includes keys *"name"* (required), *"content"* (required), *"contentType"* and *"forceText"* (a boolean to force the attachment's inclusion as text).
+    ``tolerateNonSoapResponse`` | No | ``boolean`` | Whether a non-SOAP response will be tolerated (otherwise the step results in a failure).
+
+Once the :ref:`send <tdl-step-send>` step completes, the resulting report will include two nested maps named ``request`` and ``response``, corresponding 
+respectively to the submitted request and received response. The ``request`` map includes the following:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``uri`` | Yes | ``string`` | The URI of the endpoint that was called.
+    ``envelope`` | Yes | ``object`` | The SOAP envelope that was sent.
+    ``body`` | Yes | ``object`` | The SOAP body extracted from the envelope.
+    ``headers`` | Yes | ``map`` | The HTTP headers added to the request, provided as a map of key (header name) to comma-separated string values (header values).
+    ``attachments`` | No | ``map`` | The MTOM attachments sent with the envelope. The key of each entry is the attachment name, whereas the value is the content.
+
+The ``response`` map includes the following:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``status`` | Yes | ``number`` | The HTTP status code of the response.
+    ``envelope`` | No | ``object`` | The SOAP envelope of the response.
+    ``body`` | No | ``object`` | The SOAP body extracted from the response envelope.
+    ``headers`` | No | ``map`` | The HTTP headers from the response, provided as a map of key (header name) to comma-separated string values (header values).
+    ``attachments`` | No | ``map`` | The MTOM attachments sent with the envelope. The key of each entry is the attachment name, whereas the value is the content.
+
+The following GITB TDL snippets provide various examples using the ``SoapMessagingV2`` handler in :ref:`send <tdl-step-send>` steps, as well as accessing
+outputs (see inline comments for details per case).
 
 .. code-block:: xml
 
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <config name="soap.version">1.2</config>
-        <input name="soap_message">$soapMessage</input>
+    <!--
+        Make a SOAP 1.1 call to https://my.sut.org/api/service.
+    -->
+    <send id="send1" desc="Send SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="uri">"https://my.sut.org/api/service"</input>
+        <input name="envelope">$send1Envelope</input>
     </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
-        <config name="soap.version">1.2</config>
-    </receive>
-    <etxn txnId="t1"/>
+    <log>$send1{request}{envelope}</log> <!-- Print the SOAP envelope that was sent. -->
+    <log>$send1{response}{body}</log> <!-- Print the response's SOAP body. -->
+    <log>$send1{response}{headers}{Content-Type}</log> <!-- Print the response HTTP Content-Type header. -->
 
-**Using HTTPS**
-
-The ``SoapMessaging`` handler can be used both over an HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
-HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
-is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
-step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
-
-The following example illustrates its use:
-
-.. code-block:: xml
-    :emphasize-lines: 2
-
-    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
-        <config name="http.ssl">true</config>
-    </btxn>
-    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
-        <config name="soap.version">$soapVersion</config>
-        <input name="soap_message">$soapMessage</input>
+    <!-- 
+        Make a SOAP 1.2 call to https://my.sut.org/api/service2 setting the SOAP action.
+    -->
+    <send id="send2" desc="Send SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="uri">"https://my.sut.org/api/service2"</input>
+        <input name="envelope">$send2Envelope</input>
+        <input name="action">"http://my.sut.org/MyService/Operation1"</input>
+        <input name="version">"1.2"</input>
     </send>
+    <log>$send2{request}{envelope}</log> <!-- Print the SOAP envelope that was sent. -->
+    <log>$send2{response}{body}</log> <!-- Print the response's SOAP body. -->
+    <log>$send2{response}{headers}{Content-Type}</log> <!-- Print the response HTTP Content-Type header. -->
 
-Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
-if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
-test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
-the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+    <!--
+        Make a SOAP 1.1 call to https://my.sut.org/api/service3 with MTOM attachments (a binary file and a JSON document).
+    -->
+    <assign to="send3File1{name}">"id1"</assign>
+    <assign to="send3File1{content}">$send3Attachment1</assign>
+    <assign to="send3File1{contentType}">"application/zip"</assign>
 
-.. code-block:: xml
-    :emphasize-lines: 2
+    <assign to="send3File2{name}">"id2"</assign>
+    <assign to="send3File2{content}">$send3Attachment2</assign>
+    <assign to="send3File2{contentType}">"application/json"</assign>
+    <assign to="send3File2{forceText}">true()</assign> <!-- Add the attachment inline as text rather than Base64. -->
 
-    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
-        <config name="http.ssl">$sutInfo{isHTTPS}</config>
-    </btxn>
+    <assign to="send3Attachments" append="true">$send3File1</assign>
+    <assign to="send3Attachments" append="true">$send3File2</assign>
+
+    <send id="send3" desc="Send SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="uri">"https://my.sut.org/api/service3"</input>
+        <input name="envelope">$send3Envelope</input>
+        <input name="attachments">$send3Attachments</input>
+    </send>
+    <log>$send3{request}{envelope}</log> <!-- Print the SOAP envelope that was sent. -->
+    <log>$send3{request}{attachments}{id2}</log> <!-- Print the JSON file sent as an attachment. -->
+    <log>$send3{request}{headers}{Content-Type}</log> <!-- Print the HTTP Content-Type header that was generated for the request. -->
+    <log>$send3{response}{status}</log> <!-- Print the response status. -->
+    <log>$send3{response}{body}</log> <!-- Print the response SOAP body. -->
+
+.. index:: SoapMessagingV2 (receive)
+.. index:: SoapMessagingV2 (receive - uriExtension)
+.. index:: SoapMessagingV2 (receive - status)
+.. index:: SoapMessagingV2 (receive - envelope)
+.. index:: SoapMessagingV2 (receive - version)
+.. index:: SoapMessagingV2 (receive - attachments)
+.. index:: SoapMessagingV2 (receive - headers)
+
+.. _handlers-soapmessagingv2-receive:
+
+Use in receive steps
+^^^^^^^^^^^^^^^^^^^^
+
+To use this handler to **receive a SOAP web service call** from an external system, set it as the ``handler`` of a :ref:`receive <tdl-step-receive>` step 
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``uriExtension`` | No | ``string`` | A URI extension following the base endpoint path at which the request will be expected.
+    ``status`` | No | ``number`` | The HTTP status code to return (default is 200).
+    ``envelope`` | Yes | ``object`` | The SOAP envelope to respond with (as an XML object).
+    ``version`` | No | ``string`` | The SOAP protocol version (either "1.1" or "1.2") to construct the response with. If not provided this is calculated from the provided Content-Type HTTP header, otherwise "1.1" is used.
+    ``attachments`` | No | ``list`` | The MTOM attachments to include in the response, provided as a list of maps or a single map. Each map corresponds to an attachment and includes keys *"name"* (required), *"content"* (required), *"contentType"* and *"forceText"* (a boolean to force the attachment's inclusion as text).
+    ``headers`` | No | ``map`` | The HTTP headers to include in the response, provided as a map of key (header name) to comma-separated string values (header values).
+
+When the :ref:`receive <tdl-step-receive>` step executes, the test session will be suspended until a matching request is received from the system under test.
+The listening endpoint where this request will be received is constructed by concatenating in sequence:
+
+1. The test engine's **base messaging URL**.
+2. The unique **API key** of the system under test.
+3. If defined, the **URI extension** provided as the step's ``uriExtension`` input.
+
+As an example, for a Test Bed installation running locally with default settings, a system with API key "MY_API_KEY", and a provided URI extension of "/test";
+the listen endpoint will be:
+
+``http://localhost:8080/itbsrv/api/soap/MY_API_KEY/test``
+
+Received query string parameters are ignored when matching incoming requests, except if a query string has been included in the ``uriExtension`` input.
+In any case, once the :ref:`receive <tdl-step-receive>` step executes, the listen endpoint will be added in the test session log.
+
+.. code-block:: none
+
+    ...
+    [2024-06-05 18:19:56] INFO  - Waiting to receive SOAP message at [http://localhost:8080/itbsrv/api/soap/7039EC8EX4786X4103XB40FXC7242D11E9B0/service] for step [Receive SOAP message]
 
 .. note::
-    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
-    session communications when receiving data. Check it's documentation on what is needed to achieve this.
 
-.. index:: TCPMessaging
-.. index:: content (TCPMessaging)
-.. index:: network.host (TCPMessaging)
-.. index:: network.port (TCPMessaging)
+    **Supporting parallel test sessions:** The listen endpoint for a :ref:`receive <tdl-step-receive>` step determines also whether test sessions can execute in parallel. If no ``uriExtension`` is
+    provided, all test sessions for the system (at least the ones with :ref:`receive <tdl-step-receive>` steps) will need to execute sequentially. You can
+    :ref:`configure the relevant test cases <test-case>` with ``supportsParallelExecution`` as "false" to enforce this.
 
-TCPMessaging
-++++++++++++
+    If possible, try to have ``uriExtension`` differ across test cases, and ideally vary per test session.
 
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
-
-Used to send or receive an arbitrary byte stream over TCP.
+Once the :ref:`receive <tdl-step-receive>` step completes, the resulting report will include two nested maps named ``request`` and ``response``, corresponding 
+respectively to the received request and provided response. The ``request`` map includes the following:
 
 .. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
 
-    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
-    ``content``, Output, Yes, ``binary``, The stream of bytes received.
-    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
-    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``uri`` | Yes | ``string`` | The URI of the endpoint that was called.
+    ``envelope`` | Yes | ``object`` | The SOAP envelope that was received.
+    ``body`` | Yes | ``object`` | The SOAP body extracted from the envelope.
+    ``headers`` | Yes | ``map`` | The request HTTP headers, provided as a map of key (header name) to comma-separated string values (header values).
+    ``attachments`` | No | ``map`` | The MTOM attachments received with the envelope. The key of each entry is the attachment name, whereas the value is the content.
+
+The ``response`` map includes the following:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``status`` | Yes | ``number`` | The HTTP status code of the response.
+    ``envelope`` | No | ``object`` | The SOAP envelope provided as the response.
+    ``body`` | No | ``object`` | The SOAP body extracted from the response envelope.
+    ``headers`` | No | ``map`` | The response HTTP headers, provided as a map of key (header name) to comma-separated string values (header values).
+    ``attachments`` | No | ``map`` | The MTOM attachments sent with the response envelope. The key of each entry is the attachment name, whereas the value is the content.
+
+The following GITB TDL snippets provide various examples using the ``SoapMessagingV2`` handler in :ref:`send <tdl-step-send>` steps, as well as accessing
+outputs (see inline comments for details per case).
 
 .. code-block:: xml
 
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="TCPMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <input name="content">$binaryContent</input>
-    </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
-    <etxn txnId="t1"/>
+    <!--
+        Receive a SOAP call and respond with a success and specific envelope.
+        The step will complete for a received SOAP call to http://localhost:8080/itbsrv/api/soap/MY_API_KEY/.
+    -->
+    <receive id="receive1" desc="Receive SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="envelope">$receive1Envelope</input>
+    </receive>
+    <log>$receive1{request}{body}</log> <!-- Print the received SOAP body. -->
+    <log>$receive1{response}{envelope}</log> <!-- Print the SOAP envelope sent as the response. -->
 
-.. index:: UDPMessaging
-.. index:: content (UDPMessaging)
-.. index:: network.host (UDPMessaging)
-.. index:: network.port (UDPMessaging)
-.. _handlers-udpmessaging:
+    <!--
+        Receive a SOAP call at a specific URI extension and respond with a 500 status and SOAP fault using SOAP version 1.2.
+        The step will complete for a received SOAP call to http://localhost:8080/itbsrv/api/soap/MY_API_KEY/service.
+    -->
+    <receive id="receive2" desc="Receive SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="uriExtension">"/service"</input>
+        <input name="status">"500"</input>
+        <input name="version">"1.2"</input>
+        <input name="envelope">$receive2FaultEnvelope</input>
+    </receive>
+    <log>$receive2{request}{body}</log> <!-- Print the received SOAP body. -->
+    <log>$receive2{response}{status}</log> <!-- Print the status of the response. -->
 
-UDPMessaging
-++++++++++++
+    <!--
+        Receive a SOAP call at a specific URI extension and respond with a success and envelope along with two MTOM attachments  (a binary file and a JSON document).
+        The step will complete for a received SOAP call to http://localhost:8080/itbsrv/api/soap/MY_API_KEY/service.
+    -->
+    <assign to="receive3File1{name}">"id1"</assign>
+    <assign to="receive3File1{content}">$receive3Attachment1</assign>
+    <assign to="receive3File1{contentType}">"application/zip"</assign>
 
-.. warning::
-  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+    <assign to="receive3File2{name}">"id2"</assign>
+    <assign to="receive3File2{content}">$receive3Attachment2</assign>
+    <assign to="receive3File2{contentType}">"application/json"</assign>
+    <assign to="receive3File2{forceText}">true()</assign> <!-- Add the attachment inline as text rather than Base64. -->
 
-Used to send or receive arbitrary bytes over UDP.
-
-.. csv-table::
-    :header: "Element name", "Element type", "Required?", "Type", "Description"
-
-    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
-    ``content``, Output, Yes, ``binary``, The stream of bytes received.
-    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
-    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
-
-.. code-block:: xml
-
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="UDPMessaging"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
-        <input name="content">$binaryContent</input>
-    </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
-    <etxn txnId="t1"/>
+    <assign to="receive3Attachments" append="true">$receive3File1</assign>
+    <assign to="receive3Attachments" append="true">$receive3File2</assign>
+    <receive id="receive3" desc="Receive SOAP message" from="Actor1" to="Actor2" handler="SoapMessagingV2">
+        <input name="uriExtension">"/service"</input>
+        <input name="envelope">$receive3Envelope</input>
+        <input name="attachments">$receive3Attachments</input>
+    </receive>
 
 .. index:: Built-in processing handlers
 .. _handlers-predefined-handlers-processing:
 
 Built-in processing handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute (in 
+:ref:`process <tdl-step-process>` or :ref:`bptxn <tdl-step-bptxn>` steps).
 
 .. index:: Base64Processor
 .. index:: encode (Base64Processor)
@@ -1380,7 +1495,7 @@ The input parameters expected by the different operations are as follows:
     ``string`` | ``format`` | Yes | A regular expression acting as a template to determine the generated token's format.
     ``random`` | ``minimum`` | No | A ``number`` representing the minimum bound (inclusive) for the value to produce. If not provided the default considered is zero.
     ``random`` | ``maximum`` | No | A ``number`` representing the maximum bound (exclusive) for the value to produce.
-    ``random`` | ``integer`` | No | A ``boolean`` determining whether the produced value will be an integer (when ``true``) or a double-precision number (when ``false``). By default a double-precision number is produced.
+    ``random`` | ``integer`` | No | A ``boolean`` determining whether the produced value will be an integer (when "true") or a double-precision number (when ``false``). By default a double-precision number is produced.
 
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
 e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
@@ -1602,6 +1717,8 @@ be :ref:`imported<test-case-imports>` from the test suite's resources.
 Built-in validation handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The title of each section corresponds to the name of the handler that needs to be configured in the relevant :ref:`verify <tdl-step-verify>` step's ``handler`` attribute.
+
 .. index:: ExpressionValidator
 .. index:: expression (ExpressionValidator)
 .. _handlers-ExpressionValidator:
@@ -1609,7 +1726,7 @@ Built-in validation handlers
 ExpressionValidator
 +++++++++++++++++++
 
-Used to verify whether a provided :ref:`expression<test-case-expressions>` evaluates to ``true``. The 
+Used to verify whether a provided :ref:`expression<test-case-expressions>` evaluates to "true". The 
 ``ExpressionValidator`` is the most generic validation handler as it can be used to check any arbitrary 
 condition.
 
@@ -1697,6 +1814,10 @@ This syntax also supports expression flags provided in an embedded manner, withi
 SchematronValidator
 +++++++++++++++++++
 
+.. note::
+    
+  For Schematron validation consider using the :ref:`handlers-XmlValidator` handler which offering more features and flexibility.
+
 Used to validate an XML document against a Schematron file.
 
 .. csv-table::
@@ -1705,8 +1826,8 @@ Used to validate an XML document against a Schematron file.
     ``schematron``, Yes, ``schema``, The Schematron file to use for the validation (XSTL or SCH).
     ``xmldocument``, Yes, ``object``, The XML document to validate.
     ``type``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the resource's file suffix. The overall default considered is ``sch``.
-    ``showSchematron``, No, ``boolean``, Whether or not to include in the step's report the Schematron used for the validation (default is ``true``).
-    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity (``true``) or location in the input (``false`` - the default).
+    ``showSchematron``, No, ``boolean``, Whether or not to include in the step's report the Schematron used for the validation (default is "true").
+    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
     ``showTests``, No, ``boolean``, Whether or not to include in the step's report the assertion performed for each finding (default is ``false``).
 
 .. note::
@@ -1822,9 +1943,9 @@ Used to validate an XML document against an XML Schema (XSD) and/or zero or more
     ``xsd``, No, ``schema``, The XSD to validate the document's structure against.
     ``schematron``, No, ``list[schema]``, The list of Schematron files to validate the document's content against.
     ``schematronType``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the files' suffix. The overall default considered is ``sch``.
-    ``stopOnXsdErrors``, No, ``boolean``, Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is ``true``).
-    ``sortBySeverity``, No, ``boolean``, Whether findings should be sorted by severity (``true``) or by location in the XML content (``false`` - the default).
-    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is ``true``).
+    ``stopOnXsdErrors``, No, ``boolean``, Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is "true").
+    ``sortBySeverity``, No, ``boolean``, Whether findings should be sorted by severity ("true") or by location in the XML content (``false`` - the default).
+    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is "true").
     ``showSchematronTests``, No, ``boolean``, Whether or not the Schematron assertions applied should be displayed for each reported finding (default is ``false``).
 
 Regarding inputs, if you need to supply a single Schematron file you don't need to create a ``list`` and pass it as such. You can
@@ -1977,7 +2098,6 @@ The following example illustrates how you can use namespace prefixes with your X
         </steps>
     </testcase>
 
-
 .. index:: XSDValidator
 .. index:: xsddocument (XSDValidator)
 .. index:: xmldocument (XSDValidator)
@@ -1988,6 +2108,10 @@ The following example illustrates how you can use namespace prefixes with your X
 XSDValidator
 ++++++++++++
 
+.. note::
+    
+  For XSD validation consider using the :ref:`handlers-XmlValidator` handler which offering more features and flexibility.
+
 Used to validate an XML document against an XML Schema (XSD) instance.
 
 .. csv-table::
@@ -1995,8 +2119,8 @@ Used to validate an XML document against an XML Schema (XSD) instance.
 
     ``xsddocument``, Yes, ``schema``, The XSD to validate the document against.
     ``xmldocument``, Yes, ``object``, The XML document to validate.
-    ``showSchema``, No, ``boolean``, Whether to include in the step's report the XSD used for the validation (default is ``true``).
-    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity (``true``) or location in the input (``false`` - the default).
+    ``showSchema``, No, ``boolean``, Whether to include in the step's report the XSD used for the validation (default is "true").
+    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
 
 .. code-block:: xml
 
@@ -2007,6 +2131,465 @@ Used to validate an XML document against an XML Schema (XSD) instance.
         <input name="showSchema">false()</input>        
         <input name="sortBySeverity">true()</input>        
     </verify>
+
+Deprecated built-in messaging handlers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+
+    The built-in messaging handlers listed here have been deprecated as they cannot be effectively customised and require the direct exposure of the internal
+    test engine to systems under test.
+
+Each following section defines a table with the information expected by each messaging handler. The meaning of this information is as follows:
+
+* **Input:** These are the inputs provided for the send step.
+* **Output:** These are the outputs returned from the receive step.
+* **Actor configuration:** These are configuration properties that will be automatically set for simulated actors using this handler.
+* **Receive configuration:** These are configuration properties expected by the receive step.
+* **Send configuration:** These are configuration properties expected by the send step.
+* **Transaction configuration:** These are configuration properties defined in the btxn or bptxn step.
+
+The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute (in 
+:ref:`send <tdl-step-send>`, :ref:`receive <tdl-step-receive>` or :ref:`btxn <tdl-step-btxn>` steps).
+
+.. index:: HttpMessaging
+.. index:: http_headers (HttpMessaging)
+.. index:: http_body (HttpMessaging)
+.. index:: http_parts (HttpMessaging)
+.. index:: http_method (HttpMessaging)
+.. index:: http_version (HttpMessaging)
+.. index:: http_path (HttpMessaging)
+.. index:: http_status (HttpMessaging)
+.. index:: network.host (HttpMessaging)
+.. index:: network.port (HttpMessaging)
+.. index:: http.uri (HttpMessaging)
+.. index:: http.uri.extension (HttpMessaging)
+.. index:: http.ssl (HttpMessaging)
+.. index:: status.code (HttpMessaging)
+.. index:: http.method (HttpMessaging)
+
+.. _handlers-httpmessaging:
+
+HttpMessaging
++++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Use instead the :ref:`handlers-httpmessagingv2` handler or a 
+  :ref:`custom messaging handler<handlers-custom-handlers>` if you have complex messaging needs.
+
+Used to send or receive content over HTTP.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    ``http_version``, Input, No, ``string``, The HTTP version to consider.
+    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
+    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
+    ``http_parts``, Input, No, ``map``, A ``map`` including the definition of the parts (see description below).
+    ``http_method``, Output, No, ``string``, The HTTP method.
+    ``http_version``, Output, No, ``string``, The HTTP version.
+    ``http_path``, Output, No, ``string``, The HTTP request path.
+    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
+    ``http_body``, Output, No, ``binary``, The bytes of the received body.
+    ``http_parts``, Output, No, ``map``, A ``map`` including the received parts (see description below).
+    ``http_status``, Output, No, ``string``, The HTTP status code from the received response.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
+    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
+    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
+    ``http.uri``, Send configuration, No, ``string``, The request path URI to send to.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``status.code``, Send configuration, No, ``string``, Status for responses.
+    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <config name="http.method">"POST"</input>
+        <config name="http.uri">"/path/to/service"</input>
+        <input name="http_body">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+        <config name="status.code">"200"</input>
+    </receive>
+    <etxn txnId="t1"/>
+
+.. note::
+    **Isolating communications:** When using a ``HttpMessaging`` handler to receive communication from a SUT, the test bed dynamically starts listening on 
+    a new port for incoming traffic. This port (along with the host) are presented to the test bed user upon test initiation so that he/she can configure
+    the SUT accordingly. To avoid unwanted communication being received on this port that is unrelated to the test session, the test bed will only 
+    listen to requests originating from the SUT's address, ignoring others originating from other sources. To achieve this, the test bed uses the 
+    ``network.host`` parameter configured for the SUT that needs to be provided by the tester as part of the SUT's configuration before starting a test.
+
+    The value for the ``network.host`` parameter must be set with the **public IP Address** of the SUT endpoint.
+
+Using HTTPS
+^^^^^^^^^^^
+
+The ``HttpMessaging`` handler can be used both for HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
+HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
+is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
+step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+
+The following example illustrates its use:
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
+        <config name="http.ssl">true</config>
+    </btxn>
+    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
+        <config name="http.method">POST</config>
+        <input name="http_body">$content</input>
+    </send>
+
+Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
+if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
+test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="HttpMessaging">
+        <config name="http.ssl">$sutInfo{isHTTPS}</config>
+    </btxn>
+
+Support for sending and receiving multipart form data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When **receiving**, a multipart message is detected if the ``ContentType`` header contains a boundary part. The ``http_parts`` output is a ``map`` that contains:
+
+    * ``http_parts{parts}``: A list of all parts in sequence.
+    * ``http_parts{parts}{0}{header}``: The part's header as a string.
+    * ``http_parts{parts}{0}{content}``: The part's content as a binary.
+    * ``http_parts{partsByName}``: A map of parts by name (for easy lookup of named parts):
+    * ``http_parts{partsByName}{NAME}{header}``: The part's header as a string.
+    * ``http_parts{partsByName}{NAME}{content}``: The part's content as a binary.
+
+When **sending**, if a ``http_body`` input is present this takes precedence. If not, and a ``http_parts`` input is provided, then a multipart request is created. The 
+``http_parts`` input is a ``list`` of ``maps`` (one map per part). To send a part as a file the ``file_name`` property needs to be passed. Specifically the information 
+on a part is as follows:
+
+    * ``http_parts{0}{name}``: The name of the part.
+    * ``http_parts{0}{content_type}``: The mime type of the part (text/plain for simple text).
+    * ``http_parts{0}{file_name}``: The name of the file to set for the part if this is a file/binary p
+
+The following TDL example illustrates how to populate and send a multipart request with three parts (two file parts and one
+test part):
+
+.. code-block:: xml
+
+    <imports>
+        <artifact type="schema" encoding="UTF-8" name="file1">testSuite1/artifacts/file1.xml</artifact>
+        <artifact type="binary" encoding="UTF-8" name="file2">testSuite1/artifacts/file2.zip</artifact>
+    </imports>
+    <variables>
+        <var name="parts" type="list[map]"/>
+        <var name="filePartInfo1" type="map"/>
+        <var name="filePartInfo2" type="map"/>
+        <var name="textPartInfo1" type="map"/>
+    </variables>
+    <actors>
+        ...
+    </actors>
+    <steps>
+        <!--
+            Define first file part.
+        -->
+        <assign to="$filePartInfo1{name}" type="string">"file1"</assign>
+        <assign to="$filePartInfo1{content_type}" type="string">"text/xml"</assign>
+        <assign to="$filePartInfo1{file_name}" type="string">"file1.xml"</assign>
+        <assign to="$filePartInfo1{content}" type="binary">$file1</assign>
+        <!--
+            Define second file part.
+        -->
+        <assign to="$filePartInfo2{name}" type="string">"file2"</assign>
+        <assign to="$filePartInfo2{content_type}" type="string">"application/zip"</assign>
+        <assign to="$filePartInfo2{file_name}" type="string">"file2.zip"</assign>
+        <assign to="$filePartInfo2{content}" type="binary">$file2</assign>
+        <!--
+            Define a third text part.
+        -->
+        <assign to="$textPartInfo1{name}" type="string">"text1"</assign>
+        <assign to="$textPartInfo1{content_type}" type="string">"text/plain"</assign>
+        <assign to="$textPartInfo1{content}" type="string">"A simple text value"</assign>
+        <!--
+            Put all parts in a list.
+        -->
+        <assign to="$parts" append="true">$filePartInfo1</assign>
+        <assign to="$parts" append="true">$filePartInfo2</assign>
+        <assign to="$parts" append="true">$textPartInfo1</assign>
+        <!--
+            Send the request.
+        -->
+        <btxn from="Sender" to="Receiver" txnId="t1" handler="HttpMessaging"/>
+        <send desc="Send file" from="Sender" to="Receiver" txnId="t1">
+            <config name="http.method">POST</config>
+            <input name="http_parts">$parts</input>
+        </send>
+        <etxn txnId="t1"/>
+    </steps>
+
+.. _handlers-httpsmessaging:
+
+HttpsMessaging
+++++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Use instead the :ref:`handlers-httpmessagingv2` handler or a 
+  :ref:`custom messaging handler<handlers-custom-handlers>` if you have complex messaging needs.
+
+Used to send or receive content over HTTPS.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    ``http_headers``, Input, No, ``map``, The ``map`` of HTTP headers to send.
+    ``http_body``, Input, No, ``binary``, The HTTP request body's bytes.
+    ``http_method``, Output, No, ``string``, The HTTP method.
+    ``http_version``, Output, No, ``string``, The HTTP version.
+    ``http_uri``, Output, No, ``string``, The HTTP request path.
+    ``http_headers``, Output, No, ``map``, The ``map`` of received headers.
+    ``http_body``, Output, No, ``binary``, The bytes of the received body.
+    ``http_status``, Output, No, ``string``, The HTTP status code from the received response.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path for the request.
+    ``status.code``, Receive configuration, No, ``string``, The status code for responses.
+    ``http.method``, Send configuration, Yes, ``string``, The HTTP method to use when sending.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``status.code``, Send configuration, No, ``string``, Status for responses.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpsMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <config name="http.method">"POST"</input>
+        <config name="http.uri.extension">"/path/to/service"</input>
+        <input name="http_body">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+        <config name="status.code">"200"</input>
+    </receive>
+    <etxn txnId="t1"/>
+
+.. note::
+    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
+    session communications when receiving data. Check it's documentation on what is needed to achieve this.
+
+.. index:: HttpProxyMessaging
+.. index:: request_data (HttpProxyMessaging)
+.. index:: http_method (HttpProxyMessaging)
+.. index:: http_version (HttpProxyMessaging)
+.. index:: http_path (HttpProxyMessaging)
+.. index:: network.host (HttpProxyMessaging)
+.. index:: network.port (HttpProxyMessaging)
+.. index:: proxy.address (HttpProxyMessaging)
+
+.. _handlers-HttpProxyMessaging:
+
+HttpProxyMessaging
+++++++++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Use instead the :ref:`handlers-httpmessagingv2` handler or a 
+  :ref:`custom messaging handler<handlers-custom-handlers>` if you have complex messaging needs.
+
+Used to proxy HTTP requests and responses between two actors.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+    :delim: ~
+
+    ``request_data``~ Input~ No~ ``map``~ The ``map`` of data to consider. Contains the ``http_method``, ``http_path``, ``http_body``, ``http_headers`` inputs from the HttpMessaging handler.
+    ``http_method``~ Output~ No~ ``string``~ The HTTP method.
+    ``http_version``~ Output~ No~ ``string``~ The HTTP version.
+    ``http_path``~ Output~ No~ ``string``~ The HTTP request path.
+    ``network.host``~ Actor configuration~ Yes~ ``string``~ The host of the actor.
+    ``network.port``~ Actor configuration~ Yes~ ``number``~ The listen port for the actor.
+    ``proxy.address``~ Send configuration~ No~ ``string``~ Address of the proxied service.
+
+In this case the ``request_data`` input ``map`` is defined as a convenience considering that we will always be receiving
+a call that we want to proxy to a final destination. The HTTP-related parameters to send to the destination need to match
+the initial parameters received.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpProxyMessaging"/>
+    <receive id="receiveData" desc="Receive call" from="Actor1" to="Actor2" txnId="t1" />
+    <send desc="Send call" from="Actor2" to="Actor1" txnId="t1">
+        <config name="proxy.address">http://PROXIED_SERVICE_ADDRESS</config>
+        <input name="request_data" source="$receiveData" />
+    </send>
+    <etxn txnId="t1"/>
+
+.. index:: SoapMessaging
+.. index:: http_headers (SoapMessaging)
+.. index:: soap_message (SoapMessaging)
+.. index:: soap_attachments (SoapMessaging)
+.. index:: soap_header (SoapMessaging)
+.. index:: soap_body (SoapMessaging)
+.. index:: soap_message (SoapMessaging)
+.. index:: soap_content (SoapMessaging)
+.. index:: soap_attachments (SoapMessaging)
+.. index:: soap_attachments_size (SoapMessaging)
+.. index:: network.host (SoapMessaging)
+.. index:: network.port (SoapMessaging)
+.. index:: http.uri (SoapMessaging)
+.. index:: soap.version (SoapMessaging)
+.. index:: soap.encoding (SoapMessaging)
+.. index:: http.uri.extension (SoapMessaging)
+.. index:: http.ssl (SoapMessaging)
+.. index:: http_status (SoapMessaging)
+
+.. _handlers-soapmessaging:
+
+SoapMessaging
++++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Use instead the :ref:`handlers-soapmessagingv2` handler or a 
+  :ref:`custom messaging handler<handlers-custom-handlers>` if you have complex messaging needs.
+
+Used to send or receive payloads via SOAP web service calls.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    ``http_headers``, Input, No, ``map``, A ``map`` of HTTP headers to include.
+    ``soap_message``, Input, Yes, ``object``, The SOAP envelope to send.
+    ``soap_attachments``, Input, No, ``map``, A ``map`` of ``binary`` attachments.
+    ``http_headers``, Output, No, ``map``, The HTTP headers received.
+    ``soap_header``, Output, Yes, ``object``, The received SOAP header.
+    ``soap_body``, Output, Yes, ``object``, The received SOAP body.
+    ``soap_message``, Output, Yes, ``object``, The received SOAP envelope.
+    ``soap_content``, Output, Yes, ``object``, The XML content of the received SOAP body.
+    ``soap_attachments``, Output, No, ``map``, A ``map`` of received ``binary`` attachments.
+    ``soap_attachments_size``, Output, No, ``number``, The number of attachments received.
+    ``http_status``, Output, No, ``string``, The HTTP status code from the received response.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+    ``http.uri``, Actor configuration, No, ``string``, The request path to send the SOAP request to.
+    ``soap.version``, Receive configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
+    ``soap.version``, Send configuration, Yes, ``string``, SOAP Version. Can be 1.1 or 1.2.
+    ``soap.encoding``, Send configuration, No, ``string``, Character set encoding.
+    ``http.uri.extension``, Send configuration, No, ``string``, HTTP URI extension for the address.
+    ``http.ssl``, Transaction configuration, No, ``boolean``, Whether or not connections should be over HTTP (default) or HTTPS.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <config name="soap.version">1.2</config>
+        <input name="soap_message">$soapMessage</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+        <config name="soap.version">1.2</config>
+    </receive>
+    <etxn txnId="t1"/>
+
+Using HTTPS
+^^^^^^^^^^^
+
+The ``SoapMessaging`` handler can be used both over an HTTP and (one-way) HTTPS connection. The default setting is connection over HTTP. Switching to 
+HTTPS is done at the level of the handler's enclosing transaction and applies to all subsequent :ref:`tdl-step-send` or :ref:`tdl-step-receive` steps. Enabling HTTPS
+is achieved by passing a configuration parameter named "http.ssl" with a value of true or false (case insensitive) as part of the begin transaction
+step (step :ref:`tdl-step-btxn`). This must be provided at this point because it is needed when creating the sender and receiver implementation.
+
+The following example illustrates its use:
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">true</config>
+    </btxn>
+    <send id="dataSend" desc="Send data" from="sender" to="receiver" txnId="t1">
+        <config name="soap.version">$soapVersion</config>
+        <input name="soap_message">$soapMessage</input>
+    </send>
+
+Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
+if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
+test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
+
+.. code-block:: xml
+    :emphasize-lines: 2
+
+    <btxn from="sender" to="receiver" txnId="t1" handler="SoapMessaging">
+        <config name="http.ssl">$sutInfo{isHTTPS}</config>
+    </btxn>
+
+.. note::
+    **Isolating communications:** Handler ``HttpsMessaging`` builds upon the mechanism of :ref:`handlers-httpmessaging` to isolate test 
+    session communications when receiving data. Check it's documentation on what is needed to achieve this.
+
+.. index:: TCPMessaging
+.. index:: content (TCPMessaging)
+.. index:: network.host (TCPMessaging)
+.. index:: network.port (TCPMessaging)
+
+TCPMessaging
+++++++++++++
+
+.. warning::
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+
+Used to send or receive an arbitrary byte stream over TCP.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
+    ``content``, Output, Yes, ``binary``, The stream of bytes received.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="TCPMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <input name="content">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <etxn txnId="t1"/>
+
+.. index:: UDPMessaging
+.. index:: content (UDPMessaging)
+.. index:: network.host (UDPMessaging)
+.. index:: network.port (UDPMessaging)
+.. _handlers-udpmessaging:
+
+UDPMessaging
+++++++++++++
+
+.. warning::
+
+  This messaging handler is **deprecated**. Define instead a :ref:`custom messaging handler<handlers-custom-handlers>` to cover your test case messaging needs.
+
+Used to send or receive arbitrary bytes over UDP.
+
+.. csv-table::
+    :header: "Element name", "Element type", "Required?", "Type", "Description"
+
+    ``content``, Input, Yes, ``binary``, The stream of bytes to send.
+    ``content``, Output, Yes, ``binary``, The stream of bytes received.
+    ``network.host``, Actor configuration, Yes, ``string``, The host of the actor.
+    ``network.port``, Actor configuration, Yes, ``number``, The listen port for the actor.
+
+.. code-block:: xml
+
+    <btxn from="Actor1" to="Actor2" txnId="t1" handler="UDPMessaging"/>
+    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+        <input name="content">$binaryContent</input>
+    </send>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1"/>
+    <etxn txnId="t1"/>
 
 .. index:: Reusable external handlers
 .. _handlers-reusable-handlers:
@@ -2516,11 +3099,12 @@ these APIs you can refer to the `GITB test services documentation <https://www.i
 * `Messaging services <https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html>`_, to send and receive messages.
 * `Processing services <https://www.itb.ec.europa.eu/docs/services/latest/processing/index.html>`_, to implement supporting utility functions.
 
-The starting point for the implementation is the Test Bed's set of `published template services <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html>`_.
-These templates are **executable**, allowing you to create new services based on existing demo starting implementations. Although simple, the pre-existing
+The starting point for the implementation is the Test Bed's `published template service <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html>`_.
+This is an **executable** template, allowing you to create new services based on existing demo starting implementations. Although simple, the pre-existing
 implementations fully cover the GITB service APIs and allow you to replace them with your own logic. Moreover, the documentation also includes a
 `sample test case <https://www.itb.ec.europa.eu/docs/services/latest/templates/index.html#example-test-case>`_ that illustrates how the demo service
-implementations can be used in test steps.
+implementations can be used in test steps. For a guided, **step-by-step tutorial** on how to develop custom test services you can also check out the
+`complex test development guide <https://www.itb.ec.europa.eu/docs/guides/latest/developingComplexTests/index.html>`_.
 
 .. index:: Handler authentication
 .. index:: HTTP Basic
@@ -2662,11 +3246,11 @@ reference as the expression:
 
 .. code-block:: xml
 
-    <verify handler="SchematronValidator" desc="Validate content">
+    <verify handler="XmlValidator" desc="Validate content">
         <!--
             Pass document through the expression.
         -->
-        <input name="xmldocument">$docToValidate</input>
+        <input name="xml">$docToValidate</input>
         <!--
             Pass document through the source attribute.
         -->

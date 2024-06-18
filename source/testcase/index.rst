@@ -13,20 +13,16 @@ The following example represents a complete, simple test case for the validation
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <testcase id="UBL_invoice_validation_test_1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+    <testcase id="testCase1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>UBL_invoice_validation_test_1</gitb:name>
-            <gitb:type>CONFORMANCE</gitb:type>
+            <gitb:name>UBL invoice validation 1</gitb:name>
             <gitb:version>1.0</gitb:version>
             <gitb:description>Test case to verify the correctness of a UBL invoice. The invoice is provided manually through user upload.</gitb:description>
         </metadata>
         <imports>
-            <artifact type="schema" encoding="UTF-8" name="UBL_Invoice_Schema_File">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
-            <artifact type="object" encoding="UTF-8" name="BII_CORE_Invoice_Schematron_File">artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
+            <artifact type="schema" name="schema">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
+            <artifact type="object" name="schematron">artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
         </imports>
-        <variables>
-            <var name="file_content" type="object"/>
-        </variables>
         <actors>
             <gitb:actor id="User" name="User" role="SUT"/>
         </actors>
@@ -34,20 +30,17 @@ The following example represents a complete, simple test case for the validation
             <!-- 
                 Step 1. Request the user to upload the UBL invoice.
             -->
-            <interact desc="UBL invoice upload" with="User">
-                <request desc="Upload the UBL invoice to validate" with="User" contentType="BASE64">$file_content</request>
+            <interact id="userData" desc="UBL invoice upload">
+                <request name="invoice" desc="Upload the UBL invoice to validate" inputType="UPLOAD"/>
             </interact>
             <!-- 
                 Step 2. Validate the uploaded invoice.
             -->
-            <verify handler="XSDValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
-                <input name="xmldocument">$file_content</input>
-                <input name="xsddocument" source="$UBL_Invoice_Schema_File"/>
-            </verify>
-            <verify handler="SchematronValidator" desc="Validate invoice against BII2 CORE restrictions for Invoice Transaction">
-                <input name="xmldocument">$file_content</input>
-                <input name="schematron" source="$BII_CORE_Invoice_Schematron_File"/>
-            </verify>
+            <verify handler="XmlValidator" desc="Validate invoice">
+                <input name="xml">$userData{invoice}</input>
+                <input name="xsd">$schema</input>
+                <input name="schematron">$schematron</input>
+            </verify>            
         </steps>
         <output>
             <failure>
@@ -78,9 +71,9 @@ follows in the subsequent sections.
     :header: "Name", "Required?", "Description"
 
     @id, yes, A string to uniquely identify the test case by. This is referenced in the test suite XML.
-    @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is ``true``).
-    @optional, no, A boolean flag indicating whether this test case is optional (default is ``false``). Optional test cases may be executed but their results don't count towards a conformance statement's status.
-    @disabled, no, A boolean flag indicating whether this test case is disabled (default is ``false``). Disabled test cases cannot be executed and any existing test results don't count towards a conformance statement's status.
+    @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is "true").
+    @optional, no, A boolean flag indicating whether this test case is optional (default is "false"). Optional test cases may be executed but their results don't count towards a conformance statement's status.
+    @disabled, no, A boolean flag indicating whether this test case is disabled (default is "false"). Disabled test cases cannot be executed and any existing test results don't count towards a conformance statement's status.
     metadata, yes, A block containing the metadata used to describe the test case.
     namespaces, no, An optional set of namespace declarations to define the namespace prefixes used in the test case's expressions.
     imports, no, An optional set of imports used to load additional resources from the test suite.
@@ -97,18 +90,18 @@ The ``id`` attribute is important in uniquely identifying the test case within a
 test case.
 
 The ``supportsParallelExecution`` attribute is important in determining how the test case is handled in batch background executions (i.e. not executions
-that are interactively launched and followed by a tester). If this is set to ``true``, the default value considered if missing, the test case is assumed
+that are interactively launched and followed by a tester). If this is set to "true", the default value considered if missing, the test case is assumed
 to be able to correctly function while other test cases are being executed in parallel for the same SUT. This means that the design of the test case
 caters for such concurrent sessions and is able to correctly map exchanged messages to sessions. This is not always possible to do, especially in 
 scenarios where messaging is initiated from the SUT (not by the test bed) or are asynchronous in nature.
 
-If the test case cannot correctly handle such concurrency, you need to set ``supportsParallelExecution`` to ``true``. Doing so instructs the test
+If the test case cannot correctly handle such concurrency, you need to set ``supportsParallelExecution`` to "true". Doing so instructs the test
 engine to always execute the given test case in isolation. Any ongoing test session will first need to complete before the current test case is executed
 and its own test session will itself need to complete before executing any other test cases. The order of execution of test cases when making such 
 considerations is defined by their :ref:`declaration order<test-suite-test-cases>` in the :ref:`test suite<test-suite>`.
 
 .. note::
-    When ``supportsParallelExecution`` is set to ``false``, the test case's non-parallel execution is honoured only within the context of a single batch
+    When ``supportsParallelExecution`` is set to "false", the test case's non-parallel execution is honoured only within the context of a single batch
     execution of a test suite. The flag becomes ineffective if the tester explicitly launches separate test sessions in parallel.
 
 Elements
@@ -171,7 +164,7 @@ The ``documentation`` element complements the test case's ``description`` by all
     :header: "Name", "Required?", "Description"
 
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
-    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
@@ -201,11 +194,11 @@ following sample provides an example of this approach:
 
     <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:name>Test case 1</gitb:name>
             <gitb:version>1.0</gitb:version>
             <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
             <gitb:documentation><![CDATA[
-                <p>Extended documentation for test case <b>TS1-TC1</b></p>
+                <p>Extended documentation for <b>Test case 1</b></p>
                 <p>This is an example to support the <a href="https://www.itb.ec.europa.eu/docs/tdl/latest">GITB TDL docs</a>.</p>
             ]]></gitb:documentation>
         </metadata>    
@@ -240,8 +233,8 @@ The structure of the ``update`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @updateMetadata, no, A boolean value determining whether the existing test case's metadata should be updated based on the new archive (default is ``false``).
-    @resetTestHistory, no, A boolean value determining whether any previously executed test sessions for the test case being updated should be considered as obsolete (default is ``false``).
+    @updateMetadata, no, A boolean value determining whether the existing test case's metadata should be updated based on the new archive (default is "false").
+    @resetTestHistory, no, A boolean value determining whether any previously executed test sessions for the test case being updated should be considered as obsolete (default is "false").
 
 The following example shows how you can specify that the test case's metadata should be updated to reflect the new values in the archive
 (see attribute ``updateMetadata``). Also we specify here that any existing test sessions should be considered obsolete, forcing users to 
@@ -252,7 +245,7 @@ re-execute their tests for the updated version (see attribute ``resetTestHistory
 
     <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:name>Test case 1</gitb:name>
             <gitb:version>1.0</gitb:version>
             <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
             <gitb:update updateMetadata="true" resetTestHistory="true"/>
@@ -308,7 +301,7 @@ highlight that this is a new test case in "version 2.0".
 
     <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:name>Test case 1</gitb:name>
             <gitb:version>1.0</gitb:version>
             <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
             <gitb:tags>
@@ -354,7 +347,7 @@ documentation.
 
     <testcase id="TS1-TC1" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>TS1-TC1</gitb:name>
+            <gitb:name>Test case 1</gitb:name>
             <gitb:version>1.0</gitb:version>
             <gitb:description>A short description of the test case to offer a short summary of its purpose.</gitb:description>
             <gitb:specification>
@@ -547,12 +540,12 @@ another input whose referenced resource is defined dynamically based on an exter
             <artifact type="schema" encoding="UTF-8" name="organisationSpecificSchema">$ORGANISATION{xsdToUseForOrganisation}</artifact>
         </imports>
         <steps>
-            <verify handler="XSDValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
+            <verify handler="XmlValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
                 <!-- 
                     Variable $fileContent is loaded in another step.
                 -->
-                <input name="xmldocument">$fileContent</input>
-                <input name="xsddocument" source="$ublSchema"/>
+                <input name="xml">$fileContent</input>
+                <input name="xsd">$ublSchema</input>
             </verify>
         </steps>
     </testcase>
@@ -686,6 +679,11 @@ if not already specified by the response of the simulated actor's handler. The b
 Variables
 ~~~~~~~~~
 
+.. note::
+
+    **Implicit variables:** Variables are automatically created for new :ref:`assignments <tdl-step-assign>`. You should typically never need
+    to declare a variable explicitly.
+
 The ``variables`` element can be defined to create one or more variables that will be used during the test case's execution. It contains one 
 or more ``var`` elements, one per variable, with the following structure:
 
@@ -747,9 +745,9 @@ extracted via XPath:
             <!-- 
                 Pass the targetElement for validation.
             -->
-            <verify handler="XSDValidator" desc="Validate content">
-                <input name="xmldocument">$targetElement</input>
-                <input name="xsddocument" source="$schemaFile"/>
+            <verify handler="XmlValidator" desc="Validate content">
+                <input name="xml">$targetElement</input>
+                <input name="xsd">$schemaFile</input>
             </verify>
         </steps>
     </testcase>
@@ -801,8 +799,8 @@ of a GITB TDL step construct. The structure of the element is as follows:
     :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @stopOnError~ no~ A boolean flag determining whether the test session should stop if any step fails (default is ``false``). See also :ref:`tdl-steps-common-stoponerror`.
-    @logLevel~ no~ The minimum logging level that this test case should produce. This can be (in increasing severity) ``DEBUG`` (the default level), ``INFO``, ``WARNING`` or ``ERROR``, but can also be set dynamically as a variable reference. See also the :ref:`tdl-step-log` step.
+    @stopOnError~ no~ A boolean flag determining whether the test session should stop if any step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
+    @logLevel~ no~ The minimum logging level that this test case should produce. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``, but can also be set dynamically as a variable reference. See also the :ref:`tdl-step-log` step.
 
 .. _test-case-steps__logging:
 
@@ -818,9 +816,9 @@ While executing a test session, the test bed automatically produces the followin
     * At ``ERROR`` level, information on unexpected errors that forced the test session to fail.
 
 When using the ``logLevel`` attribute to set the test case's log level, this defines the minimum level of messages to be added to the
-session's log. A good example is setting the ``logLevel`` to ``INFO`` which will exclude all ``DEBUG`` output while including all output 
-of ``INFO`` and higher severity. This could be interesting if you want to use the test session log to record instructions and important
-events using the :ref:`tdl-step-log` step, thus ensuring that when your users consult it they will see only meaningful information.
+session's log. A good example is setting the ``logLevel`` to ``WARN`` which will exclude all ``DEBUG`` and ``INFO`` output while including all output 
+of levels ``WARNING`` and ``ERROR``. This could be interesting if you want to only share test engine errors and problematic issues signalled by
+using the :ref:`tdl-step-log` step while ignoring status updates.
 
 In certain cases you may prefer to set the test case logging level dynamically. This is achieved by using a variable reference as the 
 ``logLevel`` value, referring either to a :ref:`configuration property<test-case-configuration>` or a :ref:`predefined test case variable<test-case-variables>`.
@@ -929,7 +927,7 @@ Finally, each ``case`` element shares a common structure as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    cond, yes, Defines a condition :ref:`expression<test-case-expressions>` expected to return a ``true`` or ``false`` value.
+    cond, yes, Defines a condition :ref:`expression<test-case-expressions>` expected to return a "true" or "false" value.
     message, yes, Defines an :ref:`expression<test-case-expressions>` expected to return the output message (as a string).
 
 The ``output`` section is flexible as it doesn't require you to define both success and failure messages. In addition, you could
@@ -1045,13 +1043,13 @@ of the inputs provided by the user.
                     <var name="contentToValidate" type="object"/>
                 </params>
                 <steps>
-                    <verify handler="XSDValidator" desc="Validate XML structure">
-                        <input name="xsddocument">$schemaToUse</input>
-                        <input name="xmldocument">$contentToValidate</input>
+                    <verify handler="XmlValidator" desc="Validate XML structure">
+                        <input name="xml">$contentToValidate</input>
+                        <input name="xsd">$schemaToUse</input>
                     </verify>
-                    <verify handler="SchematronValidator" desc="Validate XML content">
+                    <verify handler="XmlValidator" desc="Validate business rules">
+                        <input name="xml">$contentToValidate</input>
                         <input name="schematron">$schematronToUse</input>
-                        <input name="xmldocument">$contentToValidate</input>
                     </verify>
                 </steps>
                 <output name="rootName" source="$contentToValidate">name(/*)</output>

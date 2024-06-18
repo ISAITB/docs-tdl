@@ -38,13 +38,13 @@ and a Schematron file. As output the scriptlet returns the name of the file's ro
             <var name="contentToValidate" type="object"/>
         </params>
         <steps>
-            <verify handler="XSDValidator" desc="Validate XML structure">
-                <input name="xsddocument">$schemaToUse</input>
-                <input name="xmldocument">$contentToValidate</input>
+            <verify handler="XmlValidator" desc="Validate XML structure">
+                <input name="xml">$contentToValidate</input>
+                <input name="xsd">$schemaToUse</input>
             </verify>
-            <verify handler="SchematronValidator" desc="Validate XML content">
+            <verify handler="XmlValidator" desc="Validate business rules">
+                <input name="xml">$contentToValidate</input>
                 <input name="schematron">$schematronToUse</input>
-                <input name="xmldocument">$contentToValidate</input>
             </verify>
             <assign to="rootName" source="$contentToValidate">name(/*)</assign>
         </steps>
@@ -294,10 +294,10 @@ per case.
 
     <scriptlet id="validateDocument" xmlns="http://www.gitb.com/tdl/v1/">
         <steps>
-            <verify id="xsdCheck" handler="XSDValidator" desc="Validate XML structure">
+            <verify id="xsdCheck" handler="XmlValidator" desc="Validate XML structure">
                 ...
             </verify>
-            <verify id="schCheck" handler="SchematronValidator" desc="Validate XML content">
+            <verify id="schCheck" handler="XmlValidator" desc="Validate business rules">
                 ...
             </verify>
         </steps>
@@ -405,16 +405,16 @@ Dynamically changing a scriptlet's contained steps can be achieved via the follo
 * The ``static`` attribute of :ref:`if steps<tdl-step-if>`. This allows you to conditionally include steps, ensuring that non-included
   steps are **not executed**.
 
-In the case of the ``hidden`` attribute, setting this to ``true`` will result in a step being executed but not displayed. 
+In the case of the ``hidden`` attribute, setting this to "true" will result in a step being executed but not displayed. 
 Setting this to a :ref:`variable reference<test-case-referring-to-variables>` is allowed only within scriptlets
 in which case the variable needs to match one of the scriptlet's :ref:`parameters<scriptlets_elements_params>`. The variable reference
 is evaluated when the test case is loaded, with the resulting value being determined either from the 
 scriptlet's inputs (provided via its :ref:`call step<tdl-step-call>`) or the default value defined for the parameter.
 
 The :ref:`if step's<tdl-step-if>` ``static`` attribute goes further, allowing you to fully skip sets of steps. In this
-case, when ``static`` is set to ``true`` the test engine will expect to find the step's condition (its ``cond`` element) set
+case, when ``static`` is set to "true" the test engine will expect to find the step's condition (its ``cond`` element) set
 with a :ref:`variable reference<test-case-referring-to-variables>`. It is this variable reference that is then evaluated at load
-time to determine whether to include the steps in the ``then`` block (if ``true``), or the ``else`` block (if ``false`` and if defined).
+time to determine whether to include the steps in the ``then`` block (if "true"), or the ``else`` block (if "false" and if defined).
 One important additional point here is that a statically evaluated :ref:`if step<tdl-step-if>` **does not display a boundary box and title**,
 but rather directly displays the steps of the selected branch. This means that you can use a static ``if`` as other languages use
 "include" and "import" constructs.
@@ -472,7 +472,7 @@ and the condition of the :ref:`if step<tdl-step-if>` that is marked as ``static`
 
 When calling this scriptlet we need to ensure that both these variables can be evaluated at load time. The ``validateAsExpression``
 parameter already has a default value, so a :ref:`call step<tdl-step-call>` needs to only override it if needed. The following
-example illustrates this (note how ``false()`` is used as opposed to ``false`` given that this is an :ref:`expression<test-case-expressions>`).
+example illustrates this (note how ``false()`` is used as opposed to "false" given that this is an :ref:`expression<test-case-expressions>`).
 
 .. code-block:: xml
 

@@ -119,7 +119,7 @@ are using in the expression is unknown and may give unexpected results. In these
 
 .. code-block:: xml
 
-    <assign to="$result"><![CDATA[string-length($input) >= 10]]></assign>
+    <assign to="result"><![CDATA[string-length($input) >= 10]]></assign>
 
 .. _test-case-referring-to-variables:
 
@@ -204,26 +204,26 @@ and assign list values:
     <!-- 
         Assign list "myList" to another list named "anotherList". 
     -->
-    <assign to="$myList">$anotherList</assign>
+    <assign to="myList">$anotherList</assign>
     <!--
         Append an item to "myList" (declared as a list of strings). 
     -->
-    <assign to="$myList" append="true">"Value 1"</assign>
+    <assign to="myList" append="true">"Value 1"</assign>
     <!-- 
         Append another item to "myList". 
     -->
-    <assign to="$myList" append="true">"Value 2"</assign>
+    <assign to="myList" append="true">"Value 2"</assign>
     <!-- 
         Replace the first item of "myList" with "Value 3". 
     -->
-    <assign to="$myList{0}">"Value 3"</assign>
+    <assign to="myList{0}">"Value 3"</assign>
     <!-- 
         Assign to the number variables "index1" and "index2" values 1 and 2 respectivelly.
         Replace the item matching "index1" of "myList" with the item matching "index2" of "anotherList".
     -->
-    <assign to="$index1">1</assign>
-    <assign to="$index2">2</assign>
-    <assign to="$myList{$index1}">$anotherList{$index2}</assign>
+    <assign to="index1">1</assign>
+    <assign to="index2">2</assign>
+    <assign to="myList{$index1}">$anotherList{$index2}</assign>
 
 .. _test-case-referring-to-variables_missing:
 
@@ -271,11 +271,11 @@ As examples consider the following cases, where determining the output of expres
     <!-- 
         This results in a variable of type number named "result1".
     -->
-    <assign to="$result1"><![CDATA[string-length($input)]]></assign>
+    <assign to="result1"><![CDATA[string-length($input)]]></assign>
     <!-- 
         This results in a variable of type string named "result2".
     -->
-    <assign to="$result2">'This is a text value'</assign>
+    <assign to="result2">'This is a text value'</assign>
 
 Automatic creation of variables also applies for container types (``map`` and ``list``) based on the target variable
 expressions and additional TDL constructs that are used:
@@ -287,14 +287,14 @@ expressions and additional TDL constructs that are used:
         assign step's "to" indicates that this is the value "aKey" of a map named "result3". Both the
         key and the map will be automatically created if not already defined.
     -->
-    <assign to="$result3{aKey}"><![CDATA[string-length($input)]]></assign>
+    <assign to="result3{aKey}"><![CDATA[string-length($input)]]></assign>
     <!-- 
         In this case the expression results in a string that will be stored in a list named "result4".
         The fact that this is a list is determined from the "append" attribute that is used to signal that
         the value is to be added to a list. If the "result4" list is missing it will be created as a result
         of this step.
     -->
-    <assign to="$result4" append="true">'This is a text value'</assign>
+    <assign to="result4" append="true">'This is a text value'</assign>
 
 .. _test-case-configuration:
 
@@ -368,13 +368,16 @@ as illustrated in the following examples:
         <input name="content">$theContentToValidate</input>
     </verify>
     <!-- Use the "domainLevelValue" constant configured at domain level in calculations. -->
-    <assign to="$result">$aValue + $DOMAIN{domainLevelValue}</assign>
+    <assign to="result">$aValue + $DOMAIN{domainLevelValue}</assign>
 
 .. note::
     **GITB software support:** Use of the **DOMAIN** map is specific to the GITB software. If running on different 
     software it would need to be defined and populated within the test case itself.
 
 .. index:: ORGANISATION
+.. index:: shortName (ORGANISATION)
+.. index:: fullName (ORGANISATION)
+
 .. _test-case-expressions-organisation:
 
 Organisation configuration parameters
@@ -411,6 +414,11 @@ country-specific validation rules:
     software it would need to be defined and populated within the test case itself.
 
 .. index:: SYSTEM
+.. index:: shortName (SYSTEM)
+.. index:: fullName (SYSTEM)
+.. index:: version (SYSTEM)
+.. index:: apiKey (SYSTEM)
+
 .. _test-case-expressions-system:
 
 System configuration parameters
@@ -429,6 +437,7 @@ Apart from custom properties, the **SYSTEM** map also contains certain predefine
     * ``shortName``: The ``string`` value of the system's name (short form).
     * ``fullName``: The ``string`` value of the system's name (full form).
     * ``version``: The ``string`` value of the system's version.
+    * ``apiKey``: The ``string`` value of the system's unique API key.
 
 The following example illustrates use of this map to pass a API endpoint address (key ``endpointAddress``), specific to the system, 
 as part of a messaging step (see :ref:`handlers` and :ref:`tdl-step-send`). This can then be used by the messaging service to define the destination of its outgoing calls:
@@ -581,7 +590,7 @@ Checking whether a specific step succeeded
 A typical scenario where you would want to check the result of a specific step would be to avoid showing 
 an information popup to the user in case a previous step failed (e.g. via a :ref:`tdl-step-interact` step). Whether or not a step has
 succeeded is recorded in a special purpose ``map`` named **STEP_SUCCESS** that contains one key per step identifier mapping to a ``boolean``
-value. This value is initially set to ``false`` and, if the step completes successfully, is set to ``true``.
+value. This value is initially set to "false" and, if the step completes successfully, is set to "true".
 
 The following example illustrates use of this feature to conditionally present a message if a ``receive`` (see :ref:`tdl-step-receive`) step has succeeded:
 
@@ -589,9 +598,7 @@ The following example illustrates use of this feature to conditionally present a
     :emphasize-lines: 7
 
     <!-- Receive a request in step "dataReceive". -->
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="SoapMessaging"/>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
-    <etxn txnId="t1"/>
+    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" handler="HttpMessagingV2">...</receive>
     <!-- Check the step result before showing an information message. -->
     <if desc="Check success">
         <cond>$STEP_SUCCESS{dataReceive}</cond>
@@ -857,22 +864,22 @@ Examples of such cases could be (full listing :ref:`here<test-case-expressions-w
 Processing of a variable as a template (i.e. checking it for placeholders and populating them from the context to produce the result) can take place wherever expressions are supported.
 This includes :ref:`assignments<tdl-step-assign>`, :ref:`providing inputs<handlers-inputs-outputs>`, :ref:`conditions<tdl-step-if>` and receiving or providing information through :ref:`user interactions<tdl-step-interact>`.
 By default expressions don't perform template processing (i.e. the expression's result is returned as-is). To make an expression treat its result as a template for placeholder replacement
-you need to specify the ``asTemplate`` attribute with a value of ``true``. The following examples illustrate use of templates within various expressions:
+you need to specify the ``asTemplate`` attribute with a value of "true". The following examples illustrate use of templates within various expressions:
 
 .. code-block:: xml
 
     <testcase>
         <steps>
             <!-- Define a template text. -->
-            <assign to="$templateContent">'The value is ${placeholderValue}'</assign>
+            <assign to="templateContent">'The value is ${placeholderValue}'</assign>
 
             <!-- Set the value to replace the placeholder. -->
-            <assign to="$placeholderValue">'REPLACED'</assign>
+            <assign to="placeholderValue">'REPLACED'</assign>
 
             <!-- Process $templateContent as a template. -->
-            <assign to="$output1" source="$templateContent" asTemplate="true"/>
+            <assign to="output1" source="$templateContent" asTemplate="true"/>
             <!-- Process $templateContent as-is. -->
-            <assign to="$output2" source="$templateContent"/>
+            <assign to="output2" source="$templateContent"/>
 
             <interact desc="Resulting values">
                 <!-- Displays "The value is REPLACED". -->
@@ -887,34 +894,35 @@ you need to specify the ``asTemplate`` attribute with a value of ``true``. The f
                 <instruct desc="Output5" asTemplate="true">$output2</instruct>
             </interact>
 
-            <!-- Input "smp_metadata" is set using a template from an organisation property. -->
-            <send desc="Return AP metadata" from="ServiceMetadataPublisher" to="Sender_AS2" txnId="t1">
-                <input name="smp_metadata" source="$ORGANISATION{template}" asTemplate="true"/>
+            <!-- Input "body" is set using a template from an organisation property. -->
+            <send desc="Call service" from="Sender" to="Receiver" handler="HttpMessagingV2">
+                <input name="uri">$SYSTEM{endpoint}</input>
+                <input name="body" source="$ORGANISATION{template}" asTemplate="true"/>
             </send>
 
         </steps>
     </testcase>
 
 Template processing in expressions is done over the result of the expression. This means that both the expression's content and ``source`` attribute are
-considered to produce the result, which is then processed as a template if ``asTemplate`` is set to ``true``. This is illustrated in the following example:
+considered to produce the result, which is then processed as a template if ``asTemplate`` is set to "true". This is illustrated in the following example:
 
 .. code-block:: xml
 
     <testcase>
         <steps>
             <!-- Define a XML template (this would usually be imported or provided however). -->
-            <assign to="$templateXML"><![CDATA['<root><element>${placeholderValue}</element></root>']]></assign>
+            <assign to="templateXML"><![CDATA['<root><element>${placeholderValue}</element></root>']]></assign>
 
             <!-- Set the value to replace the placeholder. -->
-            <assign to="$placeholderValue">'REPLACED'</assign>
+            <assign to="placeholderValue">'REPLACED'</assign>
 
             <!-- 
-               Process $templateXML as a template and use also an XPath expression:
+               Process templateXML as a template and use also an XPath expression:
                1. The content from "templateXML" is considered as the source.
                2. Upon the content of "templateXML" we apply the provided XPath expression.
                3. The result of the XPath expression ("${placeholderValue}") is then further processed as a template.
             -->
-            <assign to="$output1" source="$templateXML" asTemplate="true">//*[local-name() = 'element']/text()</assign>
+            <assign to="output1" source="templateXML" asTemplate="true">//*[local-name() = 'element']/text()</assign>
 
             <interact desc="Resulting values">
                 <!-- Displays "REPLACED". -->

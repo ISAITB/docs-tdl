@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.22.0
+What's new in release 1.23.0
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -19,13 +19,11 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Interaction steps now support the ``admin`` attribute to specify that they should be completed by an administrator. | GITB TDL | :ref:`tdl-step-interact`
-    Interaction steps now support the ``timeout`` attribute to automatically complete them after the timeout period. | GITB TDL | :ref:`tdl-step-interact`
-    Interaction steps can now be minimised and also completed asynchronously. | GITB software | :ref:`tdl-step-interact`
-    The interaction step's ``mimeType`` attribute can now be set via variable reference. | GITB TDL | :ref:`tdl-step-interact`
-    Test suites and test cases support the definition of structured normative reference information. | GITB TDL | :ref:`reference (test suite)<test-suite-metadata-specification>`, :ref:`reference (test case)<test-case-metadata-specification>`, 
-    The ``DisplayProcessor`` can now be set with a configurable result to mark its report as a success, failure or warning. | GITB TDL | :ref:`handlers-DisplayProcessor`
-    The documentation on service handlers for test steps was extended to list **reusable external services** available to test developers. | GITB TDL | :ref:`handlers-reusable-handlers`
+    New ``HttpMessagingV2`` handler for HTTP messaging, replacing and improving upon the deprecated ``HttpMessaging`` and ``HttpsMessaging``.  | GITB TDL | :ref:`handlers-httpmessagingv2`
+    New ``SoapMessagingV2`` handler for SOAP messaging, replacing and improving upon the deprecated ``SoapMessaging``.  | GITB TDL | :ref:`handlers-soapmessagingv2`
+    New ``$SYSTEM{apiKey}`` variable available in test sessions with the unique API key of the system under test. | GITB TDL | :ref:`test-case-expressions-system`
+    The ``HttpMessaging``, ``HttpsMessaging`` and ``SoapMessaging`` handlers now return a ``http_status`` entry in the ``receive`` step's report. | GITB TDL | :ref:`handlers-httpmessaging`, :ref:`handlers-httpsmessaging`, :ref:`handlers-soapmessaging`
+    Test session logging level set to ``INFO`` by default. | GITB TDL | :ref:`test-case-steps__logging`
 
 Previous documentation versions
 -------------------------------
@@ -37,8 +35,9 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.22.0| Extended ``interact`` step for admin-only input, minimisation, asynchronous completion, and timeouts; normative references for test suites and test cases; configurable result for ``DisplayProcessor``. | https://www.itb.ec.europa.eu/docs/tdl/1.22.0/
     1.21.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.21.1/
-    1.21.0| New ``forceDisplay`` for interact step, new embedded processing handlers and operations (``DelayProcessor``, ``JSONPointerProcessor``, ``random`` operation of ``TokenGenerator``), test case tags, test suite update metadata, optional and disabled test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.21.0/
+    1.21.0| New ``forceDisplay`` attribute for interact step, new embedded processing handlers and operations (``DelayProcessor``, ``JSONPointerProcessor``, ``random`` operation of ``TokenGenerator``), test case tags, test suite update metadata, optional and disabled test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.21.0/
     1.20.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.1/
     1.20.0| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.20.0/
     1.19.0| New operations for the ``CollectionUtils`` embedded processor, extensions to the ``STEP_SUCCESS``, ``STEP_STATUS`` maps to refer to steps within scriptlets.| https://www.itb.ec.europa.eu/docs/tdl/1.19.0/

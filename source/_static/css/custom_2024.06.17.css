@@ -10,3 +10,6 @@ table > tbody > tr > th > p {
 .rst-content figure.align-center.no-bottom-margin {
     margin-bottom: auto;
 }
+.rst-content table code.literal {
+    white-space: inherit;
+}

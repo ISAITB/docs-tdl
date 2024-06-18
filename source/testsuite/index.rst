@@ -16,11 +16,10 @@ The following is an example test suite that defines a single actor and two inclu
 .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <testsuite id="UBL_invoice_validation" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+    <testsuite id="invoiceValidation" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
         <metadata>
-            <gitb:name>UBL_invoice_validation</gitb:name>
-            <gitb:type>CONFORMANCE</gitb:type>
-            <gitb:version>0.1</gitb:version>
+            <gitb:name>UBL invoice validation</gitb:name>
+            <gitb:version>1.0</gitb:version>
             <gitb:description>A test suite to validate UBL invoices uploaded by a user</gitb:description>
         </metadata>
         <actors>
@@ -32,8 +31,8 @@ The following is an example test suite that defines a single actor and two inclu
                 </gitb:endpoint>
             </gitb:actor>
         </actors>
-        <testcase id="UBL_invoice_validation_test_1"/>
-        <testcase id="UBL_invoice_validation_test_2"/>
+        <testcase id="testCase1"/>
+        <testcase id="testCase2"/>
     </testsuite>
 
 A test suite is defined as the XML file's root element ``testsuite``. The following table defines its attributes and child elements:
@@ -175,8 +174,8 @@ The structure of the ``update`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @updateMetadata, no, A boolean value determining whether the existing test suite's metadata should be updated based on the new archive (default is ``false``).
-    @updateSpecification, no, A boolean value determining whether the existing test suite's actor information should be updated based on the new archive (default is ``false``).
+    @updateMetadata, no, A boolean value determining whether the existing test suite's metadata should be updated based on the new archive (default is "false").
+    @updateSpecification, no, A boolean value determining whether the existing test suite's actor information should be updated based on the new archive (default is "false").
 
 The following example shows how you can specify that the test suite's metadata should be updated to reflect the new values in the archive
 (see attribute ``updateMetadata``). Any existing definitions of actors are left unchanged (see attribute ``updateSpecification``).
@@ -268,8 +267,8 @@ contains one or more ``actor`` elements with structure as follows:
     :header: "Name", "Required?", "Description"
 
     @id, yes, The unique identifier for the actor.
-    @default, no, Whether or not the actor is to be considered as the specification's default actor (``false`` by default).
-    @hidden, no, Whether or not the actor will be unavailable for use in conformance statements (``false`` by default).
+    @default, no, Whether or not the actor is to be considered as the specification's default actor ("false" by default).
+    @hidden, no, Whether or not the actor will be unavailable for use in conformance statements ("false" by default).
     @displayOrder, no, A number indicating the relative positioning that needs to be respected when displaying the actor in test execution diagrams.
     name, yes, A user-friendly name for the actor.
     desc, no, A description to provide additional information on the purpose of this actor in the specification.
@@ -278,10 +277,10 @@ contains one or more ``actor`` elements with structure as follows:
 The value for the ``id`` attribute is very important as it is used internally to link the test suite and its test cases to the relevant actor in the specification.
 The ``name`` and ``desc`` elements are present as metadata when displaying a test case to a user but are not important with respect to test case steps and logic. 
 The ``default`` attribute can be useful in cases where a specification defines multiple actors but only one is ever expected to be used as the SUT. Setting this to 
-``true`` indicates that this actor should be preselected when creating new conformance statements.
+"true" indicates that this actor should be preselected when creating new conformance statements.
 
 Another means of managing the actors that are to be used in
-conformance statements is the ``hidden`` attribute which, if set to ``true``, will remove the actor from the ones available to create a conformance statement. This 
+conformance statements is the ``hidden`` attribute which, if set to "true", will remove the actor from the ones available to create a conformance statement. This 
 can useful when certain actors are not meant to be selected for testing (but there is no single default actor to otherwise set), or if an actor has been in use
 but should now be deprecated. Setting an actor as ``hidden`` will not affect previous testing history but will make it unavailable for future conformance
 statements.

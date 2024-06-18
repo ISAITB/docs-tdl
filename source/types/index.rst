@@ -56,7 +56,7 @@ input. Conversions between types can be done explicitly using the ``assign`` ste
 
 .. code-block:: xml
 
-    <assign to="$toVariable" source="$fromVariable" type="object"/>
+    <assign to="toVariable" source="$fromVariable" type="object"/>
 
 In this example, the ``fromVariable`` is converted to the ``toVariable`` as an ``object``. Explicit conversions like this can however pollute
 the testing logic and can in most cases happen implicitly. An implicit conversion takes place when we attempt to use a source variable of a 
