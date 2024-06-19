@@ -511,6 +511,13 @@ complete test suite can be done in two ways:
 Deploying a test suite in the GITB software
 -------------------------------------------
 
+.. note::
+
+    **Deploying test suites during development:** When deploying test suites to a development test bed instance, the fastest way
+    is to use the test bed's `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#deploy>`_. You can find
+    instructions `here <https://www.itb.ec.europa.eu/docs/guides/latest/developingComplexTests/index.html#step-3-prepare-your-workspace>`_
+    on enabling the API and creating a script to automate its use.
+
 A test suite is packaged as a compressed ZIP archive that contains:
 
 * A single test suite XML file.
