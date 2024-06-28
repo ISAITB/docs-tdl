@@ -7,8 +7,12 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.23.0
+What's new in release 1.23.1
 ----------------------------
+
+.. note::
+    **Maintenance release:** Release 1.23.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
+    in this section correspond to the latest release that did introduce changes, i.e. release 1.23.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -35,6 +39,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.23.0| New ``HttpMessagingV2`` and ``SoapMessagingV2`` messaging handlers, new ``$SYSTEM{apiKey}`` usable in test cases, and ``INFO`` logging level set as the default. | https://www.itb.ec.europa.eu/docs/tdl/1.23.0/
     1.22.0| Extended ``interact`` step for admin-only input, minimisation, asynchronous completion, and timeouts; normative references for test suites and test cases; configurable result for ``DisplayProcessor``. | https://www.itb.ec.europa.eu/docs/tdl/1.22.0/
     1.21.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.21.1/
     1.21.0| New ``forceDisplay`` attribute for interact step, new embedded processing handlers and operations (``DelayProcessor``, ``JSONPointerProcessor``, ``random`` operation of ``TokenGenerator``), test case tags, test suite update metadata, optional and disabled test cases.| https://www.itb.ec.europa.eu/docs/tdl/1.21.0/
