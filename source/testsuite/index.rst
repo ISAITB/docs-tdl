@@ -201,6 +201,9 @@ Relevant options to manage updates for existing test cases are possible through 
 .. index:: link (Test suite reference)
 .. _test-suite-metadata-specification:
 
+specification
++++++++++++++
+
 The ``specification`` element is an optional part of a test suite's metadata, that allows you to record in a structured manner a normative specification
 reference for the test suite. Besides being present in the test suite definition, this information will also be rendered appropriately in the test suite's
 on-screen display and in reports.
@@ -241,9 +244,6 @@ documentation.
 
 .. note::
     Similar specification reference information can also be added to individual :ref:`test cases<test-case-metadata-specification>`.
-
-specification
-+++++++++++++
 
 .. index:: actors (Test suite)
 .. index:: id (Test suite actors)
