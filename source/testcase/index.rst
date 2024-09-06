@@ -550,6 +550,20 @@ another input whose referenced resource is defined dynamically based on an exter
         </steps>
     </testcase>
 
+It is also possible to :ref:`import resources from other test suites <test-suite-sharing>`. To do this you use the ``from`` attribute identifying the
+test suite that contains the resource, in which case the provided path is resolved in the context of the other test suite.
+
+.. code-block:: xml
+
+    <testcase>
+        <imports>
+            <!--
+                The "ublSchema" is loaded from a fixed resource within a test suite with identifier "testSuite2".
+            -->
+            <artifact type="schema" encoding="UTF-8" name="ublSchema" from="testSuite2">resources/UBL-Invoice-2.1.xsd</artifact>
+        </imports>
+    </testcase>
+
 .. note::
     **Test module import:** The GITB TDL schema allows also for ``module`` elements to be defined for the import of test modules (validation, 
     messaging and processing handlers). This approach is no longer supported as it required the handler implementations to be bundled within 
