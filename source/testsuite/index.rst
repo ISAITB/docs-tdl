@@ -291,17 +291,23 @@ to set if you want an actor to always appear first in diagrams regardless of the
 this ordering applies to actors defined in the specification, not special-purpose actor lifelines that could signify the test bed or the user. Finally, note that any 
 setting that is made for an actor at test suite level is considered as a default and can be overridden at test case level (see :ref:`test-case-actors`).
 
-Actors used in test suites may need to have configuration properties related to them that have meaning for the given specification or that are required to run 
-test cases. Examples of such configuration properties could be a Member State country code, an IP address or a certificate used to produce and verify signatures
-(i.e. these can be simple values or complete files). For an actor as a system under test (SUT), these are properties that would need to be provided before executing
-a test case.
+Besides defining the roles of parties in a specification, actors can also have **configuration properties**. The purpose of these properties is to record
+information about a system under test (SUT) that are specific to conformance statements for this actor. They are the most fine-grained level of
+configuration you can use, complementing configuration at :ref:`domain <test-case-expressions-domain>`, :ref:`organisation <test-case-expressions-organisation>`
+and :ref:`system <test-case-expressions-system>` levels. Actor-level configuration is most appropriate for information that, considering the same system,
+differs depending on the selected specification actor. An example of this would be an endpoint address for a "receiver" actor to expect incoming messages,
+that would not be needed for a "sender" actor.
+
+Similar to :ref:`other types of configuration <test-case-configuration>`, any **required properties** for an actor corresponding to the system under test (SUT)
+must be provided before executing tests. In addition, properties that are set to be **included in tests** will be added to the session's context and made available
+for use in :ref:`expressions <test-case-expressions>` during test execution.
 
 .. index:: endpoint (Test suite actor)
 .. index:: name (Test suite actor endpoint)
 .. index:: desc (Test suite actor endpoint)
 .. index:: config (Test suite actor endpoint)
 
-Such actor configuration is captured in configuration sets named "endpoints" with each one defining key-value pair configuration properties named
+Actor configuration is captured in configuration sets named "endpoints" with each one defining key-value pair configuration properties named
 "parameters". In terms of their XML representation, an endpoint is defined using the ``endpoint`` element as follows:
 
 .. csv-table::
@@ -395,8 +401,13 @@ These two scenarios are explained in the following sections.
 
 .. index:: Endpoints (simple configuration values)
 
-Endpoints as simple configuration values
-++++++++++++++++++++++++++++++++++++++++
+Endpoints for simple configuration values
++++++++++++++++++++++++++++++++++++++++++
+
+.. note::
+
+    You can also define configuration at :ref:`domain <test-case-expressions-domain>`, :ref:`organisation <test-case-expressions-organisation>`
+    and :ref:`system <test-case-expressions-system>` levels. Actor configuration is best suited for information that differs across actors (conformance statements).
 
 For the most part you will be using endpoints to simply have users configure one or more parameters for an actor that 
 you can then use in a test case. An example of this would be a "person" actor defined with required "firstName" and "lastName" properties:
@@ -420,15 +431,16 @@ cover the more complex scenario discussed next.
 .. index:: Endpoints (simulated actor configuration)
 .. _test-suite-actors-endpoints-simulated:
 
-Endpoints to map simulated actor configuration
-++++++++++++++++++++++++++++++++++++++++++++++
+Endpoints for dynamic configuration values
+++++++++++++++++++++++++++++++++++++++++++
 
-Simulated actors are handled in GITB through **messaging transactions** and **messaging handlers** (see :ref:`introduction-concepts-messaging-handlers`). 
-Any messaging interaction between actors takes place by means of a messaging handler that actually implements the simulated actor for the purpose of the transaction's 
-interaction. Before a test session starts, the existing messaging transactions are detected and the pairs of communicating actors are split in "from" and "to" roles.
-Each simulated actor's messaging handler then receives an **initiate** call in which the configuration for the other actors is passed (if defined).
-The messaging handler has now the opportunity to return a configuration per actor that can differ based on the current global testing state or the
-configuration received. Different sets of configuration properties can be returned per actor and are mapped to each one on the basis of their ``endpoint``.
+The endpoint concept becomes more meaningful when certain configuration values need to be generated at runtime, and specifically before the test session begins.
+An example of this is generating a unique endpoint address for a simulated "receiver" actor, that will be used by the "sender" actor as the SUT.
+This takes place as part of the setup of :ref:`messaging exchanges <tdl-messaging-steps>` when using a :ref:`custom messaging handler <handlers-custom-handlers>`.
+
+Before a test session starts, custom messaging services receive an **initiate** call for the simulated actors they cover. This call includes the actors'
+predefined configuration values, as well as those configured for the SUT. The messaging handler now has the opportunity to return a set of values per
+simulated actor that can differ based on the received inputs. These different sets of configuration are mapped on the basis of their ``endpoint``.
 
 To better illustrate this, consider a sender and receiver example, defined in a test suite as follows:
 
@@ -442,7 +454,7 @@ To better illustrate this, consider a sender and receiver example, defined in a 
         <gitb:name>sender</gitb:name>
     </gitb:actor>
 
-These actors can then be used in a test case by defining "sender" as the SUT and "receiver" as simulated. These are both involved in a messaging transaction.
+These actors can then be used in a test case by defining "sender" as the SUT and "receiver" as simulated.
 
 .. code-block:: xml
 
@@ -451,7 +463,7 @@ These actors can then be used in a test case by defining "sender" as the SUT and
         <gitb:actor id="receiver" name="receiver" role="SIMULATED"/>
     </actors>
     <steps>
-        <btxn from="sender" to="receiver" txnId="t1" handler="aHandler"/>
+        <btxn from="sender" to="receiver" txnId="t1" handler="$DOMAIN{messagingServiceAddress}"/>
         <send desc="Call receiver" from="sender" to="receiver" txnId="t1">
             <input name="anInputValue">$sender{receiver}{configuredValue}</input>
         </send>
@@ -461,9 +473,9 @@ These actors can then be used in a test case by defining "sender" as the SUT and
 The key point to note is the reference to the "configuredValue" parameter in ``$sender{receiver}{configuredValue}``. To be able to do this the following has happened:
 
 1. The sender SUT actor defined an endpoint named "expectedConfig".
-2. The receiver simulated actor, due to its presence in a messaging transaction (see the ``btxn`` element), was called during the test session'
-   initiation phase.
-3. The receiver responded by providing a configuration for endpoint "expectedConfig" with a parameter named "configuredValue".
+2. The receiver simulated actor, due to its presence in a messaging transaction (see the ``btxn`` element), was included in the ``initiate`` call to
+   the messaging service listening at ``$DOMAIN{messagingServiceAddress}``.
+3. The service responded by providing a configuration for endpoint "expectedConfig" with a parameter named "configuredValue".
 4. The returned configuration was matched to the sender's "expectedConfig" endpoint and copied under the sender actor for this endpoint.
 5. The returned parameter can now be referenced as ``$sender{receiver}{configuredValue}`` (i.e. ``$SUT_ACTOR_ID{SIMULATED_ACTOR_ID}{PARAMETER_NAME}``).
 

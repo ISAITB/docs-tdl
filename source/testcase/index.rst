@@ -628,13 +628,37 @@ one or more ``actor`` children with the following structure:
     @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
-The ``endpoint`` elements require a bit more explanation to understand their use. A specification may foresee actors that are all valid
-selections for conformance statements. Imagine a specification that defines "sender" and "receiver" actors that can both be the SUTs 
-depending on the actor a system selects to conform to. As such, a test suite focusing on the sender will include test cases with the 
-sender as the SUT and the receiver as being simulated. Similarly, a test suite focusing on the receiver will define the 
-receiver as SUT and the sender as simulated. In terms of configuration properties, the sender might need to define a "replyToAddress" to receive
-replies, whereas the receiver simply needs to define his "deliveryAddress" which is where messages are expected. In terms of actor configuration 
-in the test suite this would look like this:
+The main purpose of the ``actors`` element in the test case is to identify which of the :ref:`actors defined in the test suite <test-suite-actors>`
+is the SUT (the actor the target system is testing for). This is done simply by defining the ``role`` attribute as follows:
+
+.. code-block:: xml
+
+    <testcase>
+        <gitb:actor id="sender" role="SUT"/>
+        <!-- The "SIMULATED" role is considered by default. -->
+        <gitb:actor id="receiver"/>
+    </testcase>
+
+Besides defining the actors involved in the test case, you can also override their presentation by means of the ``name`` and ``displayOrder``
+attributes:
+
+.. code-block:: xml
+
+    <testcase>
+        <gitb:actor id="sender" role="SUT" name="Message sender" displayOrder="0"/>
+        <gitb:actor id="receiver" name="Message receiver" displayOrder="1"/>
+    </testcase>
+
+Actor ``endpoint`` elements used in test cases require a bit more explanation to understand their use. They serve a niche case for test suites
+including multiple actors defined in test cases as SUTs, and for each of which actor-level configuration properties are foreseen. In practice,
+a simpler and typically more flexible approach is to use several :ref:`system-level configuration properties <test-case-expressions-system>`.
+
+If you still require actor-level configuration for such cases, you can use the actors' ``endpoint`` elements to define default configuration values for
+simulated actors. Imagine a specification that defines "sender" and "receiver" actors that can both be the SUTs depending on the actor a system selects to test for.
+As such, a test suite focusing on the sender will include test cases with the sender as the SUT and the receiver as being simulated. Similarly, a
+test suite focusing on the receiver will define the receiver as SUT and the sender as simulated. In terms of configuration properties, the sender
+might need to define a "replyToAddress" to receive replies, whereas the receiver simply needs to define his "deliveryAddress" which is where messages
+are expected. In terms of :ref:`actor configuration in the test suite <test-suite-actors>` this would look like this:
 
 .. code-block:: xml
 
@@ -658,7 +682,7 @@ conformance statement for the sender, the applicable test cases will be those de
 parameter will need to be entered before starting the test. How is the "deliveryAddress" then provided for the simulated receiver actor? 
 This can be achieved in two ways:
 
-* **Dynamically** by the simulated actor's messaging handler. Using this approach, the test bed, while in its initiation phase, will request configuration
+* **Dynamically** through a :ref:`custom messaging handler <handlers-custom-handlers>`. Using this approach, the test bed, while in its initiation phase, will request configuration
   properties from the handler that will be mapped to the SUT's corresponding endpoint (see :ref:`test-suite-actors-endpoints-simulated`).
 * **Statically** by defining the endpoint and one or more of its parameters within the test case itself.
 
