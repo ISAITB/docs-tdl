@@ -133,6 +133,8 @@ Used to send or receive content over HTTP.
 .. index:: HttpMessagingV2 (send - parts)
 .. index:: HttpMessagingV2 (send - followRedirects)
 .. index:: HttpMessagingV2 (send - status)
+.. index:: HttpMessagingV2 (send - requestTimeout)
+.. index:: HttpMessagingV2 (send - connectionTimeout)
 
 .. _handlers-httpmessagingv2-send:
 
@@ -154,6 +156,8 @@ To use this handler to **send a HTTP message** to a external system, set it as t
     ``queryParameters`` | No | ``map`` | The HTTP request parameters to include in the query string, provided as a map of strings (the map keys will be the parameter names).
     ``parts`` | No | ``list`` | The parts to include for a multipart request, provided either as a list of maps or a single map. Each map corresponds to a part and includes keys *"name"* (required), *"content"* (required), *"fileName"* and *"contentType"*.
     ``followRedirects`` | No | ``boolean`` | Whether redirect responses should be followed (default is "true").
+    ``connectionTimeout`` | No | ``number`` | The number of milliseconds to wait for until a connection is established (by default 10000 - 10 seconds).
+    ``requestTimeout`` | No | ``number`` | The number of milliseconds to wait for after a connection is established to read back the complete response (by default no timeout is applied).
     
 In terms of implicit default values for missing inputs and the processing logic applied, the test engine bases itself on the overall inputs provided. Specifically:
 
@@ -276,6 +280,15 @@ outputs (see inline comments for details per case).
         <input name="parameters">$send6Params</input>
     </send>
     <log>$send6{response}{status}</log> <!-- Print returned status. -->
+
+    <!--
+        Make a GET call to https://my.sut.org/api/get and fail if the response has not been completely received within 1 second.
+    -->
+    <send id="send7" desc="Call time-sensitive system" from="Actor1" to="Actor2" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/get"</input>
+        <input name="requestTimeout">1000</input>
+    </send>
+    <log>$send7{response}{status}</log> <!-- Print returned status. -->
 
 .. index:: HttpMessagingV2 (receive)
 .. index:: HttpMessagingV2 (receive - uri)
@@ -854,6 +867,7 @@ The following examples illustrate use of this handler to work with Base64 encodi
     </process>
 
 .. index:: CollectionUtils
+.. index:: append (CollectionUtils)
 .. index:: size (CollectionUtils)
 .. index:: clear (CollectionUtils)
 .. index:: contains (CollectionUtils)
@@ -861,7 +875,11 @@ The following examples illustrate use of this handler to work with Base64 encodi
 .. index:: randomValue (CollectionUtils)
 .. index:: remove (CollectionUtils)
 .. index:: map (CollectionUtils)
+.. index:: fromMap (CollectionUtils)
+.. index:: toMap (CollectionUtils)
 .. index:: list (CollectionUtils)
+.. index:: fromList (CollectionUtils)
+.. index:: toList (CollectionUtils)
 .. index:: value (CollectionUtils)
 .. index:: item (CollectionUtils)
 .. _handlers-CollectionUtils:
@@ -876,6 +894,7 @@ a processing transaction to be established. The following operations are support
     :header: "Operation", "Description", "Input(s)", "Output(s)"
     :delim: |
 
+    ``append`` | Append the elements of one collection to another. | Yes | No.
     ``clear`` | Receive a collection as input and empty it. | Yes | No.
     ``contains`` | Check to see whether a collection contains a given value. | Yes | Yes, a ``boolean`` representing the check result.
     ``randomKey`` | Return a random key from a map. | Yes | Yes, one of the map's ``string`` keys.
@@ -889,6 +908,10 @@ The input parameters expected by the different operations are as follows:
     :header: "Operation", "Input name", "Required?", "Description"
     :delim: |
 
+    ``append`` | ``fromList`` | No | The ``list`` to read the values from (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``fromMap`` input must be provided.
+    ``append`` | ``toList`` | No | The ``list`` to append the values to (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``toMap`` input must be provided.
+    ``append`` | ``fromMap`` | No | The ``map`` to read the values from (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``fromList`` input must be provided.
+    ``append`` | ``toMap`` | No | The ``map`` to append the values to (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``toList`` input must be provided.
     ``clear`` | ``list`` | No | The ``list`` to be cleared (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
     ``clear`` | ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
     ``contains`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
@@ -1071,6 +1094,30 @@ operation's use:
         <!-- Providing "1" given that indexes are zero-based -->
         <input name="item">1</input>
     </process>
+
+The ``append`` operation allows you to merge two collections, by appending the values of one collection (the "from" collection) to
+another one (the "to" collection). This operation does not return an output but rather modifies directly the target collection. Appended
+entries are added to the end of the collection, maintaining their insertion order. The following examples illustrate the
+operation's use:
+
+.. code-block:: xml
+
+    <!-- Create a map -->
+    <assign to="map1{a}">'Value A'</assign>
+    <assign to="map1{b}">'Value B'</assign>
+
+    <!-- Create a second map -->
+    <assign to="map2{x}">'Value X'</assign>
+    <assign to="map2{y}">'Value 2'</assign>
+
+    <!-- Append map1 to the end of map2 -->
+    <process handler="CollectionUtils" operation="append">
+        <input name="fromMap">$map1</input>
+        <input name="toMap">$map2</input>
+    </process>
+
+    <!-- Prints (the newly appended) 'Value A' -->
+    <log>$map2{a}</log>
 
 .. index:: DelayProcessor
 .. index:: delay (DelayProcessor)
@@ -1673,6 +1720,62 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
 
 .. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 .. _Timezone codes: https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html#of-java.lang.String-
+
+.. index:: VariableUtils
+.. index:: type (VariableUtils)
+.. index:: exists (VariableUtils)
+.. index:: name (VariableUtils)
+.. _handlers-VariableUtils:
+
+VariableUtils
++++++++++++++
+
+Used for common operations on variables. This processing handler supports but does not require a processing 
+transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+
+    ``exists``, Check to see if a variable with a given name is defined in the session context., Yes, A ``boolean`` named ``output`` in the resulting step's ``map``.
+    ``type``, Return the type of a variable with a given name., Yes, A ``string`` named ``output`` in the resulting step's ``map``. This will be empty if no variable was found for the provided name.
+
+The input parameters expected by the different operations are as follows:
+
+.. csv-table::
+    :header: "Operation", "Input name", "Required?", "Description"
+    :delim: |
+
+    ``exists`` | ``name`` | Yes | The name of the variable to check.
+    ``type`` | ``name`` | Yes | The name of the variable to check.
+
+A typical use case of ``VariableUtils`` and in particular the ``exists`` operation, would be to check within a :ref:`scriptlet <scriptlets>` whether an
+:ref:`optional parameter <scriptlets_elements_params>` has been set. The ``type`` operation on the other hand could be used in situations when you 
+are not certain of a variable's type which could be the case for an element in a ``map``. Both operations are of course also quite useful while
+developing tests to debug problems related to variables.
+
+The following TDL snippet illustrates how the ``VariableUtils`` handler could be used:
+
+.. code-block:: xml
+
+    <!-- Create a variable named "aVariable". -->
+    <assign to="aVariable">"A value"</assign>
+    <!-- Check to see if it exists. -->
+    <process handler="VariableUtils" operation="exists" input="aVariable" output="variableExists"/>
+    <!-- Prints "true". -->
+    <log>$variableExists</log>
+    <!-- Check the variable's type. -->
+    <process handler="VariableUtils" operation="type" input="aVariable" output="variableType"/>
+    <!-- Prints "string". -->
+    <log>$variableType</log>
+
+    <!-- Check to see if a map is defined (e.g. within a scriptlet) and do something with it. -->
+    <process handler="VariableUtils" operation="exists" input="optionalMap" output="mapExists"/>
+    <if>
+        <cond>$mapExists</cond>
+        <then>
+            <!-- Do something with the map. -->
+        </then>
+    </if>
 
 .. index:: XSLTProcessor
 .. index:: xml (XSLTProcessor)

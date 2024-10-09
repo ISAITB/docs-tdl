@@ -7,12 +7,8 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.23.1
+What's new in release 1.24.0
 ----------------------------
-
-.. note::
-    **Maintenance release:** Release 1.23.1 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.23.0.
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
@@ -23,11 +19,10 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    New ``HttpMessagingV2`` handler for HTTP messaging, replacing and improving upon the deprecated ``HttpMessaging`` and ``HttpsMessaging``.  | GITB TDL | :ref:`handlers-httpmessagingv2`
-    New ``SoapMessagingV2`` handler for SOAP messaging, replacing and improving upon the deprecated ``SoapMessaging``.  | GITB TDL | :ref:`handlers-soapmessagingv2`
-    New ``$SYSTEM{apiKey}`` variable available in test sessions with the unique API key of the system under test. | GITB TDL | :ref:`test-case-expressions-system`
-    The ``HttpMessaging``, ``HttpsMessaging`` and ``SoapMessaging`` handlers now return a ``http_status`` entry in the ``receive`` step's report. | GITB TDL | :ref:`handlers-httpmessaging`, :ref:`handlers-httpsmessaging`, :ref:`handlers-soapmessaging`
-    Test session logging level set to ``INFO`` by default. | GITB TDL | :ref:`test-case-steps__logging`
+    Support for optional scriptlet parameters and parameters set as empty by default. | GITB TDL | :ref:`scriptlets_elements_params`
+    New ``VariableUtils`` built-in processor for common operations (``exists``, ``type``) on variables. | GITB TDL | :ref:`handlers-VariableUtils`
+    New operation for the ``CollectionUtils`` built-in processor to append collections. | GITB TDL | :ref:`handlers-CollectionUtils`
+    New inputs for the ``HttpMessagingV2`` built-in messaging handler to set maximum timeouts (connection and request) when calling a remote service. | GITB TDL | :ref:`handlers-httpmessagingv2-send`
 
 Previous documentation versions
 -------------------------------
@@ -39,6 +34,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.23.1| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.23.1/
     1.23.0| New ``HttpMessagingV2`` and ``SoapMessagingV2`` messaging handlers, new ``$SYSTEM{apiKey}`` usable in test cases, and ``INFO`` logging level set as the default. | https://www.itb.ec.europa.eu/docs/tdl/1.23.0/
     1.22.0| Extended ``interact`` step for admin-only input, minimisation, asynchronous completion, and timeouts; normative references for test suites and test cases; configurable result for ``DisplayProcessor``. | https://www.itb.ec.europa.eu/docs/tdl/1.22.0/
     1.21.1| Maintenance release with no changes.| https://www.itb.ec.europa.eu/docs/tdl/1.21.1/

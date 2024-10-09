@@ -138,6 +138,8 @@ For further information on this element check the :ref:`test case imports docume
 .. index:: params
 .. index:: name (params)
 .. index:: type (params)
+.. index:: optional (params)
+.. index:: defaultEmpty (params)
 .. _scriptlets_elements_params:
 
 Params
@@ -150,17 +152,55 @@ element with the following structure:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @defaultEmpty, No, Whether the parameter should be set with an empty value if no corresponding input is provided when the scriptlet is called.
     @name, Yes, The name of the parameter. It is with this name that the parameter can be referenced within the scriptlet.
+    @optional, No, A boolean value defining whether the parameter is optional (true) or not (false - the default if missing).
     @type, Yes, The type of the parameter. One of the GITB data types can be used (see :ref:`test-case-types`).
-    value, no, One or more values for the parameter acting as the parameter's default value. More than one values are applicable in case of a ``map`` or ``list`` type.
+    value, No, One or more values for the parameter acting as the parameter's default value. More than one values are applicable in case of a ``map`` or ``list`` type.
 
-Whenever a scriptlet is called using a :ref:`call<tdl-step-call>` step, each of its declared parameters for which no default value
-has been defined, must be matched by a provided input. Parameters for which defaults are specified may also be provided as input, in
-which case the input overrides the default value.
+Whenever a scriptlet is called using a :ref:`call<tdl-step-call>` step, each of its declared parameters must be matched by provided inputs.
+The exception are parameters that are:
 
-Once provided, such parameters are available in the scope of the scriptlet and can be used in the same way as other variables. 
-For scriptlets that are not :ref:`embedded within test cases<scriptlets_embedded>`, using parameters provides state from the test 
-session's context to the scriptlet.
+* Set with a specific default value. The parameter's value will be the provided default value.
+* Defined as ``defaultEmpty``. The parameter will be defined as a variable and will be set with an empty value. This is particularly interesting
+  for optional ``list`` or ``map`` parameters.
+* Defined as ``optional``. 
+
+Parameters for which defaults are specified may also be provided via inputs of a :ref:`call<tdl-step-call>` step, in which case the input overrides the default value.
+Parameters are available in the scope of the scriptlet and can be used in the same way as other variables. For scriptlets that are not
+:ref:`embedded within test cases<scriptlets_embedded>`, using parameters provides state from the test session's context to the scriptlet.
+
+The following snippet illustrates a scriptlet that defines a series of parameters using the available option (see the inline comments for explanations on each case):
+
+.. code-block:: xml
+
+    <scriptlet id="myScriptlet" xmlns="http://www.gitb.com/tdl/v1/">
+        <params>
+            <!-- Required parameter that must be provided when calling the scriptlet. -->
+            <var name="requiredParam" type="string"/>
+            <!-- Optional parameter that if not provided when calling the scriptlet will be missing. -->
+            <var name="optionalParam" type="string" optional="true"/>
+            <!-- Optional parameter with a default value. -->
+            <var name="optionalParamWithDefault" type="string"><value>Default</value></var>
+            <!-- Optional map parameter with two default entries. -->
+            <var name="optionalMapParamWithDefault" type="map">
+                <value name="key1" type="string">Value1</value>
+                <value name="key2" type="string">Value2</value>
+            </var>
+            <!-- Optional list parameter with two default entries. -->
+            <var name="optionalListParamWithDefault" type="list[string]">
+                <value>Value1</value>
+                <value>Value2</value>
+            </var>
+            <!-- Optional map parameter that will be empty if not provided. -->
+            <var name="optionalEmptyMapParam" type="map" defaultEmpty="true"/>
+        </params>
+        ...
+    </scriptlet>
+
+.. note::
+
+    When a parameter is provided with a default value or is defined as ``defaultEmpty``, it is forcibly considered as optional.
 
 .. index:: variables (Scriptlets)
 .. _scriptlets_elements_variables:
