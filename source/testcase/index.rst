@@ -719,8 +719,9 @@ Variables
 
 .. note::
 
-    **Implicit variables:** Variables are automatically created for new :ref:`assignments <tdl-step-assign>`. You should typically never need
-    to declare a variable explicitly.
+    **Implicit variables:** Variables are automatically created for new :ref:`assignments <tdl-step-assign>` and you should typically never need
+    to declare them explicitly. The exception is test cases `executed via API <https://www.itb.ec.europa.eu/docs/itb-ou/latest/api/index.html#start>`__
+    that are designed to work with client-provided inputs. Such inputs must map to test case variables.
 
 The ``variables`` element can be defined to create one or more variables that will be used during the test case's execution. It contains one 
 or more ``var`` elements, one per variable, with the following structure:
@@ -754,6 +755,7 @@ to predefine variables in the following cases:
     * To explicitly set the type of variables in cases where the automatic determination is not suitable (e.g. force a ``string`` type for a numeric value).
     * To cover exceptional cases where automatic type determination is not possible.
     * To provide initial values to variables.
+    * To cover inputs provided for test sessions started via `REST API <https://www.itb.ec.europa.eu/docs/itb-ou/latest/api/index.html#start>`__.
 
 For examples of automatic variable definition refer to the corresponding steps as well as the documentation on :ref:`expressions<test-case-variables-from-expression-output>`.
 Coming back to explicitly defined variables, the following example shows two such cases, one to store a user-uploaded file and another to store a part of it, 
