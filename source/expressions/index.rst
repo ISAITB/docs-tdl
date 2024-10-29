@@ -784,29 +784,13 @@ As an example consider the following scenario. A XML file is provided in the tes
 serves as a template for metadata responses to be provided by the test bed. This file contains variable references as follows:
 
 .. code-block:: xml
-    :emphasize-lines: 6,9,13
+    :emphasize-lines: 2,3
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <smp:SignedServiceMetadata xmlns:smp="http://busdox.org/serviceMetadata/publishing/1.0/">
-        <smp:ServiceMetadata>
-            <smp:ServiceInformation>
-                <ParticipantIdentifier scheme="iso6523-actorid-upis">0088:gitb-engine</ParticipantIdentifier>
-                <DocumentIdentifier scheme="busdox-docid-qns">${document_identifier}</DocumentIdentifier>
-                <smp:ProcessList>
-                    <smp:Process>
-                        <ProcessIdentifier scheme="cenbii-procid-ubl">${process_identifier}</ProcessIdentifier>
-                        <smp:ServiceEndpointList>
-                            <smp:Endpoint transportProfile="busdox-transport-as2-ver1p0">
-                                <wsa:EndpointReference>
-                                    <wsa:Address>${as2_address}</wsa:Address>
-                                </wsa:EndpointReference>
-                            </smp:Endpoint>
-                        </smp:ServiceEndpointList>
-                    </smp:Process>
-                </smp:ProcessList>
-            </smp:ServiceInformation>
-        </smp:ServiceMetadata>
-    </smp:SignedServiceMetadata>
+    <test:metadata xmlns:test="http://test.org/metadata/1.0/">
+        <test:identifier>${identifier}</test:identifier>
+        <test:address>${address}</test:address>
+    </test:metadata>
 
 The highlighted lines above show use of variables that are expected to be replaced during test execution. In the test case this
 replacement occurs as follows:
@@ -818,38 +802,33 @@ replacement occurs as follows:
             <!--
                 Import the metadata template.
             -->
-            <artifact type="object" encoding="UTF-8" name="SMP_Metadata_Template">UBL_invoice_AS2/artifacts/metadata-template.xml</artifact>
+            <artifact type="object" encoding="UTF-8" name="metadataTemplate">artifacts/metadata-template.xml</artifact>
         </imports>
-        <variables>
-            <!--
-                Set fixed values for the "document_identifier" and "process_identifier" placeholders.
-            -->
-            <var name="document_identifier" type="string">
-                <value>urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1</value>
-            </var>
-            <var name="process_identifier" type="string">
-                <value>urn:www.cenbii.eu:profile:bii04:ver2.0</value>
-            </var>
-        </variables>
         <steps>
             <!--
-                Use the simulated actor's configuration to construct the remaining placeholder value for "as2_address".
+                Use a system-level custom property as the "address" placeholder.
             -->
-            <assign to="$as2_address">concat("https://", $Sender_AS2{Receiver_AS2}{network.host}, ":", $Sender_AS2{Receiver_AS2}{network.port})</assign>
-            <btxn from="Sender_AS2" to="ServiceMetadataPublisher" txnId="t1" handler="SMPFixedMessaging"/>
-            <receive id="smp_output" desc="Send message to SMP to get Receiver Access Point address" from="Sender_AS2" to="ServiceMetadataPublisher" txnId="t1"/>
-            <send desc="Return AP metadata" from="ServiceMetadataPublisher" to="Sender_AS2" txnId="t1">
+            <assign to="address">$SYSTEM{endpointAddress}</assign>
+            <!--
+                Generate a UUID for the "identifier" placeholder.
+            -->
+            <process output="identifier" handler="TokenGenerator" operation="uuid"/>
+            <!--
+                Send the metadata via HTTP POST to a configured registry service.
+            -->
+            <send desc="Send system metadata" from="TestBed" to="Registry" handler="HttpMessagingV2">
+                <input name="uri">$DOMAIN{registryAddress}</input>
+                <input name="method">"POST"</input>
                 <!--
                     Using the template here triggers the replacement of the placeholders based on the existing session context variables.
                 -->
-                <input name="smp_metadata" source="$SMP_Metadata_Template"/>
+                <input name="body">$metadataTemplate</input>
             </send>
-            <etxn txnId="t1"/>
         </steps>
     </testcase>
 
 The above example considers a template as a static resource that is bundled within the test suite archive and imported in the test case. When the variable corresponding to the
-imported file is referenced (``$SMP_Metadata_Template`` in our example), this will always be considered as a template and will be processed to make variable replacements. The only
+imported file is referenced (``$metadataTemplate`` in our example), this will always be considered as a template and will be processed to make variable replacements. The only
 exception here is if the import type is defined with a ``type`` of ``binary`` in which case the default approach is to use it as-is without variable replacements.
 
 As mentioned earlier, templates don't need to be static files included in the test suite. Any text or text-based file that is recorded in the test session's context can also be used.
