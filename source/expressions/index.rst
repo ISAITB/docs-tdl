@@ -784,7 +784,7 @@ As an example consider the following scenario. A XML file is provided in the tes
 serves as a template for metadata responses to be provided by the test bed. This file contains variable references as follows:
 
 .. code-block:: xml
-    :emphasize-lines: 3.4
+    :emphasize-lines: 3,4
 
     <?xml version="1.0" encoding="UTF-8"?>
     <test:metadata xmlns:test="http://test.org/metadata/1.0/">
