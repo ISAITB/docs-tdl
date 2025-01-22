@@ -70,19 +70,19 @@ follows in the subsequent sections.
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @id, yes, A string to uniquely identify the test case by. This is referenced in the test suite XML.
-    @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is "true").
-    @optional, no, A boolean flag indicating whether this test case is optional (default is "false"). Optional test cases may be executed but their results don't count towards a conformance statement's status.
     @disabled, no, A boolean flag indicating whether this test case is disabled (default is "false"). Disabled test cases cannot be executed and any existing test results don't count towards a conformance statement's status.
+    @id, yes, A string to uniquely identify the test case by. This is referenced in the test suite XML.
+    @optional, no, A boolean flag indicating whether this test case is optional (default is "false"). Optional test cases may be executed but their results don't count towards a conformance statement's status.
+    @supportsParallelExecution, no, A boolean flag indicating whether this test case may be executed in parallel with other test cases for a given SUT (default is "true").
+    actors, yes, The set of actors that this test case refers to.
+    imports, no, An optional set of imports used to load additional resources from the test suite.
     metadata, yes, A block containing the metadata used to describe the test case.
     namespaces, no, An optional set of namespace declarations to define the namespace prefixes used in the test case's expressions.
-    imports, no, An optional set of imports used to load additional resources from the test suite.
-    preliminary, no, An optional set of user interaction steps to display before the test session starts.
-    variables, no, An optional set of variables that are used in the test case.
-    actors, yes, The set of actors that this test case refers to.
-    steps, yes, The sequence of steps that this test case foresees.
     output, no, Definition of an output message to display for the overall test session.
+    preliminary, no, An optional set of user interaction steps to display before the test session starts.
     scriptlets, no, Optional named groups of test steps which can be used within the test case.
+    steps, yes, The sequence of steps that this test case foresees.
+    variables, no, An optional set of variables that are used in the test case.
 
 The ``id`` attribute is important in uniquely identifying the test case within a given test suite, and needs to be referenced by the 
 :ref:`test suite<test-suite>` if it is to be considered. It is not presented to normal users, only administrators, and is used when 
@@ -132,17 +132,17 @@ about the test case to help users understand its purpose. Its structure is as fo
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    name, yes, The name of the test case that is used to identify it to users.
-    type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when more than one actor are defined as SUTs.
-    version, yes, A string that indicates the test case's version.
     authors, no, A string to indicate the test case's authors.
     description, no, A string to provide a user-friendly description of the test case that is displayed to users.
-    published, no, A string acting as an indication of the test case's publishing time.
-    lastModified, no, A string acting as an indication of the last modification time for the test case.
     documentation, no, Rich text content that provides further information on the current test case.
-    update, no, Instructions determining the default choices when an update of this test case is taking place.
-    tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
+    lastModified, no, A string acting as an indication of the last modification time for the test case.
+    name, yes, The name of the test case that is used to identify it to users.
+    published, no, A string acting as an indication of the test case's publishing time.
     specification, no, Optional information regarding the test case's normative specification reference.
+    tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
+    type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when more than one actor are defined as SUTs.
+    update, no, Instructions determining the default choices when an update of this test case is taking place.
+    version, yes, A string that indicates the test case's version.
 
 .. note::
     **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
@@ -233,8 +233,8 @@ The structure of the ``update`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @updateMetadata, no, A boolean value determining whether the existing test case's metadata should be updated based on the new archive (default is "false").
     @resetTestHistory, no, A boolean value determining whether any previously executed test sessions for the test case being updated should be considered as obsolete (default is "false").
+    @updateMetadata, no, A boolean value determining whether the existing test case's metadata should be updated based on the new archive (default is "false").
 
 The following example shows how you can specify that the test case's metadata should be updated to reflect the new values in the archive
 (see attribute ``updateMetadata``). Also we specify here that any existing test sessions should be considered obsolete, forcing users to 
@@ -284,9 +284,9 @@ Each ``tag`` element has the following structure:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @name, yes, A string for the name of the tag to be displayed. Although no restrictions are applied this is expected to be concise.
-    @foreground, no, A string for the `hexadecimal code <https://en.wikipedia.org/wiki/Web_colors>`_ of the tag's foreground colour (its text). If not specified a generic default colour will be selected by the Test Bed.
     @background, no, A string for the `hexadecimal code <https://en.wikipedia.org/wiki/Web_colors>`_ of the tag's background colour. If not specified a generic default colour will be selected by the Test Bed.
+    @foreground, no, A string for the `hexadecimal code <https://en.wikipedia.org/wiki/Web_colors>`_ of the tag's foreground colour (its text). If not specified a generic default colour will be selected by the Test Bed.
+    @name, yes, A string for the name of the tag to be displayed. Although no restrictions are applied this is expected to be concise.
 
 The ``tag`` element can also have an optional text content. If this is provided it is considered as a explanation over the meaning of this tag and 
 is treated depending on how the tag is viewed. If through the Test Bed's user interface this would be a tooltip, otherwise in a PDF report
@@ -331,9 +331,9 @@ The structure of the ``specification`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    reference, no, The reference identifier or code.
     description, no, A text describing the referred specification.
     link, no, A link to allow navigation to the referred specification's online documentation.
+    reference, no, The reference identifier or code.
 
 All the above elements are optional, meaning that you can choose to provide any documentation you see fit for the specification. Depending on what is provided,
 this information will be displayed accordingly, presenting for example the reference as a link if both are provided, or presenting only a link icon if only the
@@ -492,10 +492,10 @@ defines one or more ``artifact`` children with the following structure:
     :header: "Name", "Required?", "Description"
     :delim: |
 
-    @name | Yes | The name with which this artefact will be associated to the test session context for subsequent lookups.
-    @type | Yes | The type as which the artefact needs to be loaded.
     @encoding | No | In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
     @from | No | The identifier of another test suite from which this resource will be loaded. If unspecified the current test suite is assumed.
+    @name | Yes | The name with which this artefact will be associated to the test session context for subsequent lookups.
+    @type | Yes | The type as which the artefact needs to be loaded.
 
 The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. This path may be provided as a
 fixed value or as a :ref:`variable reference<test-case-referring-to-variables>` to determine the imported resource dynamically. In case a variable reference
@@ -622,10 +622,10 @@ one or more ``actor`` children with the following structure:
     :delim: ~
     :header: "Name", "Required?", "Description"
 
+    @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
     @name~ no~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case. Not specifying this will default to the name for actor provided in the test suite.
     @role~ no~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" (the default value) if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
-    @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
 The main purpose of the ``actors`` element in the test case is to identify which of the :ref:`actors defined in the test suite <test-suite-actors>`
@@ -839,8 +839,8 @@ of a GITB TDL step construct. The structure of the element is as follows:
     :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @stopOnError~ no~ A boolean flag determining whether the test session should stop if any step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @logLevel~ no~ The minimum logging level that this test case should produce. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``, but can also be set dynamically as a variable reference. See also the :ref:`tdl-step-log` step.
+    @stopOnError~ no~ A boolean flag determining whether the test session should stop if any step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
 
 .. _test-case-steps__logging:
 
@@ -950,8 +950,8 @@ overall default. The structure of the ``output`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    success, no, The set of output cases to apply in case the test completes with a success.
     failure, no, The set of output cases to apply in case the test completes with a failure.
+    success, no, The set of output cases to apply in case the test completes with a success.
     undefined, no, The set of output cases to apply in case the test completes with an undefined result.
 
 The ``success``, ``failure`` and ``undefined`` elements share a common structure to define their specific cases and overall defaults:

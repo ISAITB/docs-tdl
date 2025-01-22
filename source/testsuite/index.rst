@@ -39,9 +39,9 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
     :header: "Name", "Required?", "Description"
 
     @id, yes, A string to uniquely identify the test suite by.
-    metadata, yes, A block containing the metadata used to describe the test suite.
     actors, no, The list of actors that relate to the test suite's test cases. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
     groups, no, A list of groups to be referenced by test cases. Only a single successful test case is needed from within a group to consider the entire group as successful (see :ref:`test-suite-groups` for details).
+    metadata, yes, A block containing the metadata used to describe the test suite.
     testcase, no, A set of one or more test cases that are included in the test suite. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
 
 Elements
@@ -71,15 +71,15 @@ manage existing test suites but also for end users to understand the test suite'
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    name, yes, The name of the test suite that is used to identify it to users.
-    type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when multiple systems under test are considered in the test suite's test cases.
-    version, yes, A string that indicates the test suite's version.
     authors, no, A string to indicate the test suite's authors.
     description, no, A string to provide a user-friendly description of the test suite that is displayed to users.
-    published, no, A string acting as an indication of the test suite's publishing time.
-    lastModified, no, A string acting as an indication of the last modification time for the test suite.
     documentation, no, Rich text content that provides further information on the current test suite.
+    lastModified, no, A string acting as an indication of the last modification time for the test suite.
+    name, yes, The name of the test suite that is used to identify it to users.
+    published, no, A string acting as an indication of the test suite's publishing time.
+    type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when multiple systems under test are considered in the test suite's test cases.
     update, no, Instructions determining the default choices when an update of this test suite is taking place.
+    version, yes, A string that indicates the test suite's version.
 
 .. note::
     **GITB software support:** The test suite's ``id`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
@@ -102,9 +102,9 @@ The ``documentation`` element complements the test suite's ``description`` by al
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    import, no, A reference to a separate file within the test suite archive that defines the documentation content.
-    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
+    import, no, A reference to a separate file within the test suite archive that defines the documentation content.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
 typically enclosed within a CDATA section if this includes HTML elements (in which case the ``from``, ``import`` and ``encoding`` attributes are omitted).
@@ -212,9 +212,9 @@ The structure of the ``specification`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    reference, no, The reference identifier or code.
     description, no, A text describing the referred specification.
     link, no, A link to allow navigation to the referred specification's online documentation.
+    reference, no, The reference identifier or code.
 
 All the above elements are optional, meaning that you can choose to provide any documentation you see fit for the specification. Depending on what is provided,
 this information will be displayed accordingly, presenting for example the reference as a link if both are provided, or presenting only a link icon if only the
@@ -266,11 +266,11 @@ contains one or more ``actor`` elements with structure as follows:
 
     @id, yes, The unique identifier for the actor.
     @default, no, Whether or not the actor is to be considered as the specification's default actor ("false" by default).
-    @hidden, no, Whether or not the actor will be unavailable for use in conformance statements ("false" by default).
     @displayOrder, no, A number indicating the relative positioning that needs to be respected when displaying the actor in test execution diagrams.
-    name, yes, A user-friendly name for the actor.
+    @hidden, no, Whether or not the actor will be unavailable for use in conformance statements ("false" by default).
     desc, no, A description to provide additional information on the purpose of this actor in the specification.
     endpoint, no, Zero or more ``endpoint`` elements that capture an actor's configuration. 
+    name, yes, A user-friendly name for the actor.
 
 The value for the ``id`` attribute is very important as it is used internally to link the test suite and its test cases to the relevant actor in the specification.
 The ``name`` and ``desc`` elements are present as metadata when displaying a test case to a user but are not important with respect to test case steps and logic. 
@@ -312,8 +312,8 @@ Actor configuration is captured in configuration sets named "endpoints" with eac
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @name, yes, The name of the endpoint that must be unique for the actor.
     @desc, no, A description to explain the purpose of this endpoint.
+    @name, yes, The name of the endpoint that must be unique for the actor.
     config, yes, One or more elements to define each of the endpoint's parameters. 
 
 .. index:: config (Test suite actor endpoint)
@@ -337,19 +337,19 @@ The ``config`` elements defining an endpoint's parameters are structured as foll
     :header: "Name", "Required?", "Description"
     :delim: |
 
-    @name| yes| The name of the parameter that must be unique for the endpoint.
-    @label| no| A user friendly name to display for the parameter. If not set this will be set to the value of the ``name`` attribute.
-    @desc| no| A description to explain the purpose of this parameter.
-    @use| no| Whether this is a required (value "R" - the default) or optional ("O") parameter. 
-    @kind| no| Whether this is a simple text (value "SIMPLE" - the default), file (value "BINARY") or a secret value (value "SECRET").
     @adminOnly| no| A boolean value (by default "false") indicating whether this parameter can only be edited by administrators.
-    @notForTests| no| A boolean value (by default "false") indicating whether this parameter is included as a test session context variable.
-    @hidden| no| A boolean value (by default "false") indicating whether this parameter can only be viewed by administrators.
-    @dependsOn| no| A string indicating the name of another parameter within the endpoint that is a prerequisite for the current one.
-    @dependsOnValue| no| In case ``dependsOn`` is defined, this is the value that the prerequisite property should have in order for the current one to be enabled.
     @allowedValues| no| A comma-separated list of values that are allowed for this parameter.
     @allowedValueLabels| no| In case ``allowedValues`` is defined, this is a comma-separated list of labels for the provided values (their number must match the values). If not provided, the values themselves are used as labels.
     @defaultValue| no| An optional default value to set for new instances of this parameter (ignored if parameter is not of "SIMPLE" kind).
+    @dependsOn| no| A string indicating the name of another parameter within the endpoint that is a prerequisite for the current one.
+    @dependsOnValue| no| In case ``dependsOn`` is defined, this is the value that the prerequisite property should have in order for the current one to be enabled.
+    @desc| no| A description to explain the purpose of this parameter.
+    @hidden| no| A boolean value (by default "false") indicating whether this parameter can only be viewed by administrators.
+    @kind| no| Whether this is a simple text (value "SIMPLE" - the default), file (value "BINARY") or a secret value (value "SECRET").
+    @label| no| A user friendly name to display for the parameter. If not set this will be set to the value of the ``name`` attribute.
+    @name| yes| The name of the parameter that must be unique for the endpoint.
+    @notForTests| no| A boolean value (by default "false") indicating whether this parameter is included as a test session context variable.
+    @use| no| Whether this is a required (value "R" - the default) or optional ("O") parameter. 
 
 In terms of the ``kind`` attribute, the values "SIMPLE" and "SECRET" both represent text values. The difference is that ones 
 defined as "SECRET" are never presented to users nor are they ever transferred to client software. The two attributes ``adminOnly``
@@ -509,8 +509,8 @@ test case groups. The structure of each ``group`` is as follows:
     :header: "Name", "Required?", "Description"
 
     @id, yes, The ID of the group. This must be unique and is used to refer to the group from its test cases (see :ref:`test-case`).
-    name, no, A short name for the group to be presented as a label when listing the group's test cases.
     desc, no, A description for the group that will be presented as additional information when viewing the group's details.
+    name, no, A short name for the group to be presented as a label when listing the group's test cases.
 
 The following example shows the definition of three groups, the first one with only an identifier, the second one with a name, and the third one with a
 name and a description. These groups are then referred to by their respective test cases.
@@ -568,10 +568,10 @@ This section is used to reference the test cases contained in the test suite. On
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @id, yes, The ID of the test case. This needs to match one defined in the test case's XML file (see :ref:`test-case`).
     @group, no, The ID of the group to which this test case belongs (see :ref:`test-suite-groups`).
-    prequisite, no, Zero or more elements each defining as text content a test case ID that should be considered as a prerequisite before running this one.
+    @id, yes, The ID of the test case. This needs to match one defined in the test case's XML file (see :ref:`test-case`).
     option, no, Zero or more elements each defining as text content string values that match an option defined for the actor in the specification.
+    prequisite, no, Zero or more elements each defining as text content a test case ID that should be considered as a prerequisite before running this one.
 
 The order with which the test case entries are defined is important as it defines their **execution order**. This ordering would apply when multiple test
 cases are selected for execution at once, which typically occurs when launching a complete test suite as opposed to an individual test case. Executing a

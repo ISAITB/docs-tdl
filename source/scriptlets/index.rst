@@ -252,10 +252,10 @@ no results are expected. The structure of each ``output`` element is as follows:
     :stub-columns: 1
     :delim: |
 
+    @asTemplate | No | Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @name | Yes | A name with which the output can be referenced.
     @lang | No | The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces` and :ref:`test-case-expressions`).
     @source | No | A variable reference to identify a source ``object`` variable upon which the contained expression should be evaluated.
-    @asTemplate | No | Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
 
 The content of the ``output`` element is an :ref:`expression<test-case-expressions>` that is used once the scriptlet's processing
 is complete to calculate the output's value. In the special case where a result needs to be calculated from an XPath expression
