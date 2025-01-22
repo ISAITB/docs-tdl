@@ -1,10 +1,11 @@
 .. index:: Service handlers
+.. index:: Step handlers
 .. _handlers:
 
-Service handlers
-================
+Test step handlers
+==================
 
-The architectural approach followed by GITB TDL is to capture in the test case the high level testing flow 
+The architectural approach followed by the GITB TDL is to capture in the test case the high level testing flow 
 and delegate detailed domain-specific processing to separate services. These services can cover messaging
 between actors, complex processing or content validation and implement APIs that are defined in the GITB
 specification. The components implementing these services are termed generally **handlers** and, depending on
@@ -20,13 +21,12 @@ their purpose can be:
 
 Another important distinction for handlers is whether they are **built-in** within the test bed software or **external**.
 For handlers that relate to domain-specific operations, the norm is to externalise them as remotely callable services.
-Nonetheless several common tasks that are frequently encountered in test cases are also available as built-in capabilities
-of the test engine.
+Nonetheless several common tasks that are frequently encountered in test cases are also available as built-in test engine capabilities.
 
 In the sections that follow you can find:
 
 * The supported :ref:`built-in handlers<handlers-predefined-handlers>` covering common tasks encountered in test cases.
-* The list of :ref:`reusable external services <handlers-reusable-handlers>` maintained by the Test Bed (also usable locally as components).
+* The list of :ref:`reusable external services <handlers-reusable-handlers>` maintained by the Test Bed team (also usable locally as components).
 * Guidelines to implement :ref:`custom external services <handlers-custom-handlers>` to cover project-specific needs.
 
 .. _handlers-implementation:
@@ -54,7 +54,7 @@ The value provided for the ``handler`` attribute can also be provided with a pur
 allowing the actual value to be determined from configuration or even dynamically based on the test session context. In such a case the variable
 reference is first evaluated to a ``string`` that is then considered to determine whether the handler is a remote or built-in one.
 
-The following example shows three validation steps taking place, the first one using the built-in :ref:`handlers-XSDValidator`, the second one using 
+The following example shows three validation steps taking place, the first one using the built-in :ref:`handlers-XmlValidator`, the second one using 
 an external validation service, and the third one using an external validation service whose address is configurable:
 
 .. code-block:: xml
@@ -576,6 +576,7 @@ To use this handler to **call a SOAP web service** of an external system, set it
     ``action`` | No | ``string`` | The SOAPAction header to set. This overrides the value set in the HTTP headers (if present).
     ``attachments`` | No | ``list`` | The MTOM attachments to set, provided as a list of maps or a single map. Each map corresponds to an attachment and includes keys *"name"* (required), *"content"* (required), *"contentType"* and *"forceText"* (a boolean to force the attachment's inclusion as text).
     ``tolerateNonSoapResponse`` | No | ``boolean`` | Whether a non-SOAP response will be tolerated (otherwise the step results in a failure).
+    ``headers`` | No | ``map`` | The HTTP headers to include in the request, provided as a map of key (header name) to comma-separated string values (header values). Note that the Content-Type header is automatically set based on the SOAP version used.
 
 Once the :ref:`send <tdl-step-send>` step completes, the resulting report will include two nested maps named ``request`` and ``response``, corresponding 
 respectively to the submitted request and received response. The ``request`` map includes the following:
@@ -601,6 +602,7 @@ The ``response`` map includes the following:
     ``body`` | No | ``object`` | The SOAP body extracted from the response envelope.
     ``headers`` | No | ``map`` | The HTTP headers from the response, provided as a map of key (header name) to comma-separated string values (header values).
     ``attachments`` | No | ``map`` | The MTOM attachments sent with the envelope. The key of each entry is the attachment name, whereas the value is the content.
+    ``error`` | No | ``binary`` | In case the response could not be parsed as a SOAP envelope this property includes the HTTP response's payload.
 
 The following GITB TDL snippets provide various examples using the ``SoapMessagingV2`` handler in :ref:`send <tdl-step-send>` steps, as well as accessing
 outputs (see inline comments for details per case).
@@ -2846,7 +2848,7 @@ The operations supported by the service are listed in the following table:
     :delim: ~
 
     ``initialize`` ~ Provide the ZIP archive to the service for subsequent extraction operations. ~ Yes ~ A ``map`` with two elements (``entries``, a ``number`` representing the count of entries included in the archive; ``entryPaths``, a ``string`` including a summary of the included paths, listing them one by one in square brackets).
-    ``extract``~ Extract one or more files from the archive. ~ Yes ~ A ``map`` containing two entries (``entries``, a ``number`` representing the count of entries that were matched; ``entry``, a list with one item per matched entry). Each item in the entry list (corresponding to a matched entry) is a ``map`` with two further fields (``path``, a string with the file's precise path; ``content``, the binary content of the file).
+    ``extract``~ Extract one or more files from the archive. ~ Yes ~ A ``map`` containing three entries (``matched``, a ``boolean`` representing if matches were made; ``entries``, a ``number`` representing the count of entries that were matched; ``entry``, a ``list`` with one item per matched entry). Each item in the ``entry`` list (corresponding to a matched entry) is a ``map`` with two further fields (``path``, a ``string`` with the file's precise path; ``content``, the ``binary`` content of the file).
 
 The input parameters expected by the different operations are as follows:
 
@@ -2886,15 +2888,21 @@ The following test case sample illustrates how to use the service to extract a f
           Use if needed the number of returned entries
        -->
        <log>"Extracted " || $zip{entries} || " file(s)"</log>
-       <!--
-          Use the extracted file (first match)
-       -->
-       <log>"Processing file " || $zip{entry}{0}{path} "..."</log>
+       <if hidden="true">
+          <cond>$zip{matched}</cond>
+          <then>
+            <!--
+              Use the extracted file (first match)
+            -->
+            <log>"Processing file " || $zip{entry}{0}{path} || "..."</log>
+            <assign to="file">$zip{entry}{0}{content}</assign>
+          </then>
+       </if>
        <assign to="file">$zip{entry}{0}{content}</assign>
        <!--
           Close the processing transaction to release the processed archive.
        -->
-       <etxn txnId="t1"/>
+       <eptxn txnId="t1"/>
     </steps>
 
 .. _handlers-reusable-handlers_validation:

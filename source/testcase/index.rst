@@ -929,6 +929,7 @@ The test case's steps are defined as children of the ``steps`` element. The avai
 .. index:: output (Test case)
 .. index:: success (Test case output)
 .. index:: failure (Test case output)
+.. index:: undefined (Test case output)
 .. index:: case (Test case output)
 .. index:: default (Test case output)
 .. index:: cond (Test case output)
@@ -939,10 +940,10 @@ Output
 ~~~~~~
 
 The ``output`` element is an optional means of defining a final result message for a given test session. It is processed once all
-steps have completed, checking the data in the test session's context to display specific success or failure messages. Using this
+steps have completed, checking the data in the test session's context to display specific messages. Using this
 element allows extended feedback to be returned that may be important to summarise and contextualise the steps' results.
 
-The ``output`` element supports both success and failure messages defined as different cases, each having a match condition, and an
+The ``output`` element supports messages for a success, failure, or undefined result; defined as different cases with match conditions and an
 overall default. The structure of the ``output`` element is as follows:
 
 .. csv-table::
@@ -951,8 +952,9 @@ overall default. The structure of the ``output`` element is as follows:
 
     success, no, The set of output cases to apply in case the test completes with a success.
     failure, no, The set of output cases to apply in case the test completes with a failure.
+    undefined, no, The set of output cases to apply in case the test completes with an undefined result.
 
-The ``success`` and ``failure`` elements share a common structure to define their specific cases and overall defaults:
+The ``success``, ``failure`` and ``undefined`` elements share a common structure to define their specific cases and overall defaults:
 
 .. csv-table::
     :stub-columns: 1
@@ -970,7 +972,7 @@ Finally, each ``case`` element shares a common structure as follows:
     cond, yes, Defines a condition :ref:`expression<test-case-expressions>` expected to return a "true" or "false" value.
     message, yes, Defines an :ref:`expression<test-case-expressions>` expected to return the output message (as a string).
 
-The ``output`` section is flexible as it doesn't require you to define both success and failure messages. In addition, you could
+The ``output`` section is flexible as it doesn't require you to define messages for each outcome type. In addition, you could
 opt only to provide default messages without specific cases or only provide certain specific messages without generic defaults.
 It is important to note that the condition expressions tolerate failures, meaning that if a condition cannot
 be evaluated its relevant case will simply be skipped. In addition, if any error is raised when creating the text message itself, the output
@@ -978,7 +980,8 @@ message will be altogether skipped; under no circumstances will a test session f
 (relevant warnings will however be included in the test session's log).
 
 The following snippet illustrates how the ``output`` section could be leveraged to return user-friendly failure messages based on the executed
-test steps (using the :ref:`STEP_STATUS<test-case-expressions-step-status>` variable to determine the cause of the failure):
+test steps (using the :ref:`STEP_STATUS<test-case-expressions-step-status>` variable to determine the cause of the failure). For successful
+and undefined states we only include a default message to make test sessions more user friendly.
 
 .. code-block:: xml
 
@@ -997,7 +1000,9 @@ test steps (using the :ref:`STEP_STATUS<test-case-expressions-step-status>` vari
             ...
         </steps>
         <output>
-            <!-- We skip the "success" element as we only want failure messages. -->
+            <success>
+                <default>"Test session completed successfully."</default>
+            </success>
             <failure>
                 <case>
                     <cond>$STEP_STATUS{checkIntegrity} = 'ERROR'</cond>
@@ -1012,6 +1017,35 @@ test steps (using the :ref:`STEP_STATUS<test-case-expressions-step-status>` vari
                     <message>"Please verify your data content and re-submit."</message>
                 </case>
                 <!-- The default will be applied if no specific case was found to match. -->
+                <default>"Your data failed to be processed correctly. Please check the session log to determine the cause of the failure."</default>
+            </failure>
+            <undefined>
+                <default>"Test session stopped before producing a result."</default>
+            </undefined>
+        </output>
+    </testcase>
+
+It may seem at first unintuitive to provide output messages for anything other than failures. However, there are a few cases where this could be
+particularly useful:
+
+    * A success message to **highlight a warning** (steps resulting in warnings are successful).
+    * An undefined message for an :ref:`exit step <tdl-step-exit>` that terminated with an undefined result.
+
+As mentioned earlier you can choose to omit certain outcomes altogether. For example, the following test case defines only failure messages
+(a specific one and a default one):
+
+.. code-block:: xml
+
+    <testcase>
+        <steps stopOnError="true">
+            ...
+        </steps>
+        <output>
+            <failure>
+                <case>
+                    <cond>$STEP_STATUS{checkContent} = 'ERROR'</cond>
+                    <message>"Please verify your data content and re-submit."</message>
+                </case>
                 <default>"Your data failed to be processed correctly. Please check the session log to determine the cause of the failure."</default>
             </failure>
         </output>

@@ -10,10 +10,6 @@ as well as access to all previous documentation versions.
 What's new in release 1.24.4
 ----------------------------
 
-.. note::
-    **Maintenance release:** Release 1.24.4 is a global maintenance release that did not change the GITB TDL. The latest features presented
-    in this section correspond to the latest release that did introduce changes, i.e. release 1.24.0.
-
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
 GITB TDL and GITB software release. In each case the "type" indicates whether the change applies to the GITB TDL as 
 a whole or specific improvements in the GITB software (or both) . In addition, references are provided to the relevant sections 
@@ -23,10 +19,15 @@ for more information.
     :header: "Description", "Type", "Relevant sections"
     :delim: |
 
-    Support for optional scriptlet parameters and parameters set as empty by default. | GITB TDL | :ref:`scriptlets_elements_params`
-    New ``VariableUtils`` built-in processor for common operations (``exists``, ``type``) on variables. | GITB TDL | :ref:`handlers-VariableUtils`
-    New operation for the ``CollectionUtils`` built-in processor to append collections. | GITB TDL | :ref:`handlers-CollectionUtils`
-    New inputs for the ``HttpMessagingV2`` built-in messaging handler to set maximum timeouts (connection and request) when calling a remote service. | GITB TDL | :ref:`handlers-httpmessagingv2-send`
+    Support **test case groups** within which only a single successful result is needed to ensure conformance. | GITB TDL | :ref:`test-suite-groups`
+    Allow the ``send``, ``receive`` and ``process`` steps to be configured with their severity level in case of failures via the ``level`` attribute. | GITB TDL | :ref:`tdl-step-receive`, :ref:`tdl-step-send`, :ref:`tdl-step-process`
+    Allow the ``send``, ``receive``, ``process`` and ``verify`` steps to have their outcome inverted via the ``invert`` attribute. | GITB TDL | :ref:`tdl-step-receive`, :ref:`tdl-step-send`, :ref:`tdl-step-process`, :ref:`tdl-step-verify`
+    The ``DisplayProcessor`` can now be used without parameters to only display an overall result. | GITB TDL | :ref:`handlers-DisplayProcessor`
+    Support **test case output messages** also for undefined outcomes. | GITB TDL | :ref:`test-case-output`
+    Optionally record the original file name for files uploaded via ``interact`` steps. | GITB TDL | :ref:`tdl-step-interact`
+    Support ``exit`` steps terminating test sessions with an undefined outcome. | GITB TDL | :ref:`tdl-step-exit`
+    Steps defining children support the ``stopOnChildError`` flag to stop processing upon child error but not terminate the test session. | GITB TDL | :ref:`tdl-steps-common-stoponchilderror`
+    The ``group`` step's boundary can now be hidden by means of the ``hiddenContainer`` flag. | GITB TDL | :ref:`tdl-step-group`
 
 Previous documentation versions
 -------------------------------
@@ -38,6 +39,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
+    1.24.4| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.4/
     1.24.3| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.3/
     1.24.2| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.2/
     1.24.1| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.1/

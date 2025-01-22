@@ -26,9 +26,6 @@ The following is an example test suite that defines a single actor and two inclu
             <gitb:actor id="User">
                 <gitb:name>User</gitb:name>
                 <gitb:desc>User to upload a UBL invoice for validation</gitb:desc>
-                <gitb:endpoint name="userInfo">
-                    <gitb:config name="id" kind="SIMPLE"/>
-                </gitb:endpoint>
             </gitb:actor>
         </actors>
         <testcase id="testCase1"/>
@@ -44,6 +41,7 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
     @id, yes, A string to uniquely identify the test suite by.
     metadata, yes, A block containing the metadata used to describe the test suite.
     actors, no, The list of actors that relate to the test suite's test cases. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
+    groups, no, A list of groups to be referenced by test cases. Only a single successful test case is needed from within a group to consider the entire group as successful (see :ref:`test-suite-groups` for details).
     testcase, no, A set of one or more test cases that are included in the test suite. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
 
 Elements
@@ -483,8 +481,77 @@ The key point to note is the reference to the "configuredValue" parameter in ``$
     **GITB software support:** Only a single endpoint can currently be configured for an actor. Additional endpoints will be recorded for the actor but will be 
     ignored during test execution.
 
+.. index:: groups (Test case groups)
+.. index:: group (Test case groups)
+.. index:: id (Test case groups)
+.. index:: name (Test case groups)
+.. index:: desc (Test case groups)
+.. _test-suite-groups:
+
+Test case groups
+~~~~~~~~~~~~~~~~
+
+Test case groups allow defining a set of test cases, of which only a single successful result is needed to consider the entire group
+as successful. In such a case, any failures or incomplete test cases are ignored for the overall conformance status. The group is considered
+to be failed if there is at least one failure and no successful tests. Note that in terms of display and execution sequence, all test cases
+in a group are considered sequentially.
+
+To use test case groups two steps are needed:
+
+    * Define the groups as part of the test suite using the ``groups`` element.
+    * Reference the groups when listing test cases using the ``testcase`` element(s).
+
+The optional ``groups`` element, used to define the groups you will refer to, contains one or more ``group`` elements for each of the
+test case groups. The structure of each ``group`` is as follows:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+
+    @id, yes, The ID of the group. This must be unique and is used to refer to the group from its test cases (see :ref:`test-case`).
+    name, no, A short name for the group to be presented as a label when listing the group's test cases.
+    desc, no, A description for the group that will be presented as additional information when viewing the group's details.
+
+The following example shows the definition of three groups, the first one with only an identifier, the second one with a name, and the third one with a
+name and a description. These groups are then referred to by their respective test cases.
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <testsuite id="invoiceValidation" xmlns="http://www.gitb.com/tdl/v1/" xmlns:gitb="http://www.gitb.com/core/v1/">
+        <metadata>
+            ...
+        </metadata>
+        <actors>
+            ...
+        </actors>
+        <groups>
+            <group id="group1"/>
+            <group id="group2">
+                <name>Security tests</name>
+            </group>
+            <group id="group3">
+                <name>Connection options</name>
+                <desc>Test cases covering alternative connection options</desc>
+            </group>
+        </groups>
+        <testcase id="testCase1a" group="group1"/>
+        <testcase id="testCase1b" group="group1"/>
+        <testcase id="testCase1c" group="group1"/>
+        <testcase id="testCase2"/>
+        <testcase id="testCase3a" group="group2"/>
+        <testcase id="testCase3b" group="group2"/>
+        <testcase id="testCase2"/>
+        <testcase id="testCase4a" group="group3"/>
+        <testcase id="testCase4b" group="group3"/>
+        <testcase id="testCase4c" group="group3"/>
+        <testcase id="testCase5"/>
+        <testcase id="testCase6"/>
+    </testsuite>
+
 .. index:: testcase (Test suite)
 .. index:: id (Test suite testcase)
+.. index:: group (Test suite testcase)
 .. index:: prequisite (Test suite testcase)
 .. index:: option (Test suite testcase)
 .. index:: supportsParallelExecution (test case order configuration in test suite)
@@ -502,6 +569,7 @@ This section is used to reference the test cases contained in the test suite. On
     :header: "Name", "Required?", "Description"
 
     @id, yes, The ID of the test case. This needs to match one defined in the test case's XML file (see :ref:`test-case`).
+    @group, no, The ID of the group to which this test case belongs (see :ref:`test-suite-groups`).
     prequisite, no, Zero or more elements each defining as text content a test case ID that should be considered as a prerequisite before running this one.
     option, no, Zero or more elements each defining as text content string values that match an option defined for the actor in the specification.
 
@@ -523,6 +591,20 @@ complete test suite can be done in two ways:
 Deploying a test suite in the GITB software
 -------------------------------------------
 
+A test suite is packaged as a **compressed ZIP archive** that contains:
+
+* A single test suite file defining common information and test cases.
+* One or more :ref:`test case files <test-case>` for the scenarios to cover (unless this is a :ref:`shared resource holder<test-suite-sharing-empty>`).
+* Zero or more :ref:`scriptlet files <scriptlets>` with common testing blocks reused across test cases.
+* Any number of arbitrary files used as resources within test cases.
+
+The names of the archive, the test suite and the test case files are not important, neither is the archive's folder structure.
+The test suite's contents and references across resources will be validated upon deployment. Deploying a test suite to the 
+GITB Test Bed software can be done in two ways:
+
+* Using the `user interface <https://www.itb.ec.europa.eu/docs/itb-ta/latest/domainDashboard/index.html#upload-test-suite>`_.
+* Using the `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#deploy>`_ (if enabled).
+
 .. note::
 
     **Deploying test suites during development:** When deploying test suites to a development test bed instance, the fastest way
@@ -530,19 +612,7 @@ Deploying a test suite in the GITB software
     instructions `here <https://www.itb.ec.europa.eu/docs/guides/latest/developingComplexTests/index.html#step-3-prepare-your-workspace>`_
     on enabling the API and creating a script to automate its use.
 
-A test suite is packaged as a compressed ZIP archive that contains:
-
-* A single test suite XML file.
-* One or more test case XML files (unless this is only a :ref:`shared resource holder<test-suite-sharing-empty>`).
-* Any number of arbitrary files used as resources within test cases.
-
-The names of the archive, the test suite and the test case XML files are not important. Neither is the folder structure defined within the archive.
-What is important is that:
-
-* A single test suite XML file is defined.
-* Test case IDs defined in the test case XML files are referenced in the test suite XML.
-
-Uploading a test suite to the GITB software has the following results:
+Deploying a test suite has the following results:
 
 * If it doesn't previously exist, the test suite is recorded along with its test cases and linked to the appropriate specification actors.
 * If the test suite does exist, the user selects whether this new version should invalidate previous conformance testing sessions (if the
