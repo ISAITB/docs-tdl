@@ -735,7 +735,7 @@ a case, you want to prevent the test session from proceeding, but also want to m
 to having failed its assertions. The following example illustrates such a scenario: 
 
 .. code-block:: xml
-    :emphasize-lines: 8
+    :emphasize-lines: 14
 
     <!--
         Group of send steps that POST test datasets to the SUT as part of the test's setup.
@@ -959,6 +959,16 @@ The following example illustrates use of the ``if`` step to conditionally valida
             <assign to="$formatType">'CSV'</assign>
         </else>
     </if>
+
+.. note::
+    **Setting variables conditionally:** If you simply need to set a variable's value conditionally you don't require 
+    an ``if`` step. A simpler approach is to use the :ref:`assign step <tdl-step-assign>` with an XPath if expression
+    such as the following (more expression examples available :ref:`here <test-case-expressions>`):
+
+    ``<assign to="variable">if ($flag) then "Value 1" else "Value 2"</assign>``
+
+    Using an ``if`` step is more appropriate when you need to conditionally execute multiple steps, or when the condition
+    branches themselves are defined in the specifications you are testing for.
 
 .. _tdl-step-if_hide_boundary:
 
