@@ -287,3 +287,68 @@ further highlighted using **tags**.
     :ref:`tags <test-case-metadata-tags>` | :ref:`Test case section <test-case>` | Visually highlight the syntax covered by each test case. | ``testCase1.xml`` ``testCase2.xml``
     :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate the retrieved content. | ``testCase1.xml`` ``testCase2.xml``
     :ref:`XmlValidator <handlers-XmlValidator>` | :ref:`Test step handler <handlers>` | Validate XML content using XML Schema. | ``testCase1.xml``
+
+.. index:: assign (examples)
+.. index:: call (examples)
+.. index:: hidden (examples)
+.. index:: import (examples)
+.. index:: interact (examples)
+.. index:: log (examples)
+.. index:: namespace (examples)
+.. index:: output (examples)
+.. index:: process (examples)
+.. index:: scriptlet (examples)
+.. index:: send (examples)
+.. index:: SimulatedMessaging (examples)
+.. index:: stopOnError (examples)
+.. index:: TemplateProcessor (examples)
+.. index:: TokenGenerator (examples)
+.. index:: verify (examples)
+.. index:: while (examples)
+.. _examples_example6:
+
+Example 6: Request and asynchronous polling for status update
+-------------------------------------------------------------
+
+**Download test suite:** :download:`example6.zip`
+
+This is a more complex scenario that considers sending a request and then using a **polling approach** to check for its
+processing status. It involves reusing steps via **scriptlets**, generating messages using **templates**, **iterating** to 
+make poll attempts following **delays**, making **conditional processing**, and extracting values from XML content using 
+**XPath** expressions.
+
+.. code-block:: none
+
+  <archive root>
+  ├── resources
+  │   ├── ackRequestTemplate.xml
+  │   ├── ackResponseTemplate.xml
+  │   ├── messageRequest.xml
+  │   └── messageResponse.xml
+  ├── scriptlets
+  │   └── createSimulatedStatusResponse.xml
+  ├── testCases
+  │   └── testCase1.xml
+  └── testSuite.xml
+
+.. csv-table::
+    :header: "Concept used", "Type", "Purpose", "Resource(s)"
+    :delim: |
+
+    :ref:`assign <tdl-step-assign>` | :ref:`Test step <tdl-steps>` | Prepare step inputs, assign variables and check results. | ``testCase1.xml`` ``createSimulatedStatusResponse.xml``
+    :ref:`call <tdl-step-call>` | :ref:`Test step <tdl-steps>` | Call the scriptlet to carry out status request steps. | ``testCase1.xml``
+    :ref:`hidden <tdl-steps-common-hidesteps>` | :ref:`Common concepts <tdl-steps-common>` | Hide the user interaction popup from the displayed execution diagram. | ``createSimulatedStatusResponse.xml``
+    :ref:`import <test-case-imports>` | :ref:`Test case section <test-case>` | Import validation artefacts. | ``testCase1.xml`` ``createSimulatedStatusResponse.xml``
+    :ref:`interact <tdl-step-interact>` | :ref:`Test step <tdl-steps>` | Display popup to request the simulated status to return. | ``createSimulatedStatusResponse.xml``
+    :ref:`log <tdl-step-log>` | :ref:`Test step <tdl-steps>` | Log progress messages in the test session log. | ``testCase1.xml`` ``createSimulatedStatusResponse.xml``
+    :ref:`namespace <test-case-imports>` | :ref:`Test case section <test-case>` | Declare namespaces for XPath lookups. | ``testCase1.xml``
+    :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion. | ``testCase1.xml``
+    :ref:`process <tdl-step-process>` | :ref:`Test step <tdl-steps>` | Use templates and generate timestamps. | ``testCase1.xml`` ``createSimulatedStatusResponse.xml``
+    :ref:`scriptlet <scriptlets>` | :ref:`Scriptlet <scriptlets>` | Encapsulate the status request steps. | ``createSimulatedStatusResponse.xml``
+    :ref:`send <tdl-step-send>` | :ref:`Test step <tdl-steps>` | Perform messaging request. | ``testCase1.xml``
+    :ref:`SimulatedMessaging <handlers-simulatedmessaging>` | :ref:`Test step handler <handlers>` | Display a simulated exchange between specification actors. | ``testCase1.xml``
+    :ref:`stopOnError <tdl-steps-common-stoponerror>` | :ref:`Common concepts <tdl-steps-common>` | Immediately stop the test session if a step fails. | ``testCase1.xml``
+    :ref:`TemplateProcessor <handlers-TemplateProcessor>` | :ref:`Test step handler <handlers>` | Use a template to generate messages based on parameters. | ``testCase1.xml`` ``createSimulatedStatusResponse.xml``
+    :ref:`TokenGenerator <handlers-TokenGenerator>` | :ref:`Test step handler <handlers>` | Generate a timestamp for the polling responses. | ``createSimulatedStatusResponse.xml``
+    :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate the retrieved status value. | ``testCase1.xml``
+    :ref:`while <tdl-step-while>` | :ref:`Test step <tdl-steps>` | Iterate through the polling attempts until polling should complete. | ``testCase1.xml``
