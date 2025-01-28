@@ -107,7 +107,7 @@ entity to escape the ``>`` character:
 
 .. code-block:: xml
 
-    <assign to="$result">string-length($input) &gt;= 10</assign>
+    <assign to="result">string-length($input) &gt;= 10</assign>
 
 A similar approach can be taken to replace any other special character such as ``"`` (replaced by ``&quot;``) or ``'``
 (replaced by ``&apos;``).
@@ -251,7 +251,7 @@ set a default value through the test case. This is illustrated in the following 
             <assign to="typeToUse">$SYSTEM{validationType}</assign>
         </else>
     </if>
-    <log>concat('Using validation type: ', $typeToUse)</log>
+    <log>'Using validation type: ' || $typeToUse</log>
 
 .. _test-case-variables-from-expression-output:
 
@@ -520,13 +520,13 @@ And the "config_test_1" test case is defined as follows:
             <!-- 
                 Lookup the "dataVersion" property configured for the "Sender". 
             -->
-            <assign to="$temp">$Sender{dataVersion}</assign>
+            <assign to="temp">$Sender{dataVersion}</assign>
             <!-- 
                 Lookup the "address" property configured by the simulated "Receiver" for the "Sender". 
                 This is statically defined here but could also be received from the "Receiver" messaging
                 handler as part of the test session's initiation phase.
             -->
-            <assign to="$temp">$Sender{Receiver}{address}</assign>
+            <assign to="temp">$Sender{Receiver}{address}</assign>
         </steps>
     </testcase>
 

@@ -7,7 +7,7 @@ Change history
 The current section provides an overview of new and notable changes in the latest GITB TDL documentation release
 as well as access to all previous documentation versions.
 
-What's new in release 1.24.4
+What's new in release 1.25.0
 ----------------------------
 
 The table that follows summarises the notable changes in the latest documentation release that matches the latest
@@ -28,6 +28,7 @@ for more information.
     Support ``exit`` steps terminating test sessions with an undefined outcome. | GITB TDL | :ref:`tdl-step-exit`
     Steps defining children support the ``stopOnChildError`` flag to stop processing upon child error but not terminate the test session. | GITB TDL | :ref:`tdl-steps-common-stoponchilderror`
     The ``group`` step's boundary can now be hidden by means of the ``hiddenContainer`` flag. | GITB TDL | :ref:`tdl-step-group`
+    New ``XPathProcessor`` processing handler to extract content from XML using XPath. | GITB TDL | :ref:`handlers-XPathProcessor`
 
 Previous documentation versions
 -------------------------------

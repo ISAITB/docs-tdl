@@ -309,7 +309,7 @@ provide a more elaborate :ref:`expression<test-case-expressions>` here to e.g. e
 
 .. code-block:: xml
 
-    <output name="rootName">concat('[', $documentRootName, ']')</output>
+    <output name="rootName">'[' || $documentRootName || ']'</output>
 
 Finally, when using the ``output`` element's expression to calculate its return value we could in our example skip the previous
 :ref:`assign<tdl-step-assign>` step altogether as follows:

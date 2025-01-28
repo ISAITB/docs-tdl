@@ -246,7 +246,7 @@ output (returned via its call-back to the test bed) to the specified values. If 
         Check to see if timeout took place or not and inform the user.
     -->
     <interact desc="Check timeout status">
-        <instruct desc="Timeout occurred:" with="Actor2">$dataReceiveTimeout{timeoutOccurred}</instruct>
+        <instruct desc="Timeout occurred:">$dataReceiveTimeout{timeoutOccurred}</instruct>
     </interact>
 
 You may also choose to define a ``receive`` step as part of a transaction (via :ref:`btxn<tdl-step-btxn>`). The following is an example of such a
@@ -698,9 +698,9 @@ The following example shows a test case that exits as a success based on the use
 .. code-block:: xml
     :emphasize-lines: 8
 
-    <assign to="$inputValue">'NO'</assign>
-    <interact desc="Provide your choice" with="User">
-        <request desc="Enter 'YES' to end the test" with="User">$inputValue</request>
+    <assign to="inputValue">'NO'</assign>
+    <interact desc="Provide your choice">
+        <request desc="Enter 'YES' to end the test">$inputValue</request>
     </interact>
     <if>
         <cond>$inputValue = 'YES'</cond>
@@ -708,8 +708,8 @@ The following example shows a test case that exits as a success based on the use
             <exit desc="Terminate test" success="true"/>
         </then>
         <else>
-            <interact desc="You chose to continue" with="User">
-                <instruct desc="Test continues" with="User" type="string">""</instruct>
+            <interact desc="You chose to continue">
+                <instruct desc="Test continues"/>
             </interact>
             <verify handler="XmlValidator" desc="Validate content">
                 <input name="xml">$document</input>
@@ -891,18 +891,18 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
     -->
     <foreach desc="Do iteration" counter="currentIndex" start="5" end="7">
         <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            <interact desc="Message to user">
+                <instruct desc="Iteration">"Iteration " || $currentIndex</instruct>
             </interact>
         </do>
     </foreach>
     <!-- In the following case the loop's boundaries are set dynamically. -->
-    <assign to="$start">5</assign>
-    <assign to="$end">$start + 2</assign>
+    <assign to="start" type="number">5</assign>
+    <assign to="end" type="number">$start + 2</assign>
     <foreach desc="Do iteration" counter="currentIndex" start="$start" end="$end">
         <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat("Iteration ", $currentIndex)</instruct>
+            <interact desc="Message to user">
+                <instruct desc="Iteration">"Iteration " || $currentIndex</instruct>
             </interact>
         </do>
     </foreach>	
@@ -949,14 +949,14 @@ The following example illustrates use of the ``if`` step to conditionally valida
     <if desc="Check process type">
         <cond>$processType = 'process1'</cond>
         <then>
-            <assign to="$formatType">'XML'</assign>
+            <assign to="formatType">'XML'</assign>
             <verify handler="https://VALIDATOR?wsdl" desc="Validate as XML">
                 <input name="source" source="$document"/>
                 <input name="validationType">$formatType</input>
             </verify>
         </then>
         <else>
-            <assign to="$formatType">'CSV'</assign>
+            <assign to="formatType">'CSV'</assign>
         </else>
     </if>
 
@@ -1059,14 +1059,14 @@ should take place. The structure of the ``repuntil`` element is as follows:
 
 .. code-block:: xml
 
-    <assign to="$iteration">1</assign>
-    <assign to="$maxIteration">3</assign>
+    <assign to="iteration" type="number">1</assign>
+    <assign to="maxIteration" type="number">3</assign>
     <repuntil desc="Do iteration">
         <do>
-            <interact desc="Message to user" with="User">
-                <instruct desc="Iteration: " with="User" type="string">concat($iteration, " of ", $maxIteration)</instruct>
+            <interact desc="Message to user">
+                <instruct desc="Iteration">$iteration || " of " || $maxIteration</instruct>
             </interact>
-            <assign to="$iteration">$iteration + 1</assign>
+            <assign to="iteration">$iteration + 1</assign>
         </do>
         <cond>$iteration &lt;= $maxIteration</cond>
     </repuntil>
@@ -1115,8 +1115,8 @@ The following example validates the name of each attachment defined in an XML do
     <!--
         Initialise maximum iteration count based on the number of "Attachment" nodes in the document.
     -->
-    <assign to="$iterationCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
-    <assign to="$iteration">1</assign>
+    <assign to="iterationCount" source="$document" type="number">count(//*[local-name() = "Attachment"]</assign>
+    <assign to="iteration" type="number">1</assign>
     <while desc="Validate attachment names">
         <cond>$iteration &lt;= $iterationCount</cond>
         <do>
@@ -1125,12 +1125,12 @@ The following example validates the name of each attachment defined in an XML do
                 <!-- 
                     Construct the XPath expression to apply using the iteration variable.
                 -->
-                <input name="xpathexpression">concat("//*[local-name() = 'Attachment'][", $iteration, "]/text() = 'file_", $iteration, ".xml'")</input>
+                <input name="xpathexpression">"//*[local-name() = 'Attachment'][" || $iteration || "]/text() = 'file_" || $iteration || ".xml'"</input>
             </verify>
             <!--
                 Increment iteration counter.
             -->
-            <assign to="$iteration">$iteration + 1</assign>
+            <assign to="iteration">$iteration + 1</assign>
         </do>
     </while>
 
@@ -1156,8 +1156,8 @@ assign
 
 The ``assign`` step is a frequently used construct in GITB TDL. It is a step that is not visible to the user, used for the manipulation 
 of data in the test session's context. It can be used to assign values to variables but also as a means of 
-performing simple processing or conversion between data types (see :ref:`test-case-types-type-conversions`). 
-The processing and assignment result is determined by an expression provided as the text content of the ``assign`` element (see :ref:`test-case-expressions`). 
+performing simple processing or :ref:`conversion between data types <test-case-types-type-conversions>`. 
+The processing and assignment result is determined by an :ref:`expression <test-case-expressions>` provided as the text content of the ``assign`` element. 
 The element's structure is as follows:
 
 .. csv-table::
@@ -1165,37 +1165,65 @@ The element's structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @append, no, Used if the ``to`` variable is a ``list`` to append the result to. Can be "true" or "false".
-    @asTemplate, no, Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
-    @lang, no, The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
+    @asTemplate, no, Whether or not the result will be considered as a :ref:`template for placeholder replacement <test-case-expressions-template-files>`. By default this is "false".
+    @lang, no, The :ref:`expression language prefix <test-case-namespaces-languages>` to use to evaluate the contained :ref:`expression <test-case-expressions>`.
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to, yes, The target variable to assign the result of the expression to.
     @type, no, Used to explicitly specify the type of variable to create (e.g. if the ``to`` is an entry in a ``map``).
 
-The following example illustrates assigning a value to a ``number`` variable and also counting the nodes in an XML document:
-
-.. code-block:: xml
-
-    <assign to="value">1</assign>
-    <assign to="nodeCount" source="$document">count(//*[local-name() = "Attachment"]</assign>
-
 The ``to`` attribute of an ``assign`` step determines the target variable to which the expression's output will be assigned to. This can be:
 
-    * An **existing variable**, defined as part of the test case's :ref:`variables<test-case-variables>` section or from previous steps.
+    * An **existing variable**, defined in the test case's :ref:`variables<test-case-variables>` section or from previous steps.
     * A **new variable** that will be created once this step completes.
 
 When defining a new variable its type is determined based on the result of the expression. This can also be affected by additional context information
 from the way the ``assign`` step is used, specifically the ``append`` attribute that would suggest a ``list``, as well as the ``to`` expression that 
-could suggest a ``map`` (e.g. if this defines ``$myMap{myKey}``).
+could suggest a ``map`` (e.g. if this defines ``myMap{myKey}``). You can also explicitly define the variable's type by means of the
+``type`` attribute.
 
-Numerous examples of the ``assign`` step can be found in the documentation on :ref:`expressions<test-case-expressions>`. Examples are also provided 
+Given that the GITB TDL's built-in :ref:`expression language <test-case-expressions>` is XPath, the ``assign`` step can also be leveraged
+to complete more advanced tasks. Specifically:
+
+    * Make **XPath lookups** in XML content (replacing use of the :ref:`XPathProcessor <handlers-XPathProcessor>`).
+    * Make **conditional variable assignments** (replacing use of :ref:`if steps <tdl-step-if>`).
+
+The following snippet illustrates simple and more advanced use cases of the ``assign`` step:
+
+.. code-block:: xml
+
+    <!-- 
+        Assign a text to a string variable.
+    -->
+    <assign to="value1">"My value"</assign>
+    <!--
+        Assign a number to a number variable.
+    -->
+    <assign to="value2" type="number">1</assign>
+    <!--
+        Increment a number.
+    -->
+    <assign to="value2">$value2 + 1</assign>
+    <!--
+        Assign a variable's value conditionally (no need for an if step to do this).
+    -->
+    <assign to="value3">if ($flag) then "Value 1" else "Value 2"</assign>
+    <!--
+        Lookup a text value from an XML document (no need for a process step and XPathProcessor).
+    -->
+    <assign to="value4" source="$xmlContent">//po:shipTo[@country = "BE"]/po:name</assign>
+    <!--
+        Lookup an XML block from an XML document.
+    -->
+    <assign to="value5" source="$xmlContent" type="object">//po:shipTo[@country = "BE"]</assign>
+
+Further examples can be found in the documentation on :ref:`expressions<test-case-expressions>`. Examples are also provided 
 here on how variables are :ref:`dynamically created<test-case-variables-from-expression-output>` if not already defined.
 
 .. note::
-    **Using '$' to define the assignment target:** In the provided examples the ``to`` attribute of an ``assign`` step is always 
-    prefixed by a ``$`` given that these are :ref:`variable references<test-case-referring-to-variables>`. In the case of ``assign``
-    steps this is optional given that the ``to`` can only ever refer to a variable. As such, a ``to`` value of ``myVariable`` is valid 
-    and considered the same as ``$myVariable``.
+    **Using '$' to define the assignment target:** The ``to`` attribute of an ``assign`` step may also be prefixed with a ``$``
+    making it a :ref:`variable reference <test-case-referring-to-variables>`. In this case the step will fail if the variable does
+    not already exist.
 
 .. index:: call
 .. index:: id (call)
@@ -1768,7 +1796,7 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
     <!-- Log the provided flag value. -->
     <log>$input{flag}</log>
     <!-- Log a message including the provided flag value. -->
-    <log>concat('You selected: ', $input{flag})</log>
+    <log>'You selected: ' || $input{flag}</log>
     <!-- Print the id attribute of the XML file's root element. -->
     <log source="$input{file}">string(/*[local-name() = "myRootElement"]/@id)</log>
     <!-- Define a template text. -->

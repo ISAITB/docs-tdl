@@ -586,9 +586,9 @@ The following example shows a test case that prompts the user before starting to
 .. code-block:: xml
 
     <testcase>
-        <preliminary desc="Prepare your system" with="User">
-            <instruct desc="Preparation instructions" with="User" type="string">"Make sure your system is up and running"</instruct>
-            <request desc="Provide your configuration file" with="User" contentType="BASE64">$sutConfigFile</request>
+        <preliminary desc="Prepare your system">
+            <instruct desc="Preparation instructions">"Make sure your system is up and running"</instruct>
+            <request desc="Provide your configuration file" contentType="BASE64">$sutConfigFile</request>
         </preliminary>
         <variables>
             <var name="sutConfigFile" type="binary"/>
@@ -775,8 +775,8 @@ extracted via XPath:
             <!-- 
                 Store the uploaded result in the fileContent variable.
             -->
-            <interact desc="UBL invoice upload" with="User">
-                <request desc="Upload the UBL invoice to validate" with="User" contentType="BASE64">$fileContent</request>
+            <interact desc="UBL invoice upload">
+                <request desc="Upload the UBL invoice to validate" contentType="BASE64">$fileContent</request>
             </interact>
             <!-- 
                 Extract a part of it and store in the targetElement variable.
@@ -1104,8 +1104,8 @@ of the inputs provided by the user.
             <!--
                 Log the root element names of the validated files.
             -->
-            <log>concat("File 1: ", $call1{rootName})</log>
-            <log>concat("File 2: ", $call2{rootName})</log>
+            <log>"File 1: " || $call1{rootName}</log>
+            <log>"File 2: " || $call2{rootName}</log>
         </steps>
         <scriptlets>
             <scriptlet id="validateDocument">
