@@ -44,7 +44,7 @@ The following table provides the main highlights introduced in each previous doc
     :stub-columns: 1
     :delim: |
 
-    1.25.0| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.25.0/
+    1.25.0| Test case groups; severity levels and inverted outcomes for ``send``, ``receive``, ``process`` and ``verify`` steps; ``exit`` step and output messages for undefined results; ``stopOnChildError`` and ``hiddenContainer`` flags; new ``XPathProcessor`` processing handler. | https://www.itb.ec.europa.eu/docs/tdl/1.25.0/
     1.24.4| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.4/
     1.24.3| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.3/
     1.24.2| Maintenance release with no changes. | https://www.itb.ec.europa.eu/docs/tdl/1.24.2/
