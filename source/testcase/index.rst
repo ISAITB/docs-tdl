@@ -430,48 +430,6 @@ The following example illustrates how namespaces can be used for XML-based proce
         </steps>
     </testcase>
 
-.. _test-case-namespaces-languages:
-
-Defining alternative expression languages
-+++++++++++++++++++++++++++++++++++++++++
-
-A further, experimental use case for the ``namespaces`` element is to define additional expression languages for use within the test case. This needs to
-be done when expressions are used that should not be processed using the default XPath language. A detailed discussion on GITB expressions as well 
-as where and how you can use them is provided in :ref:`test-case-expressions`.
-
-In this case the alternative languages are defined using ``ns`` elements, of which the ``prefix`` attributes define how they are to be referenced. A TDL step
-that supports expressions can then define the expression language to consider using its ``lang`` attribute. To illustrate how this works consider a test case
-in which we declare to be using expressions as JavaScript. We will use JavaScript for conditional checks on a number to determine a result and
-illustrate how this is done in the default XPath.
-
-.. code-block:: xml
-
-    <testcase>
-        <namespaces>
-            <ns prefix="JavaScript"/>
-        </namespaces>
-        <steps>
-            <!-- 
-                Assignment using the default XPath.
-            -->
-            <assign to="result">if ($var = 1) then 'result1' else 'result2'</assign>
-            <!-- 
-                Assignment using JavaScript.
-            -->
-            <assign to="result" lang="JavaScript">if ($var == 1) { return 'result1' } else { return 'result2' }</assign>
-        </steps>
-    </testcase>
-
-Use of alternative expression languages, and their definition through the ``namespaces`` element, is tricky because we need to know exactly how the target test bed refers
-to the language (i.e. "JavaScript" in our case) to correctly identify it. Furthermore it must be clear how the test bed will process the expression and how session context
-variables are looked up. In the above example we assume that context variables (e.g. "$var") are looked up in exactly the same way as with XPath expressions and that the 
-entire expression will be evaluated by first wrapping it in a function, the result of which is returned as the assignment output. Apart from actually supporting JavaScript
-for expressions, these additional details need to first be defined unambiguously by the test bed and made known to its users. Only then can we use them in a deterministic
-and portable manner.
-
-.. note::
-    **GITB software support:** Using the ``namespaces`` element to define expression languages other than the default XPath is currently not supported.
-
 .. index:: imports (Test case)
 .. index:: artifact (Test case imports)
 .. index:: name (Test case imports)
