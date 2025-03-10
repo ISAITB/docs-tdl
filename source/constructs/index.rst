@@ -1776,7 +1776,7 @@ The element's structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
-    @lang, no, Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
+    @lang~ no~ Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
     @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference. See :ref:`tdl-steps-common-level` for further details.
     @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
