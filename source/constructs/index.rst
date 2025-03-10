@@ -1166,7 +1166,7 @@ The element's structure is as follows:
 
     @append, no, Used if the ``to`` variable is a ``list`` to append the result to. Can be "true" or "false".
     @asTemplate, no, Whether or not the result will be considered as a :ref:`template for placeholder replacement <test-case-expressions-template-files>`. By default this is "false".
-    @lang, no, The :ref:`expression language prefix <test-case-namespaces-languages>` to use to evaluate the contained :ref:`expression <test-case-expressions>`.
+    @lang, no, Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to, yes, The target variable to assign the result of the expression to.
@@ -1776,7 +1776,7 @@ The element's structure is as follows:
     :header: "Name", "Required?", "Description"
 
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
-    @lang~ no~ The expression language prefix to use to evaluate the contained expression (see :ref:`test-case-namespaces-languages` and :ref:`test-case-expressions`).
+    @lang, no, Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
     @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference. See :ref:`tdl-steps-common-level` for further details.
     @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
