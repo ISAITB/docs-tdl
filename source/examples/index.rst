@@ -34,7 +34,7 @@ Each test suite is covered in a separate section below, providing per case:
 Example 1: Validation of XML content via various inputs
 -------------------------------------------------------
 
-**Download test suite:** :download:`example1.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/xmlValidationViaVariousInputs>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/xmlValidationViaVariousInputs/testSuite.zip>`__.
 
 This example showcases validation of XML content using the Test Bed's built-in **XML validation** capabilities. The test suite includes
 two test cases covering the different ways in which the XML to validate is provided, specifically through **manual upload** and **HTTP request**.
@@ -92,7 +92,7 @@ The validation logic is defined once and **reused** across both test cases.
 Example 2: Validation of JSON content with fixed and dynamic schemas
 --------------------------------------------------------------------
 
-**Download test suite:** :download:`example2.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/validationOfJsonContentWithFixedAndDynamicSchemas>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/validationOfJsonContentWithFixedAndDynamicSchemas/testSuite.zip>`__.
 
 This example showcases validation of **JSON content** retrieved over HTTP, using a **remote validator** (the Test Bed's generic JSON validator).
 Besides checking the content's structure, the included test case also uses a **dynamically generated schema** to make session-specific tests,
@@ -153,7 +153,7 @@ ensuring that referred dates and item counts match the test case's expectations.
 Example 3: Test suite presentation, test case groups and simulated exchanges
 ----------------------------------------------------------------------------
 
-**Download test suite:** :download:`example3.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/testSuitePresentationTestCaseGroupsAndSimulatedExchanges>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/testSuitePresentationTestCaseGroupsAndSimulatedExchanges/testSuite.zip>`__.
 
 This example focuses on features that can be used to enhance a test suite's **presentation**, enhancing testers' **user experience**. 
 Presentation features in use include test case **tags**, rich **documentation** and specific outcome **messages** for different test session
@@ -212,7 +212,7 @@ test cases based on simulated exchanges, provided as fixed inputs.
 Example 4: Setup and teardown phases with fine-tuned error management
 ---------------------------------------------------------------------
 
-**Download test suite:** :download:`example4.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/setupAndTeardownPhasesWithFineTunedErrorManagement>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/setupAndTeardownPhasesWithFineTunedErrorManagement/testSuite.zip>`__.
 
 This test suite illustrates the use of **step groups** and **error management flags** to split a test case into sections with different
 execution behaviours. The included test case splits its steps into setup, main and teardown phases, ensuring that setup and teardown
@@ -254,7 +254,7 @@ are used such as collapsing the display of setup and teardown steps, and hiding 
 Example 5: Linking test cases with specification references
 -----------------------------------------------------------
 
-**Download test suite:** :download:`example5.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/linkingTestCasesWithSpecificationReferences>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/linkingTestCasesWithSpecificationReferences/testSuite.zip>`__.
 
 This test suite illustrates how test cases can be displayed with **specification references**, when it is important to have direct
 traceability between test cases and normative requirements. The included tests cover **XML and JSON validation** using **built-in** and
@@ -310,7 +310,7 @@ further highlighted using **tags**.
 Example 6: Request and asynchronous polling for status update
 -------------------------------------------------------------
 
-**Download test suite:** :download:`example6.zip`
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/requestAndAsynchronousPollingForStatusUpdate>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/requestAndAsynchronousPollingForStatusUpdate/testSuite.zip>`__.
 
 This is a more complex scenario that considers sending a request and then using a **polling approach** to check for its
 processing status. It involves reusing steps via **scriptlets**, generating messages using **templates**, **iterating** to 
