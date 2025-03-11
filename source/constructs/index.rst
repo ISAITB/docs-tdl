@@ -1493,12 +1493,13 @@ Use of these attributes is illustrated in the following TDL snippet:
 interact
 ~~~~~~~~
 
-The ``interact`` step is used to exchange information with the user executing the test case. Interactions can be of two types:
+The ``interact`` step is used to exchange information with the user executing the test case by means of a popup dialog.
+It can be used both to present information to the user, as well as request inputs, depending on the child elements it defines.
+These child elements include:
 
 * **Instructions:** Informative messages or data to be presented to a user.
 * **Requests:** Prompts to a user to provide input.
 
-Both instructions and requests can be included in the same ``interact`` step to display and/or request multiple sets of information in one go.
 The structure of the ``interact`` element is as follows:
 
 .. csv-table::
@@ -1516,7 +1517,7 @@ The structure of the ``interact`` element is as follows:
     @with, no, The ID of the actor this interaction refers to. If not specified is is assumed to be the test case actor defined as the SUT. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     documentation, no, Rich text content that provides further information on the current step.
     instruct, no, Zero or more elements to appear as instructions to the user.
-    request, no, Zero or more information requests for the user.
+    request, no, Zero or more input requests for the user.
 
 .. index:: instruct (interact)
 .. index:: desc (instruct)
@@ -1580,58 +1581,138 @@ The ``request`` elements define how information shall be requested from the user
     @report~ no~ Whether or not this value will be included in the presentation of the test step's report (by default "true"). When set to "false" the requested value will be stored in the test session context but not displayed in the step's report.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor). Within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`.
 
-Interactions are by default presented to the tester, but can also be reserved for an administrator through the ``admin`` flag in the ``interact`` element.
-This could be useful in case you need to pause a test session while an administrator makes a manual verification. In such cases, you can also 
-fine tune which of the administrator's inputs are presented in the report (via the ``report`` flag on ``request`` elements), and even hide the
-overall step if preferable (via the ``interact`` element's ``hidden`` attribute). Note that all interactions can be minimised and completed at a
-later time, and support the setting of a configurable ``timeout`` to avoid a simple notification message blocking the test session's execution.
+Both instructions and requests can be included in the same ``interact`` step to display and/or request multiple sets of
+information in one go. The sequence with which these elements are defined determine also their display sequence in the
+``interact`` step's popup. The attributes for the ``interact``, ``instruct`` and ``request`` elements determine the precise
+behaviour in presenting and requesting data to and from the user. Detailed information on their possible options as well as several
+examples are provided in the sections that follow.
 
-.. note::
-    For a test session running in the background, administrator interactions block until completed unless a timeout is set. Tester interactions
-    are in contrast completed immediately with a log warning, unless configured with a timeout.
+.. _tdl-step-interact_instruct_presentation:
 
-The content of the ``instruct`` and ``request`` elements is expected to be an expression (see :ref:`test-case-expressions`) that takes different
-meaning depending on the specific element type. In the case of providing information to the user through a ``instruct`` element the contained
-value is a complete expression that will be evaluated to produce the value to display. In this case the ``contentType`` and ``encoding`` 
-attributes are not used and are ignored if specified. What is important is the ``type`` attribute that defines how the element's expression
-result is to be interpreted (see :ref:`test-case-types`):
+Displaying information using instruct elements
+++++++++++++++++++++++++++++++++++++++++++++++
 
-* A ``binary``, ``object`` or ``schema`` type results in the calculated expression being computed as BASE64 content. The user will have the option to
-  download the content as a file or open it in a code editor.
-* All other cases result in the value being displayed inline as text. This is also the default case if the ``type`` attribute is not specified.
-* Note that in case the text is too long to be displayed the user will instead be provided with controls to download it as a file or open it
-  in a code editor (as in the case of e.g. binary content).
+The ``instruct`` element is used to present data from the test session to the user. The presented data is labelled using
+the ``desc`` attribute's value, whereas the data itself is determined by evaluating the element's content as an :ref:`expression <test-case-expressions>`,
+ranging from a **constant value**, to a **variable reference**, to a complete **XPath expression** to process. In case of
+simple messages, you can also define the ``instruct`` element as empty in which case only the ``desc`` value is presented.
 
-As a complement to the ``type`` attribute you can also specify the ``mimeType`` attribute. This is meaningful for binary or large text content
-as it serves two purposes: it allows you to specify the content type and file extension to use when the content is downloaded as a file, and it
-provides a hint for appropriate syntax highlighting when displaying the content in a code editor.
+.. code-block:: xml
 
-Concerning ``request`` elements, the content of the expression is expected to be a pure variable reference that identifies the variable that
-will receive the input. You can also leave this empty and specify a ``name`` instead, in which case the value will be recorded in a map in the 
-test session context. This map is named using the ``interact`` step's ``id`` and in which the specific input value is added with a key matching
-its ``name``. These two approaches are illustrated in the snippet that follows:
+    <interact desc="User instructions">
+        <!-- Display a simple inline message -->
+        <instruct desc="Send the message to continue"/>
+        <!-- Display a labelled value -->
+        <instruct desc="Message type to use:">"Request message"</instruct>
+        <!-- Display a labelled file for download -->
+        <instruct desc="Message to send:">$file</instruct>
+    </interact>
+
+When the ``instruct`` element's content is defined, the way in which it is presented depends on the :ref:`type <test-case-types>`
+of the resulting expression, which can also be forced through the ``type`` attribute. Depending on the value's type (inferred or explicitly set),
+it is presented as follows:
+
+* For a ``binary``, ``object`` or ``schema`` type, controls will be displayed allowing to **download** the value as a file
+  and to view it in a **code editor** (if text-based).
+* For all other types, the value is displayed **inline as text**. This is also the default approach if the value's type was not
+  set and could not be inferred.
+
+When displaying the **value inline** it could be the case that the text is too long. In this case the user will instead
+be provided with controls to download it as a file or open it in a code editor (as in the case of e.g. binary content).
+You can override this behaviour by setting the ``forceDisplay`` attribute to true, which will result in an inline display
+regardless of the value's size.
+
+As a complement to the ``type``, you can also specify the ``mimeType`` attribute. This is meaningful for binary or large text content
+as it serves two purposes: it allows you to specify the content type and **file extension** to use when the content is downloaded as a file, and it
+provides a hint for appropriate **syntax highlighting** when displaying the content in a code editor. Considering file
+downloads, you can also set the ``name`` attribute to specify the name of the downloaded file.
+
+It is important to note that the ``mimeType`` attribute has no effect when the value is presented inline. In fact, an inline
+presentation is always as simple text, with no additional formatting or highlighting. In case you are looking for an inline
+display of something more elaborate (e.g. a rich text message styled as HTML content), you should consider defining this
+as :ref:`documentation for the step <tdl-steps-common-documentation>` using a ``documentation`` element within the ``interact``
+step.
+
+.. _tdl-step-interact_form_inputs:
+
+Requesting inputs using request elements
+++++++++++++++++++++++++++++++++++++++++
+
+The ``request`` element is used to request input from the user. The element's definition determines the two important aspects
+related to such input:
+
+* The way in which the provided input will be recorded for subsequent use.
+* The form control used by the user to provide the input.
+
+Regarding the first point, how to **record the provided input**, you can either set it as the value of an existing variable,
+or record it in a map corresponding to the ``interact`` step's output. To set an existing variable you specify the ``request``
+element's content as a :ref:`variable reference <test-case-referring-to-variables>`, referring to the variable that will
+receive the value. In this case you need to ensure that the referenced variable already exists, for example through an earlier
+:ref:`assign step <tdl-step-assign>` or a :ref:`variable declaration <test-case-variables>`.
+
+.. code-block:: xml
+
+    <assign to="aValue">"Initial value"</assign>
+    ...
+    <interact id="data" desc="Provide input">
+        <!-- Stored as $aValue.  -->
+        <request desc="Enter a text value:">$aValue</request>
+    </interact>
+    <!-- Log the provided value. -->
+    <log>$aValue</log>
+
+The alternative to this approach is to store received inputs in a map corresponding to the ``interact`` step's output. In
+this case you leave the ``request`` element empty, specifying instead the ``name`` attribute that will be used as the value's
+key in the step's output map. The output map added to the test session context is named after the ``interact`` step's ``id``.
+
+.. code-block:: xml
+
+    <interact id="data" desc="Provide input">
+        <!-- Stored as $data{aValue}.  -->
+        <request desc="Enter a text value:" name="aValue"/>
+    </interact>
+    <!-- Log the provided value. -->
+    <log>$data{aValue}</log>
+
+This second approach is considered the better practice as it is typically simpler to use. Firstly, there is no need to predefine
+variables to receive inputs, and secondly, it becomes simpler to manage ``interact`` steps resulting in multiple inputs.
 
 .. code-block:: xml
 
     <interact id="data" desc="Provide inputs">
-        <!-- Approach 1, stored in variable aValue. -->
-        <request desc="Enter a text value:">$aValue</request>
-        <!-- Approach 2, stored in variable data{value}. -->
-        <request desc="Enter another text value:" name="value"/>
+        <request desc="Invoice number:" name="invoiceNumber"/>
+        <request desc="Seller VAT number:" name="sellerVat"/>
+        <request desc="Buyer VAT number:" name="buyerVAT"/>
     </interact>
+    <!-- Log the provided values. -->
+    <log>"Invoice "|| $data{invoiceNumber} || " sent from " || $data{sellerVat} || " to " || $data{buyerVAT}</log>
 
-To determine the type of input control to present to the user you use the ``inputType`` attribute. The supported values for this are:
+The second key aspect of a ``request`` element is configuring the **form control** to present to the user. The label for the
+input is defined through the ``desc`` attribute, whereas the type of input presented is determined by the ``inputType`` attribute
+that supports the following values:
 
 * ``TEXT`` for a simple text field (the default if not specified).
-* ``UPLOAD`` for a file upload control.
 * ``MULTILINE_TEXT`` for a textarea supporting input of multiple lines.
 * ``SECRET`` for a control to add a secret value such as a password.
-* ``CODE`` for input via a code editor. To complement this you can also specify the ``mimeType`` attribute with a `mime type`_ (e.g. ``text/xml``) to have
-  appropriate syntax highlighting.
+* ``UPLOAD`` for a file upload control. You can also set in this case the ``fileName`` attribute to record the name of the uploaded file (the ``fileName`` value being the key to use in the step's output map).
+* ``CODE`` for input via a code editor. To complement this you can also specify the ``mimeType`` attribute with a `mime type`_ (e.g. ``text/xml``) to have appropriate syntax highlighting.
 * ``SELECT_SINGLE`` for a single-select dropdown list, specifying the options via the ``options`` and ``optionLabels`` attributes.
 * ``SELECT_MULTIPLE`` for a multi-select dropdown list using similarly the ``options`` and ``optionLabels`` attributes.
 
-Prior to GITB TDL version 1.14.0, the way to determine the input control to use was the ``contentType`` attribute. Although less expressive, this approach is 
+.. code-block:: xml
+
+    <interact id="data" desc="Provide inputs">
+        <request desc="Invoice number:" name="invoiceNumber"/>
+        <request desc="Invoice comment:" name="invoiceComment" inputType="MULTILINE_TEXT"/>
+        <request desc="Invoice file:" name="invoiceFile" fileName="invoiceFileName" inputType="UPLOAD"/>
+    </interact>
+    <!-- Log the provided values. -->
+    <log>"Invoice "|| $data{invoiceNumber} || " uploaded as " || $data{invoiceFileName} || " with comment: " || $data{invoiceComment}</log>
+
+.. note::
+    The value received from a ``SELECT_MULTIPLE`` input will be a comma-separated string in which the individual parts match the selected values.
+
+Prior to GITB TDL version 1.14.0, the way to determine the input control to use was the ``contentType`` attribute. Although less expressive, this approach is
 still supported as follows:
 
 * Specifying "BASE64" results in a file upload presented to the user.
@@ -1641,6 +1722,135 @@ It is interesting to note that any available context information is always consi
 you are referencing an already defined ``binary`` variable, you can skip the ``inputType`` or ``contentType`` definitions as this will anyway result in a file upload.
 Similarly, if for a ``request`` you define ``options`` and the ``multiple`` attribute, you don't need to define the ``inputType`` as well as this is considered to be
 by default ``SELECT_MULTIPLE``.
+
+.. _tdl-step-interact_admin_interactions:
+
+Interactions for administrators
++++++++++++++++++++++++++++++++
+
+Interactions are by default presented to the tester, but can also be reserved for an administrator by setting the ``interact`` element's ``admin`` flag to true.
+This could be useful in case you need to pause a test session while an administrator makes a manual verification, or to make a manual check on user-provided
+evidence data that cannot be automatically verified.
+
+In case the administrator needs to input internal information, you can fine-tune what gets reported to users. You can skip
+the reporting of specific information by setting the ``report`` flag on the relevant ``request`` elements to false. You can
+even :ref:`hide the interaction step <tdl-steps-common-hidesteps>` altogether by setting ``hidden`` to true.
+
+.. code-block:: xml
+
+    <interact id="adminData" desc="Confirm results" admin="true">
+        <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
+        <!-- The "code" input will be recorded but not added to reports. -->
+        <request desc="Internal code" name="code" report="false"/>
+    </interact>
+    <log>$adminData{code}</log>
+
+.. _tdl-step-interact_customise_display:
+
+Customising the interact step's display
++++++++++++++++++++++++++++++++++++++++
+
+The ``interact`` step's presentation can be customised using the element's attributes. Besides :ref:`commons options <tdl-steps-common>`
+applicable to all TDL steps, you can adapt the step's description (``desc``) and ``title`` for the displayed step's boundary, as well as
+provide a custom ``inputTitle`` for the popup used to present the step's instructions and form controls.
+
+.. code-block:: xml
+
+    <interact desc="User instructions" inputTitle="Instructions">
+        <instruct desc="Send the message to continue"/>
+    </interact>
+
+For an ``interaction`` step that is not a key part of the test case, for example a popup to guide the user in next steps,
+a typical configuration is to set it as :ref:`hidden <tdl-steps-common-hidesteps>`. This ensures the interaction is
+executed but will not be displayed on the test execution diagram or included in test case reports. A lighter alternative
+is to set the step as ``collapsed`` in which case it will be included in the execution diagram and reports, but will
+be presented as initially collapsed. This approach could be interesting for example if the step in question requests inputs
+that you still want to make available for later review be expanding the step's display and selecting the step's report.
+
+.. code-block:: xml
+
+    <interact desc="User instructions" inputTitle="Instructions" collapsed="true">
+        <instruct desc="Send the message to continue"/>
+    </interact>
+
+.. _tdl-step-interact_timeout:
+
+Background execution and interaction timeouts
++++++++++++++++++++++++++++++++++++++++++++++
+
+When the ``interact`` step is executed the test execution pauses until the step is completed by the user. This is meaningful
+when the relevant test is executed interactively but could be a point to consider if the test is executed in the background.
+Moreover, even if executed interactively, you may want to prevent the test session from blocking indefinitely due to a simple information
+popup that has no bearing on the overall test.
+
+To avoid blocking test sessions and to better control how interactions are completed in background executions, the ``interact``
+step can be set with a configurable ``timeout``. The value of this is a number corresponding to the milliseconds to
+wait for until automatically completing the interaction. It can be set as a fixed value or as a :ref:`variable reference <test-case-referring-to-variables>`,
+set dynamically or referring to a :ref:`configuration property <test-case-configuration>` (similar to the timeouts of :ref:`receive steps <tdl-step-receive>`).
+
+.. note::
+
+    Background test sessions with pending user interactions, can be still be completed by both users and administrators
+    through the GITB Test Bed's user interface (under the **active sessions** in the
+    `session history <https://www.itb.ec.europa.eu/docs/itb-ta/latest/validateTestSetup/index.html#active-test-sessions>`__
+    and `session dashboard <https://www.itb.ec.europa.eu/docs/itb-ta/latest/sessionDashboard/index.html#active-test-sessions>`__ screens).
+
+For a test session executing in the background, the test engine treats ``interact`` steps in the following way:
+
+1. If the step is set with a ``timeout``, the interaction remains pending until completed by the user or until the timeout expires.
+2. If no ``timeout`` is set but the ``interact`` step is set as an :ref:`administrator interaction <tdl-step-interact_admin_interactions>`
+   (i.e. ``admin`` is set to true), the test session will pause indefinitely until completed by an administrator.
+3. In all other cases the step is completed automatically with a log warning, effectively skipping it and resulting in empty inputs (if requested).
+
+.. code-block:: xml
+
+    <!-- Assume the test session is executing in the background. -->
+
+    <!-- This interaction is automatically skipped. -->
+    <interact desc="User instructions">
+        <instruct desc="Send the message to continue"/>
+    </interact>
+
+    <!-- This interaction will remain pending until manually completed or until the timeout elapses. -->
+    <interact id="userData" desc="User input" timeout="$DOMAIN{userInteractionTimeout}">
+        <request desc="Identifier to check" name="identifier"/>
+    </interact>
+
+    <!-- This interaction will remain pending until manually completed. -->
+    <interact id="adminData" desc="Confirm results" admin="true">
+        <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
+    </interact>
+
+    <!-- This interaction will remain pending until manually completed or until the timeout elapses. -->
+    <interact id="adminData" desc="Confirm results" admin="true" timeout="$DOMAIN{adminInteractionTimeout}">
+        <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
+    </interact>
+
+Generally speaking, is a **good practice** to always define timeouts for ``interact`` steps as this gives you full control over
+their execution. This becomes even more important if you are expecting manual user inputs, but still want your test cases to
+support background execution. In this case you can even foresee a fallback solution for user input that was not provided,
+checking the ``interact`` step's resulting value(s) and assigning defaults as needed.
+
+.. code-block:: xml
+
+    <log>"Requesting user input..."</log>
+    <interact id="userData" desc="Request user input" timeout="3000">
+        <request desc="Input value" name="inputValue"/>
+    </interact>
+    <!-- If the step was skipped the requested value will be empty. -->
+    <assign to="userData{inputValue}">if ($userData{inputValue} = "") then "Default value" else $userData{inputValue}</assign>
+    <log>"Value to use: " || $userData{inputValue}</log>
+
+.. note::
+
+    When executing test sessions through the GITB Test Bed's `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#start>`__
+    you can provide input data as part of the service call. Such data could serve to replace inputs that would otherwise be
+    requested via ``interact`` steps.
+
+.. _tdl-step-interact_examples:
+
+Example interact steps
+++++++++++++++++++++++
 
 The following examples illustrate user interactions presenting instructions and also requesting information:
 
@@ -1684,67 +1894,56 @@ To better illustrate how dropdown selections can be defined, the following code 
 
 .. code-block:: xml
 
-    <steps>
-        <!-- Assign options and labels (you may predefine variables or create them on the fly as follows) -->
-        <assign to="input3_options">"v1, v2, v3"</assign>
-        <assign to="input3_labels">"Value 1, Value 2, Value 3"</assign>
-        <assign to="input4_options" append="true">"x1"</assign>
-        <assign to="input4_options" append="true">"x2"</assign>
-        <assign to="input4_options" append="true">"x3"</assign>
-        <assign to="input4_labels" append="true">"VAL 1"</assign>
-        <assign to="input4_labels" append="true">"VAL 2"</assign>
-        <assign to="input4_labels" append="true">"VAL 3"</assign>
-	
-        <interact id="data" desc="Enter data">
-            <!-- Single selection with options provided in the attribute values (stored as data{input1}). -->
-            <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" name="input1"/>
-            <!-- Multiple selection with options provided in the attribute values (stored as data{input2}). -->
-            <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true" name="input2"/>
-            <!-- Single selection with options provided by referring to string variables (stored as data{input3}). -->
-            <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels" name="input3"/>
-            <!-- Single selection with options provided by referring to list variables (stored as data{input4}). -->
-            <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels" name="input4"/>
-        </interact>
-    </steps>
+    <!-- Assign options and labels (you may predefine variables or create them on the fly as follows) -->
+    <assign to="input3_options">"v1, v2, v3"</assign>
+    <assign to="input3_labels">"Value 1, Value 2, Value 3"</assign>
+    <assign to="input4_options" append="true">"x1"</assign>
+    <assign to="input4_options" append="true">"x2"</assign>
+    <assign to="input4_options" append="true">"x3"</assign>
+    <assign to="input4_labels" append="true">"VAL 1"</assign>
+    <assign to="input4_labels" append="true">"VAL 2"</assign>
+    <assign to="input4_labels" append="true">"VAL 3"</assign>
+
+    <interact id="data" desc="Enter data">
+        <!-- Single selection with options provided in the attribute values (stored as data{input1}). -->
+        <request desc="Select one" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" name="input1"/>
+        <!-- Multiple selection with options provided in the attribute values (stored as data{input2}). -->
+        <request desc="Select multiple" options="o1, o2, o3" optionLabels="Option 1, Option 2, Option 3" multiple="true" name="input2"/>
+        <!-- Single selection with options provided by referring to string variables (stored as data{input3}). -->
+        <request desc="Select one (use string reference)" options="$input3_options" optionLabels="$input3_labels" name="input3"/>
+        <!-- Single selection with options provided by referring to list variables (stored as data{input4}). -->
+        <request desc="Select one (use list reference)" options="$input4_options" optionLabels="$input4_labels" name="input4"/>
+    </interact>
 
 Finally the following code sample illustrates some of the more advanced interaction features, considering an information step to the tester
 followed by an administrator-level verification:
 
 .. code-block:: xml
 
-    <steps>
+    <!--
+        Display an information prompt to the tester, closing it automatically after 10 seconds. The timeout could also be set
+        via configuration using for example a domain parameter ($DOMAIN{infoTimeout}).
 
-        <!-- 
-            Display an information prompt to the tester, closing it automatically after 10 seconds. The timeout could also be set
-            via configuration using for example a domain parameter ($DOMAIN{infoTimeout}).
+        The step is hidden as it is not interesting to include in the graphical execution diagram, and the message is set as being
+        forced to display as-is, to avoid it being presented in a code editor if it exceeds the inline display limit.
+    -->
+    <interact hidden="true" desc="Test information" timeout="10000">
+        <instruct desc="Message:" forceDisplay="true">"Please wait until the administrator validates your results."</instruct>
+    </interact>
 
-            The step is hidden as it is not interesting to include in the graphical execution diagram, and the message is set as being
-            forced to display as-is, to avoid it being presented in a code editor if it exceeds the inline display limit.
-        -->
-        <interact hidden="true" desc="Test information" timeout="10000">
-            <instruct desc="Message:" forceDisplay="true">"Please wait until the administrator validates your results."</instruct>
-        </interact> 
+    <!--
+        Display an interaction prompt to an administrator to provide inputs.
 
-        <!--
-            Display an interaction prompt to an administrator to provide inputs.
+        The administrator is also expected to provide an internal code that will not be presented in the step's report but can
+        be subsequently used in other test steps.
+    -->
+    <interact id="adminData" desc="Confirm results" admin="true">
+        <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
+        <!-- The "code" input will be recorded but not added to reports. -->
+        <request desc="Internal code" name="code" report="false"/>
+    </interact>
 
-            The administrator is also expected to provide an internal code that will not be presented in the step's report but can
-            be subsequently used in other test steps.
-        -->
-        <interact id="adminData" desc="Confirm results" admin="true">
-            <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
-            <!-- The "code" input will be recorded but not added to reports. -->
-            <request desc="Internal code" name="code" report="false"/>
-        </interact>
-
-        <log>$adminData{code}</log>
-
-    </steps>
-
-.. note::
-    The value received from a ``request`` element defined as a multiple selection list will be a comma-separated string in which the individual
-    parts match the selected values. This value is recorded in the test session context as a variable of type ``string`` that can be passed as
-    input to handlers or be processed with relevant XPath functions.
+    <log>$adminData{code}</log>
 
 .. index:: log
 .. index:: lang (log)
@@ -2220,6 +2419,7 @@ internal updates. Examples of such cases include:
 * Making a :ref:`processing call<tdl-step-process>` to record statistics (e.g. via a :ref:`custom processing service<handlers>`).
 * Validating content via a :ref:`verify<tdl-step-verify>` step at warning level as an internal check to determine subsequent actions.
 * Additional control flow steps (e.g. :ref:`if<tdl-step-if>` steps) to determine finalisation actions to make.
+* Making a manual verification of test session data through an :ref:`administrator interaction <tdl-step-interact_admin_interactions>`.
 
 Hiding an otherwise visible test step is supported by means of the ``hidden`` attribute. This takes a ``boolean`` value that determines whether the
 step should be included in the test session's display. When set to false, the step is not presented but is executed by the test engine as expected.
