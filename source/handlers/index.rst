@@ -1383,14 +1383,14 @@ whether an optional set of steps should be followed. The following example illus
 .. code-block:: xml
 
     <!-- Check if a given text includes "test" in a case-insensitive manner -->
-    <process id="check" handler="RegExpProcessor">
+    <process output="check" handler="RegExpProcessor">
         <operation>check</operation>
         <input name="input">$someTextData</input>
         <!-- Flags are passed in embedded format (e.g. case insensitive match). -->
         <input name="expression">"(?i)test"</input>
     </process>
     <if desc="Optional steps">
-        <cond>$check{output}</cond>
+        <cond>$check</cond>
         <then>
             ...
         </then>
@@ -1406,7 +1406,7 @@ if no matches were made. Consider the following example to see how this can be u
     <!-- Define a firstname and lastname in an unstructured text block -->
     <assign to="aText">"My firstname is 'John' and my lastname is 'Doe'."</assign>
     <!-- Collect the data using an expression with two capturing groups -->
-    <process id="personData" handler="RegExpProcessor">
+    <process output="personData" handler="RegExpProcessor">
         <operation>collect</operation>
         <input name="input">$aText</input>
         <input name="expression">".+ firstname is '([\w]+)' .+ lastname is '([\w]+)'"</input>
