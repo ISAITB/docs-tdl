@@ -1765,7 +1765,7 @@ a typical configuration is to set it as :ref:`hidden <tdl-steps-common-hidesteps
 executed but will not be displayed on the test execution diagram or included in test case reports. A lighter alternative
 is to set the step as ``collapsed`` in which case it will be included in the execution diagram and reports, but will
 be presented as initially collapsed. This approach could be interesting for example if the step in question requests inputs
-that you still want to make available for later review be expanding the step's display and selecting the step's report.
+that you still want to make available for later review by expanding the step's display and selecting the step's report.
 
 .. code-block:: xml
 
@@ -1826,7 +1826,7 @@ For a test session executing in the background, the test engine treats ``interac
         <request desc="Comments" inputType="MULTILINE_TEXT" name="comments"/>
     </interact>
 
-Generally speaking, is a **good practice** to always define timeouts for ``interact`` steps as this gives you full control over
+Generally speaking, it is a **good practice** to always define timeouts for ``interact`` steps as this gives you full control over
 their execution. This becomes even more important if you are expecting manual user inputs, but still want your test cases to
 support background execution. In this case you can even foresee a fallback solution for user input that was not provided,
 checking the ``interact`` step's resulting value(s) and assigning defaults as needed.
