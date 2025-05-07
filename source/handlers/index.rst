@@ -1451,20 +1451,30 @@ The following example illustrates usage of the ``TemplateProcessor`` to create a
 
 .. code-block:: xml
 
-    <assign to="parameters{value1}">'Value to use'</assign>
-    <assign to="parameters{listValues}" append="true">1</assign>
-    <assign to="parameters{listValues}" append="true">2</assign>
-    <assign to="parameters{listValues}" append="true">3</assign>
+    <testcase>
+        <imports>
+            <artifact type="binary" name="freemarkerTemplateFile">resources/template.xml</artifact>
+        </imports>
+        <steps>
+            ...
+            <assign to="parameters{value1}">'Value to use'</assign>
+            <assign to="parameters{listValues}" append="true">1</assign>
+            <assign to="parameters{listValues}" append="true">2</assign>
+            <assign to="parameters{listValues}" append="true">3</assign>
 
-    <process output="message" handler="TemplateProcessor">
-        <input name="parameters">$parameters</input>
-        <input name="template">$freemarkerTemplateFile</input>
-        <input name="syntax">'freemarker'</input>
-    </process>
+            <process output="message" handler="TemplateProcessor">
+                <input name="parameters">$parameters</input>
+                <input name="template">$freemarkerTemplateFile</input>
+                <input name="syntax">'freemarker'</input>
+            </process>
 
-    <log>$message</log> 
+            <log>$message</log>
+            ...
+        </steps>
+    </testcase>
+    ...
 
-In this example the "freemarkerTemplateFile" variable is set (e.g. via :ref:`import<test-case-imports>`) to a template with the following content:
+In this example the "freemarkerTemplateFile" variable is set via :ref:`import<test-case-imports>` to a template with the following content:
 
 .. code-block:: none
 
@@ -1479,6 +1489,11 @@ In this example the "freemarkerTemplateFile" variable is set (e.g. via :ref:`imp
             </items>
         </content>
     </data>
+
+.. note::
+    **Importing the template as a binary variable:** When using the ``TemplateProcessor`` it is important to import the template as a ``binary`` variable.
+    Otherwise, referencing the template file will automatically trigger the Test Bed's :ref:`built-in template processing <test-case-expressions-template-files>`
+    that is not Freemarker-based.
 
 Notice here how the template defines FreeMarker constructs (a list iteration) to go over the items of a collection named "listValues". This was passed in the 
 "parameters" ``map`` when calling the :ref:`process step<tdl-step-process>`. When executed, and considering the example's input, this step will produce data as follows:
