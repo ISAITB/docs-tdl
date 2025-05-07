@@ -1452,9 +1452,11 @@ The following example illustrates usage of the ``TemplateProcessor`` to create a
 .. code-block:: xml
 
     <testcase>
+        ...
         <imports>
             <artifact type="binary" name="freemarkerTemplateFile">resources/template.xml</artifact>
         </imports>
+        ...
         <steps>
             ...
             <assign to="parameters{value1}">'Value to use'</assign>
@@ -1472,7 +1474,6 @@ The following example illustrates usage of the ``TemplateProcessor`` to create a
             ...
         </steps>
     </testcase>
-    ...
 
 In this example the "freemarkerTemplateFile" variable is set via :ref:`import<test-case-imports>` to a template with the following content:
 
