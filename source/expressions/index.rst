@@ -14,14 +14,19 @@ The following ``assign`` operations illustrate some interesting examples:
 .. code-block:: xml
 
     <!-- 
-        Assign to text to a string variable.
+        Assign text to a string variable.
     -->
     <assign to="myString">"aText"</assign>
     <!-- 
         Assign a number to a number variable.
     -->
     <assign to="myNumber">1</assign>
-    <!-- 
+    <!--
+        Assign a value to a boolean variable. Considering the assign step's content is an XPath expression, this would
+        be achieved using the true() or false() functions.
+    -->
+    <assign to="myBoolean">true()</assign>
+    <!--
         From an object variable fileContent (i.e. an XML document), extract part matching 
         /testcase/steps into another object variable named targetElement.
     -->
