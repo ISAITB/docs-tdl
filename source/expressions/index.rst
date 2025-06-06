@@ -137,6 +137,42 @@ an expression consists only of a variable reference without other XPath elements
 As we have discussed in :ref:`test-case-types-type-conversions`, pure variable references are important when we need to convert 
 variables from one type to another in ``assign`` steps.
 
+The following examples show several variable reference cases used for illustration in a :ref:`log step <tdl-step-log>`:
+
+.. code-block:: xml
+
+    <!-- 
+        Reference a simple variable from the current scope.
+    -->
+    <log>$myVariable</log>
+    <!-- 
+        Reference a map's entry from the current scope.
+    -->
+    <log>$myMap{key1}</log>
+    <!-- 
+        Reference a list's item from the current scope.
+    -->
+    <log>$myList{0}</log>
+    <!-- 
+        Reference a configuration properties at domain, organisation, system and statement (actor) level.
+    -->
+    <log>$DOMAIN{myDomainParameter}</log>
+    <log>$ORGANISATION{myOrganisationParameter}</log>
+    <log>$SYSTEM{mySystemParameter}</log>
+    <log>$MyActor{myStatementParameter}</log>
+    <!--
+        Reference build-in test status information.
+    -->
+    <log>$STEP_STATUS{myStep}</log>
+    <log>$STEP_SUCCESS{myStep}</log>
+    <log>$TEST_SUCCESS</log>
+    <!--
+        Reference build-in test session metadata.
+    -->
+    <log>$SESSION{sessionId}</log>
+    <log>$SESSION{testCaseId}</log>
+    <log>$SESSION{testEngineVersion}</log>
+
 .. _test-case-referring-to-variables_map:
 
 Map elements
@@ -257,6 +293,9 @@ set a default value through the test case. This is illustrated in the following 
         </else>
     </if>
     <log>'Using validation type: ' || $typeToUse</log>
+
+.. note::
+    To check more explicitly whether a given variable is defined you can also use the :ref:`VariableUtils <handlers-VariableUtils_exists>` ``exists`` operation.
 
 .. _test-case-variables-from-expression-output:
 
@@ -807,7 +846,7 @@ replacement occurs as follows:
             <!--
                 Import the metadata template.
             -->
-            <artifact type="object" encoding="UTF-8" name="metadataTemplate">artifacts/metadata-template.xml</artifact>
+            <artifact name="metadataTemplate">artifacts/metadata-template.xml</artifact>
         </imports>
         <steps>
             <!--
@@ -819,24 +858,25 @@ replacement occurs as follows:
             -->
             <process output="identifier" handler="TokenGenerator" operation="uuid"/>
             <!--
+                Using the template here triggers the replacement of the placeholders based on the
+                existing session context variables. Note here how we set "asTemplate" to true so
+                that the assign step processes the result of its expression as a template before
+                this is set to its target variable.
+            -->
+            <assign to="bodyToUse" asTemplate="true">$metadataTemplate</assign>
+            <!--
                 Send the metadata via HTTP POST to a configured registry service.
             -->
-            <send desc="Send system metadata" from="TestBed" to="Registry" handler="HttpMessagingV2">
+            <send desc="Send system metadata" handler="HttpMessagingV2">
                 <input name="uri">$DOMAIN{registryAddress}</input>
                 <input name="method">"POST"</input>
-                <!--
-                    Using the template here triggers the replacement of the placeholders based on the existing session context variables.
-                -->
-                <input name="body">$metadataTemplate</input>
+                <input name="body">$bodyToUse</input>
             </send>
         </steps>
     </testcase>
 
-The above example considers a template as a static resource that is bundled within the test suite archive and imported in the test case. When the variable corresponding to the
-imported file is referenced (``$metadataTemplate`` in our example), this will always be considered as a template and will be processed to make variable replacements. The only
-exception here is if the import type is defined with a ``type`` of ``binary`` in which case the default approach is to use it as-is without variable replacements.
-
-As mentioned earlier, templates don't need to be static files included in the test suite. Any text or text-based file that is recorded in the test session's context can also be used.
+The above example considers a template as a static resource that is bundled within the test suite archive and imported in the test case. As mentioned earlier,
+templates don't need to be static files included in the test suite. Any text or text-based file that is recorded in the test session's context can also be used.
 Examples of such cases could be (full listing :ref:`here<test-case-expressions-where>`):
 
     * Variables created, populated and/or modified during the course of the test session.
@@ -845,10 +885,11 @@ Examples of such cases could be (full listing :ref:`here<test-case-expressions-w
       :ref:`organisation properties<test-case-expressions-organisation>`, :ref:`system properties<test-case-expressions-system>`
       or :ref:`actor configuration<test-case-expressions-actor>`).
 
-Processing of a variable as a template (i.e. checking it for placeholders and populating them from the context to produce the result) can take place wherever expressions are supported.
-This includes :ref:`assignments<tdl-step-assign>`, :ref:`providing inputs<handlers-inputs-outputs>`, :ref:`conditions<tdl-step-if>` and receiving or providing information through :ref:`user interactions<tdl-step-interact>`.
-By default expressions don't perform template processing (i.e. the expression's result is returned as-is). To make an expression treat its result as a template for placeholder replacement
-you need to specify the ``asTemplate`` attribute with a value of "true". The following examples illustrate use of templates within various expressions:
+Processing of a variable as a template (i.e. checking it for placeholders and populating them from the context to produce the result) can take place wherever 
+expressions are supported. This includes :ref:`assignments<tdl-step-assign>`, :ref:`providing inputs<handlers-inputs-outputs>`, :ref:`conditions<tdl-step-if>`
+and receiving or providing information through :ref:`user interactions<tdl-step-interact>`. By default expressions don't perform template processing (i.e. the
+expression's result is returned as-is). To make an expression treat its result as a template for placeholder replacement you need to specify the ``asTemplate``
+attribute with a value of "true" as we saw in the earlier example. The following examples illustrate use of templates within various expressions:
 
 .. code-block:: xml
 
@@ -859,6 +900,9 @@ you need to specify the ``asTemplate`` attribute with a value of "true". The fol
 
             <!-- Set the value to replace the placeholder. -->
             <assign to="placeholderValue">'REPLACED'</assign>
+
+            <!-- Log the placeholder value where the log expression is itself considered as a template. -->
+            <log asTemplate="true">'The placeholder value is ${placeholderValue}'</log>
 
             <!-- Process $templateContent as a template. -->
             <assign to="output1" source="$templateContent" asTemplate="true"/>
@@ -879,11 +923,10 @@ you need to specify the ``asTemplate`` attribute with a value of "true". The fol
             </interact>
 
             <!-- Input "body" is set using a template from an organisation property. -->
-            <send desc="Call service" from="Sender" to="Receiver" handler="HttpMessagingV2">
+            <send desc="Call service" handler="HttpMessagingV2">
                 <input name="uri">$SYSTEM{endpoint}</input>
                 <input name="body" source="$ORGANISATION{template}" asTemplate="true"/>
             </send>
-
         </steps>
     </testcase>
 

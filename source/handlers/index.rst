@@ -816,56 +816,70 @@ transaction to be established. The following operations are supported:
     ``decode``, Receive a ``string`` input that is Base64-encoded and return the ``binary`` output it corresponds to., Yes, A ``binary`` value named ``output`` in the resulting step's ``map``.
     ``encode``, Receive a ``binary`` input and return a ``string`` with its Base64-encoded representation., Yes, A ``string`` named ``output`` in the resulting step's ``map``.
 
-The input parameters expected by the different operations are as follows:
-
-.. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
-
-    ``decode``, ``input``, Yes, The ``string`` value (expected to be Base64-encoded or formatted as a data URL) that will be processed to return its corresponding ``binary`` value.
-    ``encode``, ``dataUrl``, No, A ``boolean`` flag that indicates whether or not the output should be formatted as a data URL (default is ``false``).
-    ``encode``, ``input``, Yes, The ``binary`` value that will be encoded as a Base64 string.
-
 Base64 encoding is a technique often used to represent arbitrary byte sequences as text. Using this processing handler you can work with Base64 encoded texts
 that need to be decoded in test cases, but also encode binary content where this is needed. In both the encoding and decoding steps there is support for Base64 
 content and also data URLs. Data URLs are commonly used in web representations for the inline definition of binary resources. A data URL is essentially the 
 Base64-encoded bytes prefixed with the content's mime type as ``data:[mime type],base64,[BASE64 encoded string]`` (e.g. ``data:application/xml;base64,YXNoZGl1cXcgaGRva...``).
 
-The following examples illustrate use of this handler to work with Base64 encoding:
+.. _handlers-Base64Processor_decode:
+
+Base64Processor - decode
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``decode`` operation is used to decode a Base64-encoded string to its binary representation. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+
+    ``input``, Yes, The ``string`` value (expected to be Base64-encoded or formatted as a data URL) that will be processed to return its corresponding ``binary`` value.
+
+The following example illustrates how to use the ``decode`` operation to decode and validate an image:
+
+.. code-block:: xml
+
+    <!--
+        Decode a Base64-encoded string representing an image. The input could also be encoded as a data URL.
+    -->
+    <process id="decodeData" handler="Base64Processor" output="image" operation="decode">
+        <input name="input">$myBase64EncodedText</input>
+    </process>
+    <!-- 
+        Validate the image using an custom validator.
+    -->
+    <verify desc="Validate image" handler="$DOMAIN{imageValidator}">
+        <input name="image">$image</input>
+    </verify>
+
+.. _handlers-Base64Processor_encode:
+
+Base64Processor - encode
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``encode`` operation is used to encode a Base64-encoded string from binary data. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+
+    ``dataUrl``, No, A ``boolean`` flag that indicates whether or not the output should be formatted as a data URL (default is ``false``).
+    ``input``, Yes, The ``binary`` value that will be encoded as a Base64 string.
+
+The following example illustrates how to use the ``encode`` operation to process binary data:
 
 .. code-block:: xml
 
     <!--
         Encode the binary variable "aBinaryVariable" and return the encoded string as "data1{output}".
     -->
-    <process id="data1" handler="Base64Processor">
-        <operation>encode</operation>
+    <process id="encode1" handler="Base64Processor" output="result" operation="encode">
         <input name="input">$aBinaryVariable</input>
     </process>
     <!--
         Encode the binary variable "aBinaryVariable" and return the encoded string as "data2{output}".
         The result in this case is formatted as a data URL.
     -->
-    <process id="data2" handler="Base64Processor">
-        <operation>encode</operation>
+    <process id="encode2" handler="Base64Processor" output="resultAsDataUrl" operation="encode">
         <input name="input">$aBinaryVariable</input>
-        <input name="dataUrl">'true'</input>
-    </process>
-    <!--
-        Decode a Base-64 encoded string to return its binary equivalent as "data3{output}". In this case
-        the result will be identical to the "aBinaryVariable" variable used in the first step.
-    -->
-    <process id="data3" handler="Base64Processor">
-        <operation>decode</operation>
-        <input name="input">$data1{output}</input>
-    </process>    
-    <!--
-        Decode a Base-64 encoded string to return its binary equivalent as "data4{output}". In this example
-        the handler is provided the data URL produced in the second step and will result in the same output
-        as "data3" that matches the original input ("aBinaryVariable").
-    -->
-    <process id="data4" handler="Base64Processor">
-        <operation>decode</operation>
-        <input name="input">$data2{output}</input>
+        <input name="dataUrl">true()</input>
     </process>
 
 .. index:: CollectionUtils
@@ -873,6 +887,7 @@ The following examples illustrate use of this handler to work with Base64 encodi
 .. index:: size (CollectionUtils)
 .. index:: clear (CollectionUtils)
 .. index:: contains (CollectionUtils)
+.. index:: find (CollectionUtils)
 .. index:: randomKey (CollectionUtils)
 .. index:: randomValue (CollectionUtils)
 .. index:: remove (CollectionUtils)
@@ -884,6 +899,8 @@ The following examples illustrate use of this handler to work with Base64 encodi
 .. index:: toList (CollectionUtils)
 .. index:: value (CollectionUtils)
 .. index:: item (CollectionUtils)
+.. index:: onlyMissing (CollectionUtils)
+.. index:: ignoreCase (CollectionUtils)
 .. _handlers-CollectionUtils:
 
 CollectionUtils
@@ -899,34 +916,11 @@ a processing transaction to be established. The following operations are support
     ``append`` | Append the elements of one collection to another. | Yes | No.
     ``clear`` | Receive a collection as input and empty it. | Yes | No.
     ``contains`` | Check to see whether a collection contains a given value. | Yes | Yes, a ``boolean`` representing the check result.
+    ``find`` | Search for and return a given value from the collection. | Yes | Yes, the matched item (if found).
     ``randomKey`` | Return a random key from a map. | Yes | Yes, one of the map's ``string`` keys.
     ``randomValue`` | Return a random value from a collection. | Yes | Yes, the selected value (type varies depending on the content).
     ``remove`` | Remove an entry from a collection. | Yes | No.
     ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
-
-The input parameters expected by the different operations are as follows:
-
-.. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
-    :delim: |
-
-    ``append`` | ``fromList`` | No | The ``list`` to read the values from (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``fromMap`` input must be provided.
-    ``append`` | ``fromMap`` | No | The ``map`` to read the values from (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``fromList`` input must be provided.
-    ``append`` | ``toList`` | No | The ``list`` to append the values to (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``toMap`` input must be provided.
-    ``append`` | ``toMap`` | No | The ``map`` to append the values to (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``toList`` input must be provided.
-    ``clear`` | ``list`` | No | The ``list`` to be cleared (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``clear`` | ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``contains`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``contains`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``contains`` | ``value`` | Yes | The value to look for.
-    ``randomKey`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``randomValue`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``randomValue`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``remove`` | ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``remove`` | ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
-    ``remove`` | ``item`` | Yes | In case of a ``list`` this is a ``number`` set with the zero-based index of the element to remove. For a ``map`` this is the ``string`` key of the entry to be removed.
-    ``size`` | ``list`` | No | The ``list`` of which the elements are to be counted (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
-    ``size`` | ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
 
 Collection or *container* variables represent flexible means of recording arbitrary sequences of data or hierarchical data structures. In particular
 ``map`` variables are very common as these are used to store results of :ref:`processing<tdl-step-process>`, :ref:`messaging<tdl-messaging-steps>` and :ref:`validation<tdl-step-verify>` operations.
@@ -935,47 +929,83 @@ expressions used may also :ref:`determine collections<test-case-variables-from-e
 The ``CollectionUtils`` processing handler complements such operations by allowing further manipulations that cannot be achieved
 through simple :ref:`expressions<test-case-expressions>`.
 
-The ``size`` operation allows a test case to determine a collection's size. This can be particularly useful in the case of
-operations that return an arbitrary number of data items as a ``list`` which we need to iterate over. The following examples
-illustrate how this operation can be used:
+.. _handlers-CollectionUtils_append:
+
+CollectionUtils - append
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``append`` operation allows you to merge two collections, by appending the values of one collection (the "from" collection) to
+another one (the "to" collection). The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``fromList`` | No | The ``list`` to read the values from (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``fromMap`` input must be provided.
+    ``fromMap`` | No | The ``map`` to read the values from (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``fromList`` input must be provided.
+    ``ignoreCase`` | No | When ``onlyMissing`` is set to "true", whether the matching of existing items will ignore casing (default is "false").
+    ``onlyMissing`` | No | Whether only items missing from the target ``map`` or ``list`` should be added (default is "false"). For a ``list`` the check is made on values whereas for a ``map`` it is on keys.
+    ``toList`` | No | The ``list`` to append the values to (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``toMap`` input must be provided.
+    ``toMap`` | No | The ``map`` to append the values to (if the collection is a :ref:`list<test-case-types-maps>`). Either this or the ``toList`` input must be provided.
+
+The ``append`` operation does not return an output but rather modifies directly the target collection. Appended entries are added to the end
+of the collection, maintaining their insertion order. Furthermore, you can leverage the ``onlyMissing`` and ``ignoreCase`` inputs to have only
+missing and unique items appended to the target collection. The following examples illustrate the operation's use:
 
 .. code-block:: xml
 
-    <!-- Create a map with three elements -->
-    <assign to="aMap{a}">'Value 1'</assign>
-    <assign to="aMap{b}">'Value 2'</assign>
-    <assign to="aMap{c}">'Value 3'</assign>
-    <!-- Create a list with two elements -->
-    <assign to="aList" append="true">'Value 1'</assign>
-    <assign to="aList" append="true">'Value 2'</assign>
-    <!-- Calculate the size of the map -->
-    <process id="aMapSize" handler="CollectionUtils">
-        <operation>size</operation>
-        <input name="map">$aMap</input>
-    </process>
-    <!-- Prints "3" -->
-    <log>$aMapSize{output}</log>
-    <!-- Calculate the size of the list -->
-    <process id="aListSize" handler="CollectionUtils">
-        <operation>size</operation>
-        <input name="list">$aList</input>
-    </process>
-    <!-- Prints "2" -->
-    <log>$aListSize{output}</log>
-    <!-- Print each list element. -->
-    <foreach desc="Iterate list" counter="index" start="0" end="$aListSize{output}">
-        <do>
-            <!-- Prints "Value 1" and then "Value 2" -->
-            <log>aList{$index}</log>
-        </do>
-    </foreach>
+    <!-- Create a map -->
+    <assign to="map1{a}">'Value A'</assign>
+    <assign to="map1{b}">'Value B'</assign>
 
-.. note::
-    **Nested collections:** If a collection structure contains itself further collection structures as elements, the
-    ``size`` operation will only count the collection's top level elements.
+    <!-- Create a second map -->
+    <assign to="map2{x}">'Value X'</assign>
+    <assign to="map2{y}">'Value 2'</assign>
 
-The ``clear`` operation on the other hand allows a test case to empty the contents of a given collection if this becomes
-necessary. The following examples illustrate how this works for lists and maps:
+    <!-- Append map1 to the end of map2 -->
+    <process handler="CollectionUtils" operation="append">
+        <input name="fromMap">$map1</input>
+        <input name="toMap">$map2</input>
+    </process>
+
+    <!-- Prints (the newly appended) 'Value A' -->
+    <log>$map2{a}</log>
+
+    <!-- Create two lists -->
+    <assign to="list1" append="true">'A'</assign>
+    <assign to="list1" append="true">'B'</assign>
+    <assign to="list1" append="true">'C'</assign>
+
+    <assign to="list2" append="true">'a'</assign>
+    <assign to="list2" append="true">'X'</assign>
+    <assign to="list2" append="true">'Z'</assign>
+
+    <!-- Append list1 to list2 without duplicates (case-insensitive) -->
+    <process handler="CollectionUtils" operation="append">
+        <input name="fromList">$list1</input>
+        <input name="toList">$list2</input>
+        <input name="onlyMissing">true()</input>
+        <input name="ignoreCase">true()</input>
+    </process>
+    <!-- Prints "a,X,Z,B,C" (having skipped the "A" element of list1) -->
+    <log>$list2</log>
+
+.. _handlers-CollectionUtils_clear:
+
+CollectionUtils - clear
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``clear`` operation allows a test case to empty the contents of a given collection if this becomes necessary. 
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``list`` | No | The ``list`` to be cleared (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` to be cleared (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+
+The following examples illustrate how this works for lists and maps:
 
 .. code-block:: xml
 
@@ -987,19 +1017,33 @@ necessary. The following examples illustrate how this works for lists and maps:
     <assign to="aList" append="true">'Value 1'</assign>
     <assign to="aList" append="true">'Value 2'</assign>
     <!-- Empty the map -->
-    <process handler="CollectionUtils">
-        <operation>clear</operation>
+    <process handler="CollectionUtils" operation="clear">
         <input name="map">$aMap</input>
     </process>
     <!-- Empty the list -->
-    <process handler="CollectionUtils">
-        <operation>clear</operation>
+    <process handler="CollectionUtils" operation="clear">
         <input name="list">$aList</input>
     </process>
 
-The ``contains`` operation allows for a simple lookup of a value with a collection. In case the collection is a ``map``, the lookup is
-done on the basis of the entries' keys. Otherwise for a ``list`` the lookup considers the contained elements' values. The following examples
-illustration the operation's use:
+.. _handlers-CollectionUtils_contains:
+
+CollectionUtils - contains
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``contains`` operation allows checking whether a value is defined within a collection. In case the collection is a ``map``, the lookup is
+done on the basis of the entries' keys. Otherwise for a ``list`` the lookup considers the contained elements' values.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``ignoreCase`` | No | Whether the matching of items to determine the operation's result will ignore casing (default is "false").
+    ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``value`` | Yes | The value to look for.
+
+The following examples illustrate the operation's use:
 
 .. code-block:: xml
 
@@ -1021,6 +1065,14 @@ illustration the operation's use:
     </process>
     <!-- Prints "false" -->
     <log>$mapCheck2</log>
+    <!-- Lookup an existing value in a non case-sensitive way -->
+    <process handler="CollectionUtils" output="mapCheck3" operation="contains">
+        <input name="map">$aMap</input>
+        <input name="value">'A'</input>
+        <input name="ignoreCase">true()</input>
+    </process>
+    <!-- Prints "true" -->
+    <log>$mapCheck3</log>
 
     <!-- Create a list -->
     <assign to="aList" append="true">'Value 1'</assign>
@@ -1040,9 +1092,83 @@ illustration the operation's use:
     </process>
     <!-- Prints "false" -->
     <log>$listCheck2</log>
+    <!-- Lookup an existing value in a non case-sensitive way -->
+    <process handler="CollectionUtils" output="listCheck3" operation="contains">
+        <input name="map">$aList</input>
+        <input name="value">'value 1'</input>
+        <input name="ignoreCase">true()</input>
+    </process>
+    <!-- Prints "true" -->
+    <log>$listCheck3</log>
 
-Using the ``randomKey`` and ``randomValue`` operations we can retrieve random entries from collections. The following
-examples illustrate their usage:
+.. _handlers-CollectionUtils_find:
+
+CollectionUtils - find
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``find`` operation is used to return a value from a collection. In case the collection is a ``map``, the lookup is
+done on the basis of the entries' keys. Otherwise for a ``list`` the lookup considers the contained elements' values.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``ignoreCase`` | No | Whether the matching of items to will ignore casing (default is "false").
+    ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``value`` | Yes | The value to look for.
+
+The following examples illustrate the operation's use:
+
+.. code-block:: xml
+
+    <!--
+        Map example. Look up a value from a map (case-sensitive lookup based on the key).
+    -->
+    <assign to="myMap{key1}">"Value1"</assign>
+    <assign to="myMap{key2}">"Value2"</assign>
+    <process handler="CollectionUtils" output="mapValue" operation="find">
+        <input name="map">$myMap</input>
+        <input name="value">'key1'</input>
+    </process>
+    <process handler="VariableUtils" operation="exists" input="mapValue" output="mapValueFound"/>
+    <!-- Prints "true" -->
+    <log>$mapValueFound</log>
+    <!-- Prints "Value1" -->
+    <log>$mapValue</log>
+
+    <!--
+        List example. Look up a value from a map (case-sensitive lookup).
+    -->
+    <assign to="myList" append="true">"Value1"</assign>
+    <assign to="myList" append="true">"Value2"</assign>
+    <process handler="CollectionUtils" output="listValue" operation="find">
+        <input name="list">$myList</input>
+        <input name="value">'value1'</input>
+        <input name="ignoreCase">true()</input>
+    </process>            
+    <process handler="VariableUtils" operation="exists" input="listValue" output="listValueFound"/>
+    <!-- Prints "true" -->
+    <log>$listValueFound</log>
+    <!-- Prints "Value1" -->
+    <log>$listValue</log>
+
+.. _handlers-CollectionUtils_randomKey:
+
+CollectionUtils - randomKey
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``randomKey`` operation works specifically with ``map`` variables and is used to randomly retrieve one of its keys.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``map`` | Yes | The ``map`` to be considered.
+
+The following example illustrates the operation's use:
 
 .. code-block:: xml
 
@@ -1055,26 +1181,63 @@ examples illustrate their usage:
     </process>
     <!-- Prints either "a" or "b" -->
     <log>$value1</log>
+
+.. _handlers-CollectionUtils_randomValue:
+
+CollectionUtils - randomValue
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``randomValue`` operation works is used to randomly retrieve randomly one of the provided collection's values.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <!-- Create a map -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
     <!-- Get one of the map's values -->
-    <process handler="CollectionUtils" output="value2" operation="randomValue">
+    <process handler="CollectionUtils" output="value1" operation="randomValue">
         <input name="map">$aMap</input>
     </process>
     <!-- Prints either "Value 1" or "Value 2" -->
-    <log>$value2</log>
+    <log>$value1</log>
 
     <!-- Create a list -->
     <assign to="aList" append="true">'Value 1'</assign>
     <assign to="aList" append="true">'Value 2'</assign>
     <!-- Get one of the list's values -->
-    <process handler="CollectionUtils" output="value3" operation="randomValue">
+    <process handler="CollectionUtils" output="value2" operation="randomValue">
         <input name="list">$aList</input>
     </process>
     <!-- Prints either "Value 1" or "Value 2" -->
-    <log>$value3</log>    
+    <log>$value2</log>    
 
-The ``remove`` operation is used to remove specific entries from a collection. When using a map the removed entry is matched
-based on its key. For lists, the entry to remove is identified by its zero-based index. The following examples illustrate the
-operation's use:
+.. _handlers-CollectionUtils_remove:
+
+CollectionUtils - remove
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``remove`` operation is used to remove specific entries from a collection. When using a ``map`` the removed entry is matched
+based on its key. For a ``list``, the entry to remove is identified by its zero-based index. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``list`` | No | The ``list`` to be considered (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` to be considered (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+    ``item`` | Yes | In case of a ``list`` this is a ``number`` set with the zero-based index of the element to remove. For a ``map`` this is the ``string`` key of the entry to be removed.
+
+The following examples illustrate the operation's use:
 
 .. code-block:: xml
 
@@ -1097,29 +1260,56 @@ operation's use:
         <input name="item">1</input>
     </process>
 
-The ``append`` operation allows you to merge two collections, by appending the values of one collection (the "from" collection) to
-another one (the "to" collection). This operation does not return an output but rather modifies directly the target collection. Appended
-entries are added to the end of the collection, maintaining their insertion order. The following examples illustrate the
-operation's use:
+.. _handlers-CollectionUtils_size:
+
+CollectionUtils - size
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``size`` operation allows a test case to determine a collection's size. This can be particularly useful in the case of
+operations that return an arbitrary number of data items as a ``list`` which we need to iterate over.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``list`` | No | The ``list`` of which the elements are to be counted (if the collection is a :ref:`list<test-case-types-lists>`). Either this or the ``map`` input must be provided.
+    ``map`` | No | The ``map`` of which the elements are to be counted (if the collection is a :ref:`map<test-case-types-maps>`). Either this or the ``list`` input must be provided.
+
+The following examples illustrate how this operation can be used:
 
 .. code-block:: xml
 
-    <!-- Create a map -->
-    <assign to="map1{a}">'Value A'</assign>
-    <assign to="map1{b}">'Value B'</assign>
-
-    <!-- Create a second map -->
-    <assign to="map2{x}">'Value X'</assign>
-    <assign to="map2{y}">'Value 2'</assign>
-
-    <!-- Append map1 to the end of map2 -->
-    <process handler="CollectionUtils" operation="append">
-        <input name="fromMap">$map1</input>
-        <input name="toMap">$map2</input>
+    <!-- Create a map with three elements -->
+    <assign to="aMap{a}">'Value 1'</assign>
+    <assign to="aMap{b}">'Value 2'</assign>
+    <assign to="aMap{c}">'Value 3'</assign>
+    <!-- Create a list with two elements -->
+    <assign to="aList" append="true">'Value 1'</assign>
+    <assign to="aList" append="true">'Value 2'</assign>
+    <!-- Calculate the size of the map -->
+    <process id="aMapSize" handler="CollectionUtils" operation="size">
+        <input name="map">$aMap</input>
     </process>
+    <!-- Prints "3" -->
+    <log>$aMapSize{output}</log>
+    <!-- Calculate the size of the list -->
+    <process id="aListSize" handler="CollectionUtils" operation="size">
+        <input name="list">$aList</input>
+    </process>
+    <!-- Prints "2" -->
+    <log>$aListSize{output}</log>
+    <!-- Print each list element. -->
+    <foreach desc="Iterate list" counter="index" start="0" end="$aListSize{output}">
+        <do>
+            <!-- Prints "Value 1" and then "Value 2" -->
+            <log>aList{$index}</log>
+        </do>
+    </foreach>
 
-    <!-- Prints (the newly appended) 'Value A' -->
-    <log>$map2{a}</log>
+.. note::
+    **Nested collections:** If a collection structure contains itself further collection structures as elements, the
+    ``size`` operation will only count the collection's top level elements.
 
 .. index:: DelayProcessor
 .. index:: delay (DelayProcessor)
@@ -1129,7 +1319,7 @@ operation's use:
 DelayProcessor
 ++++++++++++++
 
-Used to pause a test session for a given duration. The following operations are supported:
+Used to pause a test session for a given duration. The following operation is supported:
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
@@ -1140,12 +1330,12 @@ Used to pause a test session for a given duration. The following operations are 
 The input parameters expected by the ``delay`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``delay`` | ``duration`` | Yes | A ``number`` representing the duration (expressed in milliseconds) to delay for.
+    ``duration`` | Yes | A ``number`` representing the duration (expressed in milliseconds) to delay for.
 
-The following examples illustrate how the ``DelayProcessor`` can be used to force the test session to wait.
+The following examples illustrate how the ``DelayProcessor`` can be used to pause the test session.
 
 .. code-block:: xml
 
@@ -1182,12 +1372,12 @@ for including additional information in the test's output without distracting th
 The input parameters expected by the ``display`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``display`` | ``contentTypes`` | No | A ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
-    ``display`` | ``result`` | No | A ``string`` with the status (``SUCCESS``, ``FAILURE`` or ``WARNING``) to use for the relevant :ref:`process<tdl-step-process>` step (default is ``SUCCESS``).
-    ``display`` | ``parameters`` | No | A ``map`` including the values to display (labelled using the ``map`` keys).
+    ``contentTypes`` | No | A ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
+    ``result`` | No | A ``string`` with the status (``SUCCESS``, ``FAILURE`` or ``WARNING``) to use for the relevant :ref:`process<tdl-step-process>` step (default is ``SUCCESS``).
+    ``parameters`` | No | A ``map`` including the values to display (labelled using the ``map`` keys).
 
 The following example illustrates usage of the ``DisplayProcessor`` to create a step report for a given set of data that the user may
 choose to view:
@@ -1282,16 +1472,18 @@ structures (maps and lists, nested at different levels).
     that they execute but are not displayed and do not produce a visible report. When using the ``DisplayProcessor`` you need
     to ensure that ``hidden`` is set to ``false`` for its use to be meaningful.
 
-.. index:: process (JSONPointerProcessor)
-.. index:: content (JSONPointerProcessor)
-.. index:: pointer (JSONPointerProcessor)
+.. index:: JsonPointerProcessor
+.. index:: JSONPointerProcessor
+.. index:: process (JsonPointerProcessor)
+.. index:: content (JsonPointerProcessor)
+.. index:: pointer (JsonPointerProcessor)
 .. _handlers-JSONPointerProcessor:
 
-JSONPointerProcessor
+JsonPointerProcessor
 ++++++++++++++++++++
 
 Used to extract values or complete elements from JSON content based on a provided `JSON Pointer expression <https://datatracker.ietf.org/doc/html/rfc6901>`_.
-The following operations are supported:
+The following operation is supported:
 
 .. csv-table::
     :header: "Operation", "Description", "Input(s)", "Output(s)"
@@ -1302,13 +1494,13 @@ The following operations are supported:
 The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``process`` | ``content`` | Yes | A ``string`` representing the JSON content to process.
-    ``process`` | ``pointer`` | Yes | A ``string`` representing the JSON Pointer expression to use.
+    ``content`` | Yes | A ``string`` representing the JSON content to process.
+    ``pointer`` | Yes | A ``string`` representing the JSON Pointer expression to use.
 
-The following example illustrates how the ``JSONPointerProcessor`` can be used to extract a value from JSON content provided by the user via 
+The following example illustrates how the ``JsonPointerProcessor`` can be used to extract a value from JSON content provided by the user via 
 an :ref:`interact<tdl-step-interact>` step:
 
 .. code-block:: xml
@@ -1329,7 +1521,7 @@ an :ref:`interact<tdl-step-interact>` step:
             }
         }
     -->
-    <process handler="JSONPointerProcessor" operation="process" output="result">
+    <process handler="JsonPointerProcessor" operation="process" output="result">
         <input name="content">$data{json}</input>
         <input name="pointer">"/user/address/streetName"</input>
     </process>
@@ -1337,6 +1529,262 @@ an :ref:`interact<tdl-step-interact>` step:
         Log the result.
     -->
     <log>$result</log>
+
+.. index:: RdfUtils
+.. index:: convert (RdfUtils)
+.. index:: merge (RdfUtils)
+.. index:: ask (RdfUtils)
+.. index:: select (RdfUtils)
+.. index:: construct (RdfUtils)
+.. index:: model (RdfUtils)
+.. index:: models (RdfUtils)
+.. index:: query (RdfUtils)
+.. index:: inputContentType (RdfUtils)
+.. index:: inputContentTypes (RdfUtils)
+.. index:: outputContentType (RdfUtils)
+.. index:: output (RdfUtils)
+
+.. _handlers-RdfUtils:
+
+RdfUtils
+++++++++
+
+The ``RdfUtils`` processor is used to perform different types of manipulations on RDF models. This processing handler
+does not require a processing transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``ask`` | Run a SPARQL ASK query on an RDF model. | Yes | Yes, a ``boolean`` value with the ask query's result.
+    ``construct`` | Run a SPARQL CONSTRUCT query on an RDF model to produce a new RDF graph. | Yes | Yes, a ``string`` representation of the resulting RDF graph.
+    ``convert`` | Convert a provided RDF model from its current RDF syntax to another. | Yes | Yes, a ``string`` representation of the resulting RDF model.
+    ``merge`` | Merge multiple RDF models to a single aggregate one. | Yes | Yes, a ``string`` representation of the resulting RDF model.
+    ``select`` | Run a SPARQL SELECT query on an RDF model to produce an RDF result set. | Yes | Yes, a ``string`` representation of the resulting RDF result set.
+
+Manipulating RDF models using this processor's operations grants you the flexibility needed to handle any kind of RDF processing in test cases.
+
+.. _handlers-RdfUtils_ask:
+
+RdfUtils - ask
+^^^^^^^^^^^^^^
+
+The ``ask`` operation enables you to run `SPARQL ASK queries <https://www.w3.org/TR/rdf-sparql-query/#ask>`__ against a provided RDF model, to check whether
+they produce a match (returned as a ``boolean`` result). The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``inputContentType`` | Yes | The ``string`` content type of the provided model.
+    ``model`` | Yes | The ``string`` RDF model to run the query against.
+    ``query`` | Yes | The ``string`` SPARQL query to execute.
+
+The following example illustrates the ``ask`` operation's use:
+
+.. code-block:: xml
+
+    <!--
+        Define the ASK query to use.
+    -->
+    <assign to="query"><![CDATA["PREFIX ns1: <http://itb.ec.europa.eu/sample/po#>
+
+    ASK WHERE {
+      ?item a ns1:Item ;
+              ns1:quantity ?q .
+    FILTER(?q > 1000)
+    }"]]></assign>
+    <!-- 
+        Run the query.
+    -->
+    <process output="askResult" handler="RdfUtils" operation="ask">
+        <input name="model">$ttlSample</input>
+        <input name="inputContentType">"text/turtle"</input>
+        <input name="query">$query</input>
+    </process>
+    <log>$askResult</log>
+
+
+.. _handlers-RdfUtils_construct:
+
+RdfUtils - construct
+^^^^^^^^^^^^^^^^^^^^
+
+The ``construct`` operation enables you to run `SPARQL CONSTRUCT queries <https://www.w3.org/TR/rdf-sparql-query/#construct>`__ against a provided RDF model,
+to generate from it a new graph based on the resulting triples (returned as a ``string`` result). The input parameters supported by this operation are as follows:
+ 
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``inputContentType`` | Yes | The ``string`` content type of the provided model.
+    ``model`` | Yes | The ``string`` RDF model to run the query against.
+    ``outputContentType`` | No | The ``string`` content type to use for the produced graph. If not provided, the content type of the input model will be used.
+    ``query`` | Yes | The ``string`` SPARQL query to execute.
+
+The following example illustrates the ``construct`` operation's use:
+
+.. code-block:: xml
+
+    <!-- 
+        Define the CONSTRUCT query.
+    -->
+    <assign to="query"><![CDATA["PREFIX ns1: <http://itb.ec.europa.eu/sample/po#>
+    PREFIX : <http://my.sample.po/summary#>
+
+    CONSTRUCT {
+        ?item :summaryOf ?productName ;
+        :totalCost ?cost .
+    }
+    WHERE {
+        ?item a ns1:Item ;
+        ns1:productName ?productName ;
+        ns1:quantity ?q ;
+        ns1:priceEUR ?p .
+        BIND(?q * ?p AS ?cost)
+    }"]]></assign>
+    <!-- 
+        Run the query.
+    -->
+    <process output="constructResult" handler="RdfUtils" operation="construct">
+        <input name="model">$ttlSample</input>
+        <input name="inputContentType">"text/turtle"</input>
+        <!-- 
+            Optional. If not provided defaults to the input model's content type.
+        -->
+        <input name="outputContentType">"application/rdf+xml"</input>
+        <input name="query">$query</input>
+    </process>
+    <log>$constructResult</log>
+
+.. _handlers-RdfUtils_convert:
+
+RdfUtils - convert
+^^^^^^^^^^^^^^^^^^
+
+The ``convert`` operation enables you to convert an RDF model to another RDF syntax. The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``inputContentType`` | Yes | The ``string`` content type of the provided model.
+    ``model`` | Yes | The ``string`` RDF model to convert.
+    ``outputContentType`` | Yes | The ``string`` content type to use for the output model.
+
+The following example illustrates the ``convert`` operation's use:
+
+.. code-block:: xml
+
+    <!--
+        Convert the provided Turtle model to RDF/XML.
+    -->
+    <process output="convertResult" handler="RdfUtils" operation="convert">
+        <input name="model">$ttlSample</input>
+        <input name="inputContentType">"text/turtle"</input>
+        <input name="outputContentType">"application/rdf+xml"</input>
+    </process>
+    <!--
+        Output the converted model.
+    -->
+    <log>$convertResult</log>
+
+.. _handlers-RdfUtils_merge:
+
+RdfUtils - merge
+^^^^^^^^^^^^^^^^
+
+The ``merge`` operation enables you to merge multiple RDF models to a new one, aggregating their combined triples into as a new graph.
+The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``inputContentType`` | No | The ``string`` content type for all provided models. Either this or the ``inputContentTypes`` must be provided.
+    ``inputContentTypes`` | No | A ``list`` of ``string`` content types for the provided models. Either this or the ``inputContentType`` must be provided.
+    ``models`` | Yes | The ``string`` RDF model to convert.
+    ``outputContentType`` | No | The ``string`` content type to use for the output model. If not provided the first provided input content type will be used.
+
+The following example illustrates the ``merge`` operation's use:
+
+.. code-block:: xml
+
+    <!-- 
+        Merge models with different RDF syntaxes and return the resulting model in RDF/XML.
+    -->
+    <assign to="models" append="true">$ttlSample</assign>
+    <assign to="models" append="true">$rdfXmlSample</assign>
+    <assign to="inputContentTypes" append="true">"text/turtle"</assign>
+    <assign to="inputContentTypes" append="true">"application/rdf+xml"</assign>
+    <process output="mergeResult" handler="RdfUtils" operation="merge">
+        <input name="models">$models</input>
+        <input name="inputContentTypes">$inputContentTypes</input>
+        <!--
+            Optional. If not provided the output type will match the one of the first input model.
+        -->
+        <input name="outputContentType">"application/rdf+xml"</input> Optional
+    </process>
+    <log>$mergeResult</log>
+
+    <!-- 
+        Merge models that are all in Turtle format and return the resulting model in Turtle.
+        We don't specify here the outputContentType as it defaults to the input type.
+    -->
+    <assign to="ttlModels" append="true">$ttlSample1</assign>
+    <assign to="ttlModels" append="true">$ttlSample2</assign>
+    <process output="mergeResult2" handler="RdfUtils" operation="merge">
+        <input name="models">$models</input>
+        <input name="inputContentType">"text/turtle"</input>
+    </process>
+    <log>$mergeResult2</log>
+
+.. _handlers-RdfUtils_select:
+
+RdfUtils - select
+^^^^^^^^^^^^^^^^^
+
+The ``select`` operation enables you to run `SPARQL SELECT queries <https://www.w3.org/TR/rdf-sparql-query/#select>`__ against a provided RDF model,
+resulting in an RDF result set (returned as a ``string`` result). The input parameters supported by this operation are as follows:
+ 
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``inputContentType`` | Yes | The ``string`` content type of the provided model.
+    ``model`` | Yes | The ``string`` RDF model to run the query against.
+    ``outputContentType`` | No | The ``string`` content type to use for the produced result set. If not provided, ``application/sparql-results+xml`` will be used as a default.
+    ``query`` | Yes | The ``string`` SPARQL query to execute.
+
+The following example illustrates the ``select`` operation's use:
+
+.. code-block:: xml
+
+    <!-- 
+        Define the SELECT query.
+    -->
+    <assign to="query"><![CDATA["PREFIX ns1: <http://itb.ec.europa.eu/sample/po#>
+
+    SELECT ?item ?productName ?quantity ?priceEUR ?totalCost WHERE {
+      ?item a ns1:Item ;
+            ns1:productName ?productName ;
+            ns1:quantity ?quantity ;
+            ns1:priceEUR ?priceEUR .
+      BIND(?quantity * ?priceEUR AS ?totalCost)
+    }"]]></assign>
+    <!-- 
+        Run the query.
+    -->
+    <process output="selectResult" handler="RdfUtils" operation="select">
+        <input name="model">$ttlSample</input>
+        <input name="inputContentType">"text/turtle"</input>
+        <!-- 
+            Optional. If not provided defaults to application/sparql-results+xml. 
+        -->
+        <input name="outputContentType">"text/csv"</input>
+        <input name="query">$query</input>
+    </process>
+    <log>$selectResult</log>
 
 .. index:: RegExpProcessor
 .. index:: check (RegExpProcessor)
@@ -1359,32 +1807,34 @@ does not require a processing transaction to be established. The following opera
     ``check`` | Check to see if a ``string`` matches an expression. | Yes | Yes, a ``boolean`` named ``output`` in the resulting step's ``map``.
     ``collect`` | Use an expression to collect data from a provided ``string`` based on the expression's capturing groups. | Yes | A ``list`` of ``string`` values, one value per matched group.
 
-The input parameters expected by the different operations are as follows:
-
-.. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
-    :delim: |
-
-    ``check`` | ``expression`` | Yes | A ``string`` with the expression that will be used to check the ``input``.
-    ``check`` | ``input`` | Yes | The ``string`` to check.
-    ``collect`` | ``expression`` | Yes | A ``string`` with the expression to collect data with. The provided expression must define at least one capturing group.
-    ``collect`` | ``input`` | Yes | The ``string`` to process to collect data.
-
 Regular expressions offer a very powerful means of describing a text's content and extracting from it certain parts for further processing. They can be used
 against any text content, offering a counterpart to the use of XPath in the :ref:`assign<tdl-step-assign>` step that is best adapted, but also limited, to XML structures.
 The regular expressions are expected to be provided using the `syntax used by the Java language`_.
+
+.. _handlers-RegExpProcessor_check:
+
+RegExpProcessor - check
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``check`` operation can be used to verify whether a given text matches a specific pattern. This may at first appear similar to the
 :ref:`RegExpValidator<handlers-RegExpValidator>`, however there is a subtle difference: using the :ref:`RegExpValidator<handlers-RegExpValidator>`
 constitutes an assertion made by the test case which, if failed, would likely mean that the test session itself is considered failed. The ``check``
 operation doesn't presume anything for the test session's status, but is rather used as an internal check to e.g. determine
-whether an optional set of steps should be followed. The following example illustrates its use:
+whether an optional set of steps should be followed. The input parameters expected by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``expression`` | Yes | A ``string`` with the expression that will be used to check the ``input``.
+    ``input`` | Yes | The ``string`` to check.
+
+The following example illustrates the ``check`` operation's use:
 
 .. code-block:: xml
 
     <!-- Check if a given text includes "test" in a case-insensitive manner -->
-    <process output="check" handler="RegExpProcessor">
-        <operation>check</operation>
+    <process output="check" handler="RegExpProcessor" operation="check">
         <input name="input">$someTextData</input>
         <!-- Flags are passed in embedded format (e.g. case insensitive match). -->
         <input name="expression">"(?i)test"</input>
@@ -1396,18 +1846,31 @@ whether an optional set of steps should be followed. The following example illus
         </then>
     </if>
 
+.. _handlers-RegExpProcessor_collect:
+
+RegExpProcessor - collect
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The ``collect`` operation is used to process a provided text using an expression that defines one or more capturing groups. This
 operation can be particularly powerful as it can collect data from both structured and unstructured data. Each matching group
 is appended to a ``list`` of ``string`` elements in the sequence with which it was matched, otherwise resulting in an empty ``list``
-if no matches were made. Consider the following example to see how this can be used:
+if no matches were made. The input parameters expected by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``expression`` | Yes | A ``string`` with the expression to collect data with. The provided expression must define at least one capturing group.
+    ``input`` | Yes | The ``string`` to process to collect data.
+
+The following example illustrates the ``collect`` operation's use:
 
 .. code-block:: xml
 
     <!-- Define a firstname and lastname in an unstructured text block -->
     <assign to="aText">"My firstname is 'John' and my lastname is 'Doe'."</assign>
     <!-- Collect the data using an expression with two capturing groups -->
-    <process output="personData" handler="RegExpProcessor">
-        <operation>collect</operation>
+    <process output="personData" handler="RegExpProcessor" operation="collect">
         <input name="input">$aText</input>
         <input name="expression">".+ firstname is '([\w]+)' .+ lastname is '([\w]+)'"</input>
     </process>
@@ -1440,12 +1903,12 @@ data generation that is not limited to simple placeholder replacements.
 The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``process`` | ``parameters`` | No | A ``map`` with named inputs to use as the template's input.
-    ``process`` | ``syntax`` | No | A ``string`` to specify what syntax the template uses. Accepted values are ``gitb`` (the default) and ``freemarker``.
-    ``process`` | ``template`` | Yes | The template content to use (can be of any type that results in a ``string``).
+    ``parameters`` | No | A ``map`` with named inputs to use as the template's input.
+    ``syntax`` | No | A ``string`` to specify what syntax the template uses. Accepted values are ``gitb`` (the default) and ``freemarker``.
+    ``template`` | Yes | The template content to use (can be of any type that results in a ``string``).
 
 The following example illustrates usage of the ``TemplateProcessor`` to create a message based on a FreeMarker template:
 
@@ -1454,7 +1917,7 @@ The following example illustrates usage of the ``TemplateProcessor`` to create a
     <testcase>
         ...
         <imports>
-            <artifact type="binary" name="freemarkerTemplateFile">resources/template.xml</artifact>
+            <artifact name="freemarkerTemplateFile">resources/template.xml</artifact>
         </imports>
         ...
         <steps>
@@ -1492,12 +1955,12 @@ In this example the "freemarkerTemplateFile" variable is set via :ref:`import<te
     </data>
 
 .. note::
-    **Importing the template as a binary variable:** When using the ``TemplateProcessor`` it is important to import the template as a ``binary`` variable.
-    Otherwise, referencing the template file will automatically trigger the Test Bed's :ref:`built-in template processing <test-case-expressions-template-files>`
-    that is not Freemarker-based.
+    **Importing the template as a non-binary variable:** When using the ``TemplateProcessor`` it is important to import the template as a ``binary`` variable
+    (or to simply not specify the ``type`` attribute). If another type is used for the import you risk triggering the test engine's 
+    :ref:`built-in template processing <test-case-expressions-template-files>` that is not Freemarker-based.
 
 Notice here how the template defines FreeMarker constructs (a list iteration) to go over the items of a collection named "listValues". This was passed in the 
-"parameters" ``map`` when calling the :ref:`process step<tdl-step-process>`. When executed, and considering the example's input, this step will produce data as follows:
+"parameters" ``map`` when calling the :ref:`process step<tdl-step-process>`. When executed, and considering our example, this step will produce data as follows:
 
 .. code-block:: xml
 
@@ -1543,154 +2006,62 @@ transaction to be established. The following operations are supported:
     ``timestamp``, Generate a timestamp for the current or a provided time based on a format string., Yes, A ``string`` named ``value`` in the resulting step's ``map``.
     ``uuid``, Generate a random UUID text value matching a Java UUID (e.g. "123e4567-e89b-12d3-a456-556642440000"). This is a value that can be considered as unique for test purposes., No, A ``string`` named ``value`` in the resulting step's ``map``.
 
-The input parameters expected by the different operations are as follows:
-
-.. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
-    :delim: |
-
-    ``random`` | ``integer`` | No | A ``boolean`` determining whether the produced value will be an integer (when "true") or a double-precision number (when ``false``). By default a double-precision number is produced.
-    ``random`` | ``maximum`` | No | A ``number`` representing the maximum bound (exclusive) for the value to produce.
-    ``random`` | ``minimum`` | No | A ``number`` representing the minimum bound (inclusive) for the value to produce. If not provided the default considered is zero.
-    ``string`` | ``format`` | Yes | A regular expression acting as a template to determine the generated token's format.
-    ``timestamp`` | ``date`` |  No | A ``string`` representing a date/time to use as the value to format. If specified along with ``time``, the ``time`` input takes precedence.
-    ``timestamp`` | ``diff`` | No | A ``number`` representing the milliseconds to consider as a diff from the considered ``time`` or ``date``. This value (default 0) is added to the considered ``time`` or ``date`` before formatting (i.e. a negative value signals an earlier time).
-    ``timestamp`` | ``format`` | No | The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
-    ``timestamp`` | ``inputFormat`` |  No | The formatting pattern to use to interpret the ``date`` input (if provided), matching the Java date/time formatting specifications (see `Formatting configuration`_).
-    ``timestamp`` | ``time`` |  No | A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
-    ``timestamp`` | ``zone`` | No | The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
-    ``uuid`` | ``postfix`` | No | An optional ``string`` to add as a postfix to the generated part of the UUID.
-    ``uuid`` | ``prefix`` | No | An optional ``string`` to add as a prefix to the generated part of the UUID.
-
 A typical use case for the ``TokenGenerator`` is to generate text tokens that can be used in test cases either as input parameters to
 e.g. messaging calls (see :ref:`handlers-inputs-outputs`) or as values to replace in loaded text templates (see :ref:`test-case-expressions-template-files`).
-The ``uuid`` operation provides a random and unique identifier where special formatting is not required (apart from an optional prefix and postfix), 
-whereas the ``timestamp`` operation generates a timestamp string that includes date/time values but can also have fixed parts (e.g. if you need to generate
-a text token with a fixed part and a variable part based on the current date/time). The ``string`` operation can be used to
-generate any kind of text token with both fixed and random parts following a pattern based on a provided regular expression. Finally, the ``random`` operation
-is used to generate random numbers that can be used as-is, or help in selecting random elements from a ``list``, or as part of XPath expressions.
 
-.. note::
-    **Default format for input dates:** If a ``date`` is provided without an ``inputFormat``, the pattern of ``dd/MM/yyyy'T'HH:mm:ss.SSSZ`` is assumed
-    by default. Moreover, all parts are considered optional allowing you to specify only parts of a date, making use of the following defaults for those that are missing:
+.. _handlers-TokenGenerator_random:
 
-    * Day of year (``dd``): The 1st day of the month.
-    * Month (``MM``): The 1st month of the year (January).
-    * Year (``yyyy``): The current year.
-    * Time elements (``HH``, ``mm``, ``ss`` and ``SSS``): A value of zero.
-    * Time zone (``Z``): UTC.
+TokenGenerator - random
+^^^^^^^^^^^^^^^^^^^^^^^
 
-The examples that follow illustrate use of these operations to generate a series of tokens that are then presented to the user by means
-of an :ref:`tdl-step-interact` step. Note in all cases how the produced value is retrieved from the ``map`` resulting from the ``process`` step
-that is named based on the steps' ``id``. The value itself is retrieved from within each ``map`` under the ``value`` key:
+The ``random`` operation is used to generate random numbers that can be used as-is, or help in selecting random elements from a ``list``, or
+as part of XPath expressions. The expected inputs are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``integer`` | No | A ``boolean`` determining whether the produced value will be an integer (when "true") or a double-precision number (when ``false``). By default a double-precision number is produced.
+    ``maximum`` | No | A ``number`` representing the maximum bound (exclusive) for the value to produce.
+    ``minimum`` | No | A ``number`` representing the minimum bound (inclusive) for the value to produce. If not provided the default considered is zero.
+
+The following example illustrates the operation's usage:
 
 .. code-block:: xml
 
     <!--
-        Generate a UUID (e.g. "971b4df9-4351-4cb8-9ba5-1f6373717ae0").
+        Generate a random integer between 1 and 10 (exclusive).
     -->
-    <process id="uuid" handler="TokenGenerator">
-        <operation>uuid</operation>
+    <process output="numberRandom" handler="TokenGenerator" operation="random">
+        <operation>random</operation>
+        <input name="minimum">1</input>
+        <input name="maximum">10</input>
+        <input name="integer">true()</input>
     </process>
-    <!--
-        Generate a UUID with a prefix and postfix (e.g. "message-971b4df9-4351-4cb8-9ba5-1f6373717ae0@my.org").
-    -->
-    <process id="uuid" handler="TokenGenerator">
-        <operation>uuid</operation>
-        <input name="prefix">"message-"</input>
-        <input name="postfix">"@my.org"</input>
-    </process>
-    <!--
-        Generate a timestamp for the current time without specifying formatting.
-        Example output would be "1560238501040".
-    -->
-    <process id="defaultTimestamp" handler="TokenGenerator">
-        <operation>timestamp</operation>
-    </process>
-    <!--
-        Generate a timestamp for the current time with provided formatting.
-        Example output would be "DATE[2019-05-22] TIME[11:48:06]".
-    -->
-    <process id="formattedTimestamp" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="format">"'DATE['yyyy-MM-dd'] TIME['HH:mm:ss']'"</input>
-    </process>
-    <!--
-        Generate an XML timestamp for the current time.
-    -->
-    <process id="formattedTimestamp" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
-    </process>
-    <!--
-        Generate an XML timestamp for the current time but expressed in the GMT+2 timezone.
-    -->
-    <process id="formattedTimestamp" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
-        <input name="zone">"GMT+2"</input>
-    </process>
-    <!-- 
-        Generate a timestamp for the provided time and formatting.
-        The output would be "2014-05-11".
-    -->
-    <process id="formattedTimestampProvidedTime" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="time">'1399792366000'</input>
-        <input name="format">"yyyy-MM-dd"</input>
-    </process>
-    <!-- 
-        Generate a timestamp for the current time minus one minute (600000 milliseconds) using the provided formatting.
-        Example output would be "2019-06-11 10:23:10".
-    -->
-    <process id="formattedTimestampDiff" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="diff">-600000</input>
-        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
-    </process>    
-    <!-- 
-        Obtain the current time (T) and then generate two timestamps:
-        - T minus one hour.
-        - T plus one hour.
-    -->
-    <process id="now" handler="TokenGenerator">
-        <operation>timestamp</operation>
-    </process>    
-    <process id="nowMinusOneHour" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="time">$now{value}</input>
-        <input name="diff">-3600000</input>
-        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
-    </process>
-    <process id="nowPlusOneHour" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="time">$now{value}</input>
-        <input name="diff">3600000</input>
-        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
-    </process>
-    <!--
-        Generate a timestamp based on an existing date/time string plus one hour
-    -->
-    <process id="timestampFromFormattedString1" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="date">'20-10-2021 13:30:00'</input>
-        <input name="inputFormat">'dd-MM-yyyy HH:mm:ss'</input> <!-- Assumes UTC -->
-        <input name="diff">3600000</input>
-    </process>
-    <!--
-        Generate a timestamp based on an existing date/time string plus one hour (default formatting)
-    -->
-    <process id="timestampFromFormattedString2" handler="TokenGenerator">
-        <operation>timestamp</operation>
-        <input name="date">'20/10'</input> <!-- Assumes the current year, midnight, and a UTC timezone -->
-        <input name="diff">3600000</input>
-    </process>
+
+.. _handlers-TokenGenerator_string:
+
+TokenGenerator - string
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``string`` operation can be used to generate any kind of text token with both fixed and random parts following a pattern based on a provided regular expression.
+The expected input is as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``format`` | Yes | A regular expression acting as a template to determine the generated token's format.
+
+The following examples illustrate the operation's usage:
+
+.. code-block:: xml
+
     <!--
         Generate a random string with 2 characters followed by 10 digits.
         Example output would be "cD6723820231".
     -->
-    <process id="stringRandom" handler="TokenGenerator">
-        <operation>string</operation>
+    <process output="stringRandom" handler="TokenGenerator" operation="string">
         <input name="format">"[a-zA-Z]{2}\d{10}"</input>
     </process>
     <!--
@@ -1700,36 +2071,115 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
         - With hyphens between all fixed and random parts.
         Example output would be "PREFIX-32145-abcaa-02-POSTFIX".
     -->
-    <process id="stringRandomAndFixed" handler="TokenGenerator">
-        <operation>string</operation>
+    <process output="stringRandomAndFixed" handler="TokenGenerator" operation="string">
         <input name="format">"PREFIX-\d{5}-[abc]{5}-\d{2}-POSTFIX"</input>
     </process>
+
+.. _handlers-TokenGenerator_timestamp:
+
+TokenGenerator - timestamp
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``timestamp`` operation generates a timestamp string that includes date/time values but can also have fixed parts (e.g. if you need to generate
+a text token with a fixed part and a variable part based on the current date/time). The inputs expected are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``date`` |  No | A ``string`` representing a date/time to use as the value to format. If specified along with ``time``, the ``time`` input takes precedence.
+    ``diff`` | No | A ``number`` representing the milliseconds to consider as a diff from the considered ``time`` or ``date``. This value (default 0) is added to the considered ``time`` or ``date`` before formatting (i.e. a negative value signals an earlier time).
+    ``format`` | No | The formatting pattern to apply provided as a ``string`` matching the Java date/time formatting specifications (see `Formatting configuration`_). If unspecified the current Epoch milliseconds are returned.
+    ``inputFormat`` |  No | The formatting pattern to use to interpret the ``date`` input (if provided), matching the Java date/time formatting specifications (see `Formatting configuration`_).
+    ``time`` |  No | A ``number`` representing the Epoch milliseconds to use as the date/time to format. If unspecified the current date/time is used.
+    ``zone`` | No | The timezone to consider when generating a formatted timestamp provided as a ``string``. Expected values are those defined by Java (see `Timezone codes`_). If unspecified the default consider is ``UTC``.
+
+If a ``date`` is provided without an ``inputFormat``, the pattern of ``dd/MM/yyyy'T'HH:mm:ss.SSSZ`` is assumed by default.
+Moreover, all parts are considered optional allowing you to specify only parts of a date, making use of the following defaults
+for those that are missing:
+
+* Day of year (``dd``): The 1st day of the month.
+* Month (``MM``): The 1st month of the year (January).
+* Year (``yyyy``): The current year.
+* Time elements (``HH``, ``mm``, ``ss`` and ``SSS``): A value of zero.
+* Time zone (``Z``): UTC.
+
+The following examples illustrate the operation's usage:
+
+.. code-block:: xml
+
     <!--
-        Generate a random integer between 1 and 10 (exclusive).
+        Generate a timestamp for the current time without specifying formatting.
+        Example output would be "1560238501040".
     -->
-    <process id="numberRandom" handler="TokenGenerator">
-        <operation>random</operation>
-        <input name="minimum">1</input>
-        <input name="maximum">10</input>
-        <input name="integer">true()</input>
+    <process output="currentTimestamp" handler="TokenGenerator" operation="timestamp"/>
+    <!--
+        Generate a timestamp for the current time with provided formatting.
+        Example output would be "DATE[2019-05-22] TIME[11:48:06]".
+    -->
+    <process output="formattedTimestampNow" handler="TokenGenerator" operation="timestamp">
+        <input name="format">"'DATE['yyyy-MM-dd'] TIME['HH:mm:ss']'"</input>
     </process>
     <!--
-        Display all generated tokens to the user.
+        Generate an XML timestamp for the current time.
     -->
-    <interact desc="Generated tokens">
-        <instruct desc="UUID:">$uuid{value}</instruct>
-        <instruct desc="The default timestamp:">$defaultTimestamp{value}</instruct>
-        <instruct desc="A formatted timestamp:">$formattedTimestamp{value}</instruct>
-        <instruct desc="A formatted timestamp for provided time:">$formattedTimestampProvidedTime{value}</instruct>
-        <instruct desc="A timestamp using a diff:">$formattedTimestampDiff{value}</instruct>
-        <instruct desc="Now minus one hour:">$nowMinusOneHour{value}</instruct>
-        <instruct desc="Now plus one hour:">$nowPlusOneHour{value}</instruct>
-        <instruct desc="Plus one hour of formatted string:">$timestampFromFormattedString1{value}</instruct>
-        <instruct desc="Plus one hour of default formatted string:">$timestampFromFormattedString2{value}</instruct>
-        <instruct desc="A random string:">$stringRandom{value}</instruct>
-        <instruct desc="A random string with fixed parts:">$stringRandomAndFixed{value}</instruct>
-        <instruct desc="A random number:">$numberRandom{value}</instruct>
-    </interact>
+    <process output="currentXmlTimestamp" handler="TokenGenerator" operation="timestamp">
+        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
+    </process>
+    <!--
+        Generate an XML timestamp for the current time but expressed in the GMT+2 timezone.
+    -->
+    <process output="currentXmlTimestampInTimezone" handler="TokenGenerator" operation="timestamp">
+        <input name="format">"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"</input>
+        <input name="zone">"GMT+2"</input>
+    </process>
+    <!-- 
+        Generate a timestamp for the provided time and formatting.
+        The output would be "2014-05-11".
+    -->
+    <process output="formattedTimestamp" handler="TokenGenerator" operation="timestamp">
+        <input name="time">'1399792366000'</input>
+        <input name="format">"yyyy-MM-dd"</input>
+    </process>
+    <!-- 
+        Generate a timestamp for the current time minus one minute (600000 milliseconds) using the provided formatting.
+        Example output would be "2019-06-11 10:23:10".
+    -->
+    <process output="formattedTimestampMinusOneMinute" handler="TokenGenerator" operation="timestamp">
+        <input name="diff">-600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
+    </process>    
+    <!-- 
+        Obtain the current time (T) and then generate two timestamps:
+        - T minus one hour.
+        - T plus one hour.
+    -->
+    <process output="now" handler="TokenGenerator" operation="timestamp"/>
+    <process output="nowMinusOneHour" handler="TokenGenerator" operation="timestamp">
+        <input name="time">$now</input>
+        <input name="diff">-3600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
+    </process>
+    <process output="nowPlusOneHour" handler="TokenGenerator" operation="timestamp">
+        <input name="time">$now{value}</input>
+        <input name="diff">3600000</input>
+        <input name="format">"yyyy-MM-dd HH:mm:ss"</input>
+    </process>
+    <!--
+        Generate a timestamp based on an existing date/time string plus one hour
+    -->
+    <process output="timestampFromFormattedString1" handler="TokenGenerator" operation="timestamp">
+        <input name="date">'20-10-2021 13:30:00'</input>
+        <input name="inputFormat">'dd-MM-yyyy HH:mm:ss'</input> <!-- Assumes UTC -->
+        <input name="diff">3600000</input>
+    </process>
+    <!--
+        Generate a timestamp based on an existing date/time string plus one hour (default formatting)
+    -->
+    <process output="timestampFromFormattedString2" handler="TokenGenerator" operation="timestamp">
+        <input name="date">'20/10'</input> <!-- Assumes the current year, midnight, and a UTC timezone -->
+        <input name="diff">3600000</input>
+    </process>
 
 .. note:: 
     **Timestamps for use in XML content:** Formatted timestamps generated for use in XML content should match the formatting
@@ -1738,6 +2188,37 @@ that is named based on the steps' ``id``. The value itself is retrieved from wit
 
 .. _Formatting configuration: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 .. _Timezone codes: https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html#of-java.lang.String-
+
+.. _handlers-TokenGenerator_uuid:
+
+TokenGenerator - uuid
+^^^^^^^^^^^^^^^^^^^^^
+
+The ``uuid`` operation provides a random and unique identifier where special formatting is not required (apart from an optional prefix and postfix).
+The inputs expected are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``postfix`` | No | An optional ``string`` to add as a postfix to the generated part of the UUID.
+    ``prefix`` | No | An optional ``string`` to add as a prefix to the generated part of the UUID.
+
+The following examples illustrate the operation's usage:
+
+.. code-block:: xml
+
+    <!--
+        Generate a UUID (e.g. "971b4df9-4351-4cb8-9ba5-1f6373717ae0").
+    -->
+    <process output="uuid1" handler="TokenGenerator" operation="uuid"/>
+    <!--
+        Generate a UUID with a prefix and postfix (e.g. "message-971b4df9-4351-4cb8-9ba5-1f6373717ae0@my.org").
+    -->
+    <process output="uuid2" handler="TokenGenerator" operation="uuid">
+        <input name="prefix">"message-"</input>
+        <input name="postfix">"@my.org"</input>
+    </process>
 
 .. index:: VariableUtils
 .. index:: type (VariableUtils)
@@ -1757,21 +2238,25 @@ transaction to be established. The following operations are supported:
     ``exists``, Check to see if a variable with a given name is defined in the session context., Yes, A ``boolean`` named ``output`` in the resulting step's ``map``.
     ``type``, Return the type of a variable with a given name., Yes, A ``string`` named ``output`` in the resulting step's ``map``. This will be empty if no variable was found for the provided name.
 
-The input parameters expected by the different operations are as follows:
+Besides using as part of your testing logic, the ``VariableUtils`` operations can also be quite useful while developing tests to debug
+problems related to variables.
+
+.. _handlers-VariableUtils_exists:
+
+VariableUtils - exists
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``exists`` operation is used to check whether a variable exists in the current scope. An example of when this would be
+interesting is to check within a :ref:`scriptlet <scriptlets>` whether an :ref:`optional parameter <scriptlets_elements_params>`
+has been set. The expected input parameter is as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``exists`` | ``name`` | Yes | The name of the variable to check.
-    ``type`` | ``name`` | Yes | The name of the variable to check.
+    ``name`` | Yes | The name of the variable to check.
 
-A typical use case of ``VariableUtils`` and in particular the ``exists`` operation, would be to check within a :ref:`scriptlet <scriptlets>` whether an
-:ref:`optional parameter <scriptlets_elements_params>` has been set. The ``type`` operation on the other hand could be used in situations when you 
-are not certain of a variable's type which could be the case for an element in a ``map``. Both operations are of course also quite useful while
-developing tests to debug problems related to variables.
-
-The following TDL snippet illustrates how the ``VariableUtils`` handler could be used:
+The following example illustrates how the ``exists`` operation could be used:
 
 .. code-block:: xml
 
@@ -1781,10 +2266,6 @@ The following TDL snippet illustrates how the ``VariableUtils`` handler could be
     <process handler="VariableUtils" operation="exists" input="aVariable" output="variableExists"/>
     <!-- Prints "true". -->
     <log>$variableExists</log>
-    <!-- Check the variable's type. -->
-    <process handler="VariableUtils" operation="type" input="aVariable" output="variableType"/>
-    <!-- Prints "string". -->
-    <log>$variableType</log>
 
     <!-- Check to see if a map is defined (e.g. within a scriptlet) and do something with it. -->
     <process handler="VariableUtils" operation="exists" input="optionalMap" output="mapExists"/>
@@ -1794,6 +2275,31 @@ The following TDL snippet illustrates how the ``VariableUtils`` handler could be
             <!-- Do something with the map. -->
         </then>
     </if>
+
+.. _handlers-VariableUtils_type:
+
+VariableUtils - type
+^^^^^^^^^^^^^^^^^^^^
+
+The ``type`` operation on the other hand could be used in situations when you are not certain of a variable's type. This could
+be the case for an element in a ``map`` that can take values of varying types. The expected input parameter is as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``name`` | Yes | The name of the variable to check.
+
+The following example illustrates how the ``type`` operation could be used:
+
+.. code-block:: xml
+
+    <!-- Create a variable named "aVariable". -->
+    <assign to="aVariable">"A value"</assign>
+    <!-- Check the variable's type. -->
+    <process handler="VariableUtils" operation="type" input="aVariable" output="variableType"/>
+    <!-- Prints "string". -->
+    <log>$variableType</log>
 
 .. index:: XPathProcessor
 .. index:: input (XPathProcessor)
@@ -1816,12 +2322,12 @@ Used to extract information from XML content using an XPath expression.
 The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``process`` | ``expression`` | Yes | The XPath expression to use.
-    ``process`` | ``input`` | Yes | The XML content to process.
-    ``process`` | ``type`` | No | The :ref:`GITB type <test-case-types>` for the expression's output (default is ``string`` - for XML output use ``object``).
+    ``expression`` | Yes | The XPath expression to use.
+    ``input`` | Yes | The XML content to process.
+    ``type`` | No | The :ref:`GITB type <test-case-types>` for the expression's output (default is ``string`` - for XML output use ``object``).
 
 The ``XPathProcessor`` leverages **XML namespaces** as defined by the test case's :ref:`namespaces element <test-case-namespaces>`, allowing
 you to construct namespace-aware expressions. The following examples illustrate several data extraction scenarios from a provided XML document.
@@ -1933,12 +2439,13 @@ when you need to generate the expression to use:
 
     The ``XPathProcessor`` should be preferred to create expressions dynamically or to reuse expressions across lookups.
 
+.. index:: XsltProcessor
 .. index:: XSLTProcessor
-.. index:: xml (XSLTProcessor)
-.. index:: xslt (XSLTProcessor)
+.. index:: xml (XsltProcessor)
+.. index:: xslt (XsltProcessor)
 .. _handlers-XSLTProcessor:
 
-XSLTProcessor
+XsltProcessor
 +++++++++++++
 
 Used to transform XML content using an XSLT style sheet, both being provided as inputs, and output the result.
@@ -1952,19 +2459,19 @@ Used to transform XML content using an XSLT style sheet, both being provided as 
 The input parameters expected by the ``process`` operation are as follows:
 
 .. csv-table::
-    :header: "Operation", "Input name", "Required?", "Description"
+    :header: "Input name", "Required?", "Description"
     :delim: |
 
-    ``process`` | ``xml`` | Yes | The XML content to transform.
-    ``process`` | ``xslt`` | Yes | The XSLT style sheet to use for the transformation.
+    ``xml`` | Yes | The XML content to transform.
+    ``xslt`` | Yes | The XSLT style sheet to use for the transformation.
 
-The following example illustrates usage of the ``XSLTProcessor`` to transform the provided "xmlContent" (the XML input) using the "xsltContent" (the XSLT style sheet).
+The following example illustrates usage of the ``XsltProcessor`` to transform the provided "xmlContent" (the XML input) using the "xsltContent" (the XSLT style sheet).
 These variables may be provided in any manner, for example the "xmlContent" could be uploaded via a :ref:`user interaction step<tdl-step-receive>` whereas the "xsltContent" could
 be :ref:`imported<test-case-imports>` from the test suite's resources.
 
 .. code-block:: xml
 
-    <process output="result" handler="XSLTProcessor">
+    <process output="result" handler="XsltProcessor">
         <input name="xml">$xmlContent</input>
         <input name="xslt">$xsltContent</input>
     </process>
@@ -1980,6 +2487,8 @@ The title of each section corresponds to the name of the handler that needs to b
 
 .. index:: ExpressionValidator
 .. index:: expression (ExpressionValidator)
+.. index:: successMessage (ExpressionValidator)
+.. index:: failureMessage (ExpressionValidator)
 .. _handlers-ExpressionValidator:
 
 ExpressionValidator
@@ -1993,20 +2502,220 @@ condition.
     :header: "Input name", "Required?", "Type", "Description"
 
     ``expression``, Yes, :ref:`Expression<test-case-expressions>`, The expression to evaluate.
+    ``failureMessage``, No, ``string``, An optional message to display in case the check fails.
+    ``successMessage``, No, ``string``, An optional message to display in case the check succeeds.
 
 .. code-block:: xml
 
     <verify handler="ExpressionValidator" desc="Validate UUID">
         <input name="expression">$variable != "unwantedValue"</input>
+        <input name="successMessage">'The provided UUID is correct.'</input>
+        <input name="failureMessage">'The provided UUID does not match the requirements.'</input>        
     </verify>
 
 .. note::
     The ``expression`` input is not presented in the :ref:`verify step's<tdl-step-verify>` validation report as it
     would only ever display a "true" or "false".
 
+.. index:: JsonValidator
+.. index:: json (JsonValidator)
+.. index:: schema (JsonValidator)
+.. index:: schemaCombinationApproach (JsonValidator)
+.. index:: supportYaml (JsonValidator)
+.. index:: showSchema (JsonValidator)
+.. index:: sharedSchemaPaths (JsonValidator)
+.. _handlers-JsonValidator:
+
+JsonValidator
++++++++++++++
+
+Used to validate a JSON document (with support also for YAML) against JSON Schema(s).
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: ~
+
+    ``json`` ~ Yes ~ ``string`` ~ The JSON content to validate.
+    ``schema`` ~ No ~ ``string`` or ``list[string]`` ~ One or more JSON schemas to use for the validation. If no schema is provided the validation will by default succeed.
+    ``schemaCombinationApproach`` ~ No ~ ``string`` The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
+    ``showSchema`` ~ No ~ ``boolean`` ~ Whether or not the schema(s) used will be displayed in the resulting step report. By default this is "true".
+    ``supportYaml`` ~ No ~ ``boolean`` ~ Whether or not the provided content for the ``json`` input can also be YAML. By default this is "false".
+
+Regarding inputs, if you need to supply a single schema file you don't need to create a ``list`` and pass it as such. You can
+simply pass the file as-is and the test engine will automatically convert it to a single-element ``list``.
+
+The following examples illustrate how the ``JsonValidator`` can be used in various scenarios:
+
+.. code-block:: xml
+
+    <!-- 
+        Validate JSON content against a single schema.
+    -->
+    <verify desc="Validate content" handler="JsonValidator">
+        <input name="json">$jsonContent</input>
+        <input name="schema">$schema</input>
+    </verify>
+    <!-- 
+        Validate JSON content against multiple schemas.
+    -->
+    <assign to="schemas" append="true">$jsonSchema1</assign>
+    <assign to="schemas" append="true">$jsonSchema2</assign>
+    <verify desc="Validate content" handler="JsonValidator">
+        <input name="json">$jsonContent</input>
+        <input name="schema">$schemas</input>
+        <!-- This could have been skipped as "allOf" is the default. -->
+        <input name="schemaCombinationApproach">"allOf"</input>
+    </verify>
+    <!--
+        Validate content that can be either JSON or YAML against a single schema.
+        In addition, don't show the schema that was used for the validation.
+    -->
+    <verify desc="Validate content" handler="JsonValidator">
+        <input name="json">$jsonContent</input>
+        <input name="schema">$schema</input>
+        <input name="supportYaml">true()</input>
+        <input name="showSchema">false()</input>
+    </verify>
+
+When validation needs are complex it can be useful to **split schemas into separate ones** and reuse them as needed. In case such schemas
+are published online you can reference through their published URI. In case schemas are not published,
+the `JSON Schema specification <https://json-schema.org/draft/2020-12/json-schema-core>`__ leaves the handling of local schema references
+up to each implementation, which in the case of the Test Bed is addressed as described below.
+
+The first step is to define your schemas as test suite resources. As an example consider a ``PurchaseOrder.schema.json`` that reuses
+an ``Address.schema.json`` schema, which could be defined as follows in the test suite:
+
+.. code-block:: none
+
+    testSuite
+    ├── schemas
+    │   ├── common
+    │   │   └── Address.schema.json
+    │   └── PurchaseOrder.schema.json
+    ├── tests
+    │   └── testCase1.xml 
+    └── testSuite.xml 
+
+The common schema defines (as all schemas do) its ``$id`` element as a unique identifier. For example, ``Address.schema.json`` could define this
+as follows:
+
+.. code-block:: none
+
+    {
+        "$id": "http://itb.ec.europa.eu/sample/Address.schema.json",
+        ...
+    }    
+
+This identifier allows its reference from ``PurchaseOrder.schema.json``, which does so as follows:
+
+.. code-block:: none
+
+    {
+        "$id": "http://itb.ec.europa.eu/sample/PurchaseOrder.schema.json",
+        ...
+        "shipTo": { "$ref": "Address.schema.json" },
+        ...
+    }
+
+The reference is achieved through the ``$ref`` property which can either be set with an absolute URI (``http://itb.ec.europa.eu/sample/Address.schema.json``),
+or a relative one (``Address.schema.json``) as seen above. In the latter case, the full URI will be determined considering the current schema's
+``$id`` property. Note that all that matters are the schema ``$id`` properties, not their specific folder placement. In other words, the fact
+that ``Address.schema.json`` is under a ``common`` folder does not need to be reflected in the ``$id`` or ``$ref`` properties.
+
+On the side of the test case, you would then need to import the main ``PurchaseOrder.schema.json`` schema but also tell the test engine where
+to look for any dependent schemas. To achieve this, you provide the schema to the ``JsonValidator`` not as a ``string`` but as a ``map``
+that contains two keys:
+
+* ``schema``, a ``string`` element with the main schema's content.
+* ``sharedSchemaPaths``, a ``list`` of ``string`` elements with the **paths**, not the actual contents, of the referred-to schemas.
+
+You may wonder why there is a need for the ``sharedSchemaPaths`` information, as opposed to simply loading schemas from a location
+relative to the current one. The reason is that schema URIs (specified via the ``$id`` property) do not represent necessarily 
+the physical location of schemas. Making a comparison with XML Schema where namespaces and schema locations are distinct, there
+is no such distinction in JSON Schema, at least when working with local schemas.
+
+.. note::
+    
+    When :ref:`importing schemas from other test suites <test-suite-sharing>`, the ``sharedSchemaPaths`` are resolved with respect to the target test suite.
+
+The following examples cover various scenarios of validating against schemas with dependencies:
+
+.. code-block:: xml
+
+    <testcase>
+        ...
+        <imports>
+            <!-- 
+                Import the main schema to use.
+            -->
+            <artifact name="jsonSchema">schemas/PurchaseOrder.schema.json</artifact>
+            ...
+        </imports>
+        ...
+        <steps>
+            <!--
+                Example with a schema having a single dependent schema.
+                Define the schema as a map and under the "schema" key set the schema content
+                (imported from the test suite).
+            -->
+            <assign to="schema{schema}">$jsonSchema</assign>
+            <!-- 
+                Under "sharedSchemaPaths" define the path from which dependent schemas should be read from.
+            -->
+            <assign to="schema{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <verify desc="Validate JSON" handler="JsonValidator">
+                <input name="json">$jsonContent</input>
+                <input name="schema">$schema</input>
+            </verify>
+            <!--
+                Example with a schema having a multiple dependent schemas.
+            -->
+            <assign to="schemaWithDependencies{schema}">$jsonSchema</assign>
+            <assign to="schemaWithDependencies{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="schemaWithDependencies{sharedSchemaPaths}" append="true">"schemas/common/OrderItem.schema.json"</assign>
+            <verify desc="Validate JSON" handler="JsonValidator">
+                <input name="json">$jsonContent</input>
+                <input name="schema">$schemaWithDependencies</input>
+            </verify>
+            <!-- 
+                Example with multiple schemas, each with dependent schemas.
+            -->
+            <assign to="example1Schema1{schema}">$schema1</assign>
+            <assign to="example1Schema1{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="example1Schema2{schema}">$schema2</assign>
+            <assign to="example1Schema2{sharedSchemaPaths}" append="true">"schemas/common/OrderItem.schema.json"</assign>
+            <assign to="example1Schemas" append="true">$example1Schema1</assign>
+            <assign to="example1Schemas" append="true">$example1Schema2</assign>
+            <verify desc="Validate JSON" handler="JsonValidator">
+                <input name="json">$jsonContent</input>
+                <input name="schema">$example1Schemas</input>
+                <input name="schemaCombinationApproach">"allOf"</input>
+            </verify>
+            <!-- 
+                Example with multiple schemas, only one of which has dependencies.
+                For schemas without dependencies you don't need to define them as a map.
+            -->
+            <assign to="example2Schema1{schema}">$schema1</assign>
+            <assign to="example2Schema1{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="example2Schemas" append="true">$example2Schema1</assign>
+            <!-- Add the second schema directly. -->
+            <assign to="example2Schemas" append="true">$schema2</assign>
+            <verify desc="Validate JSON" handler="JsonValidator">
+                <input name="json">$jsonContent</input>
+                <input name="schema">$schemasToUse</input>
+                <input name="schemaCombinationApproach">"allOf"</input>
+            </verify>
+            ...
+        </steps>
+    </testcase>
+
 .. index:: NumberValidator
+.. index:: actual (NumberValidator)
 .. index:: actualnumber (NumberValidator)
+.. index:: expected (NumberValidator)
 .. index:: expectednumber (NumberValidator)
+.. index:: successMessage (NumberValidator)
+.. index:: failureMessage (NumberValidator)
 .. _handlers-NumberValidator:
 
 NumberValidator
@@ -2017,19 +2726,25 @@ Used to verify that a provided ``number`` matches an expected value.
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
 
-    ``actualnumber``, Yes, ``number``, The value to check.
-    ``expectednumber``, Yes, ``number``, The expected value.
+    ``actual``, Yes, ``number``, The value to check.
+    ``expected``, Yes, ``number``, The expected value.
+    ``failureMessage``, No, ``string``, An optional message to display in case the check fails.
+    ``successMessage``, No, ``string``, An optional message to display in case the check succeeds.
 
 .. code-block:: xml
 
     <verify handler="NumberValidator" desc="Check number">
-        <input name="actualnumber">$aNumber</input>
-        <input name="expectednumber">'10'</input>
+        <input name="actual">$aNumber</input>
+        <input name="expected">'10'</input>
+        <input name="successMessage">'The provided value is correct.'</input>
+        <input name="failureMessage">'The provided value does not match the requirements.'</input>
     </verify>
 
 .. index:: RegExpValidator
 .. index:: input (RegExpValidator)
 .. index:: expression (RegExpValidator)
+.. index:: successMessage (RegExpValidator)
+.. index:: failureMessage (RegExpValidator)
 .. _handlers-RegExpValidator:
 
 RegExpValidator
@@ -2041,13 +2756,17 @@ Used to verify that a provided ``string`` matches a regular expression.
     :header: "Input name", "Required?", "Type", "Description"
 
     ``expression``, Yes, ``string``, The expression to match.
+    ``failureMessage``, No, ``string``, An optional message to display in case the check fails.
     ``input``, Yes, ``string``, The value to check.
+    ``successMessage``, No, ``string``, An optional message to display in case the check succeeds.
 
 .. code-block:: xml
 
     <verify handler="RegExpValidator" desc="Check string">
         <input name="input">$aString</input>
         <input name="expression">'^REF\-\d+$'</input>
+        <input name="successMessage">'The provided value is correct.'</input>
+        <input name="failureMessage">'The provided value does not match the requirements.'</input>        
     </verify>
 
 The regular expression provided for the ``expression`` input is expected to be provided using the `syntax used by the Java language`_.
@@ -2059,11 +2778,14 @@ This syntax also supports expression flags provided in an embedded manner, withi
         <input name="input">$aString</input>
         <!-- Same expression but executed in a case insensitive (?i) and multiline (?m) manner. -->
         <input name="expression">'(?im)^REF\-\d+$'</input>
+        <input name="successMessage">'The provided value is correct.'</input>
+        <input name="failureMessage">'The provided value does not match the requirements.'</input>        
     </verify>
 
 .. index:: SchematronValidator
 .. index:: schematron (SchematronValidator)
 .. index:: xmldocument (SchematronValidator)
+.. index:: xml (SchematronValidator)
 .. index:: type (SchematronValidator)
 .. index:: showSchematron (SchematronValidator)
 .. index:: sortBySeverity (SchematronValidator)
@@ -2087,7 +2809,7 @@ Used to validate an XML document against a Schematron file.
     ``showTests``, No, ``boolean``, Whether or not to include in the step's report the assertion performed for each finding (default is ``false``).
     ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
     ``type``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the resource's file suffix. The overall default considered is ``sch``.
-    ``xmldocument``, Yes, ``object``, The XML document to validate.
+    ``xml``, Yes, ``object``, The XML document to validate.
 
 .. note::
     **XSLT vs SCH Schematron files:** XSLT versions of Schematron files are pre-processed files and offer significantly better
@@ -2096,7 +2818,7 @@ Used to validate an XML document against a Schematron file.
 .. code-block:: xml
 
     <verify handler="SchematronValidator" desc="Validate content">
-        <input name="xmldocument">$docToValidate</input>
+        <input name="xml">$docToValidate</input>
         <input name="schematron">$schematronFile</input>
         <!-- Following inputs are optional. -->
         <input name="showSchematron">false()</input>
@@ -2104,9 +2826,96 @@ Used to validate an XML document against a Schematron file.
         <input name="showTests">true()</input>
     </verify>
 
+.. index:: ShaclValidator
+.. index:: contentType (ShaclValidator)
+.. index:: loadImports (ShaclValidator)
+.. index:: model (ShaclValidator)
+.. index:: reportContentType (ShaclValidator)
+.. index:: shapes (ShaclValidator)
+.. index:: showReport (ShaclValidator)
+.. index:: showShapes (ShaclValidator)
+.. index:: sortBySeverity (ShaclValidator)
+.. _handlers-ShaclValidator:
+
+ShaclValidator
+++++++++++++++
+
+Used to validate an RDF model against SHACL shape files.
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: ~
+
+    ``contentType`` ~ Yes ~ ``string`` ~ The content type of the RDF model provided for validation.
+    ``loadImports`` ~ No ~ ``boolean`` ~ Whether or not ``owl:import`` statements found in the input model will be evaluated and included for the validation. By default this is "false".
+    ``model`` ~ Yes ~ ``string`` ~ The RDF model to validate.
+    ``reportContentType`` ~ No ~ ``string`` ~ The content type to use for the `SHACL validation report <https://www.w3.org/TR/shacl/#validation-report>`__ in case ``showReport`` is set to "true". By default the input model's ``contentType`` will be used.
+    ``shapes`` ~ No ~ ``map`` or ``list[map]`` ~ One or more files with SHACL shapes to use for the validation (provided along with their respective content types). If no shape files are provided the validation will by default succeed.
+    ``showReport`` ~ No ~ ``boolean`` ~ Whether or not the step's report will display the resulting `SHACL validation report <https://www.w3.org/TR/shacl/#validation-report>`__. By default this is "false".
+    ``showShapes`` ~ No ~ ``boolean`` ~ Whether or not the step's report will display the shapes used for the validation (using the first shape file's content type in case of multiple). By default this is "true".
+    ``sortBySeverity`` ~ No ~ ``boolean`` ~ Whether or not the resulting report items will be sorted by severity. By default this is "false".
+
+Regarding providing the shape file to consider for the ``shapes`` input, this is provided as a ``map`` containing two keys:
+
+* ``content``, for the shape file content.
+* ``contentType``, for the content type to consider when reading the content.
+
+In case multiple shape files are needed, you provide the ``shapes`` input as a ``list`` where each element is a ``map`` corresponding
+to a shape file as described above.
+
+The following examples illustrate how the ``ShaclValidator`` can be used in various scenarios:
+
+.. code-block:: xml
+
+    <!--
+        Validate an RDF model with single shape file.
+    -->
+    <assign to="shapeFile{content}">$myShapes1</assign>
+    <assign to="shapeFile{contentType}">"text/turtle"</assign>
+    <verify desc="Validate model" handler="ShaclValidator">
+        <input name="model">$ttlSample</input>
+        <input name="shapes">$shapeFile</input>
+        <input name="contentType">"text/turtle"</input>
+    </verify>
+    <!-- 
+        Validate an RDF model with multiple shape files.
+    -->
+    <assign to="shape1{content}">$myShapes1</assign>
+    <assign to="shape1{contentType}">"text/turtle"</assign>
+    <assign to="shape2{content}">$myShapes2</assign>
+    <assign to="shape2{contentType}">"text/turtle"</assign>
+    <assign to="shapes" append="true">$shape1</assign>
+    <assign to="shapes" append="true">$shape2</assign>
+    <verify desc="Validate model" handler="ShaclValidator">
+        <input name="model">$ttlSample</input>
+        <input name="contentType">"text/turtle"</input>
+        <input name="shapes">$shapes</input>
+    </verify>
+    <!-- 
+        Validate an RDF model and for the step's report:
+        - Hide the shapes used for the validation.
+        - Include the SHACL validation report in RDF/XML format.
+        - Sort reported items by severity.
+    -->
+    <assign to="shapeFileExample{content}">$myShapes1</assign>
+    <assign to="shapeFileExample{contentType}">"text/turtle"</assign>
+    <verify desc="Validate model" handler="ShaclValidator">
+        <input name="model">$ttlSample</input>
+        <input name="shapes">$shapeFileExample</input>
+        <input name="contentType">"text/turtle"</input>
+        <input name="showShapes">false()</input>
+        <input name="showReport">false()</input>
+        <input name="reportContentType">"application/rdf+xml"</input>
+        <input name="sortBySeverity">true()</input>
+    </verify>
+
 .. index:: StringValidator
+.. index:: actual (StringValidator)
+.. index:: expected (StringValidator)
 .. index:: actualstring (StringValidator)
 .. index:: expectedstring (StringValidator)
+.. index:: successMessage (StringValidator)
+.. index:: failureMessage (StringValidator)
 .. _handlers-StringValidator:
 
 StringValidator
@@ -2117,14 +2926,18 @@ Used to verify that a provided ``string`` matches an expected value.
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
 
-    ``actualstring``, Yes, ``string``, The value to check.
-    ``expectedstring``, Yes, ``string``, The expected value.
+    ``actual``, Yes, ``string``, The value to check.
+    ``expected``, Yes, ``string``, The expected value.
+    ``failureMessage``, No, ``string``, An optional message to display in case the check fails.
+    ``successMessage``, No, ``string``, An optional message to display in case the check succeeds.
 
 .. code-block:: xml
 
     <verify handler="StringValidator" desc="Check string">
-        <input name="actualstring">$aString</input>
-        <input name="expectedstring">'expected_string'</input>
+        <input name="actual">$aString</input>
+        <input name="expected">'expected_string'</input>
+        <input name="successMessage">'The provided value is correct.'</input>
+        <input name="failureMessage">'The provided value does not match the requirements.'</input>
     </verify>
 
 .. index:: XmlMatchValidator
@@ -2269,14 +3082,14 @@ can be replicated via a single use of the ``XmlValidator``:
 .. code-block:: xml
 
     <!--
-        Using the XSDValidator and SchematronValidator.
+        Using the XsdValidator and SchematronValidator.
     -->
-    <verify handler="XSDValidator" desc="Validate content">
-        <input name="xmldocument">$docToValidate</input>
-        <input name="xsddocument">$schemaFile</input>
+    <verify handler="XsdValidator" desc="Validate content">
+        <input name="xml">$docToValidate</input>
+        <input name="xsd">$schemaFile</input>
     </verify>
     <verify handler="SchematronValidator" desc="Validate content">
-        <input name="xmldocument">$docToValidate</input>
+        <input name="xml">$docToValidate</input>
         <input name="schematron">$schematronFile</input>
     </verify>
     <!--
@@ -2290,8 +3103,12 @@ can be replicated via a single use of the ``XmlValidator``:
     </verify>
 
 .. index:: XPathValidator
+.. index:: xml (XPathValidator)
+.. index:: expression (XPathValidator)
 .. index:: xmldocument (XPathValidator)
 .. index:: xpathexpression (XPathValidator)
+.. index:: successMessage (StringValidator)
+.. index:: failureMessage (StringValidator)
 .. _handlers-XPathValidator:
 
 XPathValidator
@@ -2303,10 +3120,12 @@ needs to evaluate to a boolean (i.e. true for success or false for failure).
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
 
-    ``xmldocument``, Yes, ``object``, The XML document upon which the XPath expression will be evaluated.
-    ``xpathexpression``, Yes, ``string``, The XPath 3.0 expression passed as a string.
+    ``expression``, Yes, ``string``, The XPath 3.0 expression passed as a string.
+    ``failureMessage``, No, ``string``, An optional message to display in case the check fails.
+    ``successMessage``, No, ``string``, An optional message to display in case the check succeeds.
+    ``xml``, Yes, ``object``, The XML document upon which the XPath expression will be evaluated.
 
-An important note here is that the XPath expression passed in ``xpathexpression`` is meant to be a string.
+An important note here is that the XPath expression passed in ``expression`` is meant to be a string.
 This means that to run an expression as-is you need to wrap it in quotes. This is because the content of
 the ``input`` element can also be an expression that you want to evaluate to give you the final expression to
 use. The following example illustrates both cases:
@@ -2318,23 +3137,27 @@ use. The following example illustrates both cases:
     -->
     <assign to="expectedValue">EXPECTED"</assign>
     <verify handler="XPathValidator" desc="Check document">
-        <input name="xmldocument">$myDocument</input>
+        <input name="xml">$myDocument</input>
         <!-- Define expression with variable reference -->
-        <input name="xpathexpression">"contains(/toc/text(), $expectedValue)"</input>
+        <input name="expression">"contains(/toc/text(), $expectedValue)"</input>
+        <input name="successMessage">"The provided XML is correct."</input>
+        <input name="failureMessage">"The provided XML does not match the requirements."</input>
     </verify>
     <!-- 
         Evaluate an expression that will give you the final expression to use.
     -->
     <verify handler="XPathValidator" desc="Check document">
-        <input name="xmldocument">$myDocument</input>
+        <input name="xml">$myDocument</input>
         <!-- Define expression without a variable reference using string concatenation -->
-        <input name="xpathexpression">"contains(/toc/text(), '" || $expectedValue || "')"</input>
+        <input name="expression">"contains(/toc/text(), '" || $expectedValue || "')"</input>
+        <input name="successMessage">"The provided XML is correct."</input>
+        <input name="failureMessage">"The provided XML does not match the requirements."</input>
     </verify>
 
-In the expressions you use for the validations (attribute ``xpathexpression``) you may also make use of XML namespaces. Doing so is actually
+In the expressions you use for the validations (attribute ``expression``) you may also make use of XML namespaces. Doing so is actually
 a best practice to ensure that you don't have ambiguous results due to elements with the same local names. To use namespaces in expressions
 you first need to define their prefixes in the test case's :ref:`namespaces section<test-case-namespaces>`. Moreover, keep in mind that the
-provided input (attribute ``xmldocument``) also supports expressions with namespaces when determining the XML content to apply the XPath
+provided input (attribute ``xml``) also supports expressions with namespaces when determining the XML content to apply the XPath
 expression to (if e.g. you want to validate only a part of an XML document).
 
 The following example illustrates how you can use namespace prefixes with your XPath expressions:
@@ -2354,20 +3177,25 @@ The following example illustrates how you can use namespace prefixes with your X
                 Use the defined namespaces.
             -->
             <verify handler="XPathValidator" desc="Check document">
-                <input name="xmldocument">$myDocument</input>
-                <input name="xpathexpression">"/ns1:Foo/ns2:Bar/text() = 'EXPECTED'"</input>
-            </verify>  
+                <input name="xml">$myDocument</input>
+                <input name="expression">"/ns1:Foo/ns2:Bar/text() = 'EXPECTED'"</input>
+                <input name="successMessage">"The provided XML is correct."</input>
+                <input name="failureMessage">"The provided XML does not match the requirements."</input>
+            </verify>
         </steps>
     </testcase>
 
+.. index:: XsdValidator
+.. index:: xsd (XsdValidator)
+.. index:: xml (XsdValidator)
 .. index:: XSDValidator
-.. index:: xsddocument (XSDValidator)
-.. index:: xmldocument (XSDValidator)
-.. index:: showSchema (XSDValidator)
-.. index:: sortBySeverity (XSDValidator)
+.. index:: xsddocument (XsdValidator)
+.. index:: xmldocument (XsdValidator)
+.. index:: showSchema (XsdValidator)
+.. index:: sortBySeverity (XsdValidator)
 .. _handlers-XSDValidator:
 
-XSDValidator
+XsdValidator
 ++++++++++++
 
 .. note::
@@ -2381,18 +3209,210 @@ Used to validate an XML document against an XML Schema (XSD) instance.
 
     ``showSchema``, No, ``boolean``, Whether to include in the step's report the XSD used for the validation (default is "true").
     ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
-    ``xmldocument``, Yes, ``object``, The XML document to validate.
-    ``xsddocument``, Yes, ``schema``, The XSD to validate the document against.
+    ``xml``, Yes, ``object``, The XML document to validate.
+    ``xsd``, Yes, ``schema``, The XSD to validate the document against.
 
 .. code-block:: xml
 
-    <verify handler="XSDValidator" desc="Validate content">
-        <input name="xmldocument">$docToValidate</input>
-        <input name="xsddocument">$schemaFile</input>
+    <verify handler="XsdValidator" desc="Validate content">
+        <input name="xml">$docToValidate</input>
+        <input name="xsd">$schemaFile</input>
         <!-- Following inputs are optional. -->
         <input name="showSchema">false()</input>        
         <input name="sortBySeverity">true()</input>        
     </verify>
+
+.. index:: YamlValidator
+.. index:: yaml (YamlValidator)
+.. index:: schema (YamlValidator)
+.. index:: schemaCombinationApproach (YamlValidator)
+.. index:: showSchema (YamlValidator)
+.. index:: supportJson (YamlValidator)
+.. index:: sharedSchemaPaths (YamlValidator)
+.. _handlers-YamlValidator:
+
+YamlValidator
++++++++++++++
+
+Used to validate a YAML document (with support also for JSON) against JSON Schema(s).
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: ~
+
+    ``yaml`` ~ Yes ~ ``string`` ~ The YAML content to validate.
+    ``schema`` ~ No ~ ``string`` or ``list[string]`` ~ One or more JSON schemas to use for the validation. If no schema is provided the validation will by default succeed.
+    ``schemaCombinationApproach`` ~ No ~ ``string`` The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
+    ``showSchema`` ~ No ~ ``boolean`` ~ Whether or not the schema(s) used will be displayed in the resulting step report. By default this is "true".
+    ``supportJson`` ~ No ~ ``boolean`` ~ Whether or not the provided content for the ``yaml`` input can also be JSON. By default this is "false".
+
+Regarding inputs, if you need to supply a single schema file you don't need to create a ``list`` and pass it as such. You can
+simply pass the file as-is and the test engine will automatically convert it to a single-element ``list``.
+
+The following examples illustrate how the ``YamlValidator`` can be used in various scenarios:
+
+.. code-block:: xml
+
+    <!-- 
+        Validate YAML content against a single schema.
+    -->
+    <verify desc="Validate content" handler="YamlValidator">
+        <input name="yaml">$yamlContent</input>
+        <input name="schema">$schema</input>
+    </verify>
+    <!-- 
+        Validate YAML content against multiple schemas.
+    -->
+    <assign to="schemas" append="true">$jsonSchema1</assign>
+    <assign to="schemas" append="true">$jsonSchema2</assign>
+    <verify desc="Validate content" handler="YamlValidator">
+        <input name="yaml">$yamlContent</input>
+        <input name="schema">$schemas</input>
+        <!-- This could have been skipped as "allOf" is the default. -->
+        <input name="schemaCombinationApproach">"allOf"</input>
+    </verify>
+    <!--
+        Validate content that can be either YAML or JSON against a single schema.
+        In addition, don't show the schema that was used for the validation.
+    -->
+    <verify desc="Validate content" handler="YamlValidator">
+        <input name="yaml">$yamlContent</input>
+        <input name="schema">$schema</input>
+        <input name="supportYaml">true()</input>
+        <input name="showSchema">false()</input>
+    </verify>
+
+When validation needs are complex it can be useful to **split schemas into separate ones** and reuse them as needed. In case such schemas
+are published online you can reference through their published URI. In case schemas are not published,
+the `JSON Schema specification <https://json-schema.org/draft/2020-12/json-schema-core>`__ leaves the handling of local schema references
+up to each implementation, which in the case of the Test Bed is addressed as described below.
+
+The first step is to define your schemas as test suite resources. As an example consider a ``PurchaseOrder.schema.json`` that reuses
+an ``Address.schema.json`` schema, which could be defined as follows in the test suite:
+
+.. code-block:: none
+
+    testSuite
+    ├── schemas
+    │   ├── common
+    │   │   └── Address.schema.json
+    │   └── PurchaseOrder.schema.json
+    ├── tests
+    │   └── testCase1.xml 
+    └── testSuite.xml 
+
+The common schema defines (as all schemas do) its ``$id`` element as a unique identifier. For example, ``Address.schema.json`` could define this
+as follows:
+
+.. code-block:: none
+
+    {
+        "$id": "http://itb.ec.europa.eu/sample/Address.schema.json",
+        ...
+    }    
+
+This identifier allows its reference from ``PurchaseOrder.schema.json``, which does so as follows:
+
+.. code-block:: none
+
+    {
+        "$id": "http://itb.ec.europa.eu/sample/PurchaseOrder.schema.json",
+        ...
+        "shipTo": { "$ref": "Address.schema.json" },
+        ...
+    }
+
+The reference is achieved through the ``$ref`` property which can either be set with an absolute URI (``http://itb.ec.europa.eu/sample/Address.schema.json``),
+or a relative one (``Address.schema.json``) as seen above. In the latter case, the full URI will be determined considering the current schema's
+``$id`` property. Note that all that matters are the schema ``$id`` properties, not their specific folder placement. In other words, the fact
+that ``Address.schema.json`` is under a ``common`` folder does not need to be reflected in the ``$id`` or ``$ref`` properties.
+
+On the side of the test case, you would then need to import the main ``PurchaseOrder.schema.json`` schema but also tell the test engine where
+to look for any dependent schemas. To achieve this, you provide the schema to the ``JsonValidator`` not as a ``string`` but as a ``map``
+that contains two keys:
+
+* ``schema``, a ``string`` element with the main schema's content.
+* ``sharedSchemaPaths``, a ``list`` of ``string`` elements with the **paths**, not the actual contents, of the referred-to schemas.
+
+You may wonder why there is a need for the ``sharedSchemaPaths`` information, as opposed to simply loading schemas from a location
+relative to the current one. The reason is that schema URIs (specified via the ``$id`` property) do not represent necessarily 
+the physical location of schemas. Making a comparison with XML Schema where namespaces and schema locations are distinct, there
+is no such distinction in JSON Schema, at least when working with local schemas.
+
+.. note::
+    
+    When :ref:`importing schemas from other test suites <test-suite-sharing>`, the ``sharedSchemaPaths`` are resolved with respect to the target test suite.
+
+The following examples cover various scenarios of validating against schemas with dependencies:
+
+.. code-block:: xml
+
+    <testcase>
+        ...
+        <imports>
+            <!-- 
+                Import the main schema to use.
+            -->
+            <artifact name="jsonSchema">schemas/PurchaseOrder.schema.json</artifact>
+            ...
+        </imports>
+        ...
+        <steps>
+            <!--
+                Example with a schema having a single dependent schema.
+                Define the schema as a map and under the "schema" key set the schema content
+                (imported from the test suite).
+            -->
+            <assign to="schema{schema}">$jsonSchema</assign>
+            <!-- 
+                Under "sharedSchemaPaths" define the path from which dependent schemas should be read from.
+            -->
+            <assign to="schema{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <verify desc="Validate YAML" handler="YamlValidator">
+                <input name="yaml">$yamlContent</input>
+                <input name="schema">$schema</input>
+            </verify>
+            <!--
+                Example with a schema having a multiple dependent schemas.
+            -->
+            <assign to="schemaWithDependencies{schema}">$jsonSchema</assign>
+            <assign to="schemaWithDependencies{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="schemaWithDependencies{sharedSchemaPaths}" append="true">"schemas/common/OrderItem.schema.json"</assign>
+            <verify desc="Validate YAML" handler="YamlValidator">
+                <input name="yaml">$yamlContent</input>
+                <input name="schema">$schemaWithDependencies</input>
+            </verify>
+            <!-- 
+                Example with multiple schemas, each with dependent schemas.
+            -->
+            <assign to="example1Schema1{schema}">$schema1</assign>
+            <assign to="example1Schema1{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="example1Schema2{schema}">$schema2</assign>
+            <assign to="example1Schema2{sharedSchemaPaths}" append="true">"schemas/common/OrderItem.schema.json"</assign>
+            <assign to="example1Schemas" append="true">$example1Schema1</assign>
+            <assign to="example1Schemas" append="true">$example1Schema2</assign>
+            <verify desc="Validate YAML" handler="YamlValidator">
+                <input name="yaml">$yamlContent</input>
+                <input name="schema">$example1Schemas</input>
+                <input name="schemaCombinationApproach">"allOf"</input>
+            </verify>
+            <!-- 
+                Example with multiple schemas, only one of which has dependencies.
+                For schemas without dependencies you don't need to define them as a map.
+            -->
+            <assign to="example2Schema1{schema}">$schema1</assign>
+            <assign to="example2Schema1{sharedSchemaPaths}" append="true">"schemas/common/Address.schema.json"</assign>
+            <assign to="example2Schemas" append="true">$example2Schema1</assign>
+            <!-- Add the second schema directly. -->
+            <assign to="example2Schemas" append="true">$schema2</assign>
+            <verify desc="Validate YAML" handler="YamlValidator">
+                <input name="yaml">$yamlContent</input>
+                <input name="schema">$schemasToUse</input>
+                <input name="schemaCombinationApproach">"allOf"</input>
+            </verify>
+            ...
+        </steps>
+    </testcase>
 
 Deprecated built-in messaging handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2546,8 +3566,8 @@ test part):
 .. code-block:: xml
 
     <imports>
-        <artifact type="schema" encoding="UTF-8" name="file1">testSuite1/artifacts/file1.xml</artifact>
-        <artifact type="binary" encoding="UTF-8" name="file2">testSuite1/artifacts/file2.zip</artifact>
+        <artifact name="file1">testSuite1/artifacts/file1.xml</artifact>
+        <artifact name="file2">testSuite1/artifacts/file2.zip</artifact>
     </imports>
     <actors>
         ...
@@ -3124,7 +4144,7 @@ expects the schemas to apply as inputs alongside the content to validate.
 You can use the CSV validator by one of two approaches:
 
 * **Locally**, by pulling the `isaitb/csv-validator <https://hub.docker.com/r/isaitb/csv-validator>`_ Docker image.
-* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/csv/soap/any/validation?wsdl``.
+* **As a service**, by setting the handler to ``https://www.itb.ec.europa.eu/csv/soap/any/validation?wsdl``.
 
 The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
 `SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingCSV/index.html#validation-via-soap-web-service-api>`__,
@@ -3162,6 +4182,9 @@ The following test case sample illustrates how to use the validator for the most
 JSON validator
 ++++++++++++++
 
+.. note::
+    The built-in :ref:`JsonValidator <handlers-JsonValidator>` allows the validation of JSON without needing an external service.
+
 The JSON validation service allows you to validate JSON content by means of one or more `JSON Schema <https://json-schema.org/>`_
 definitions. It is the default, generic configuration of the Test Bed's `JSON validator component <https://hub.docker.com/r/isaitb/json-validator>`_ that
 expects the schemas to apply as inputs alongside the content to validate.
@@ -3177,7 +4200,7 @@ expects the schemas to apply as inputs alongside the content to validate.
 You can use the JSON validator by one of two approaches:
 
 * **Locally**, by pulling the `isaitb/json-validator <https://hub.docker.com/r/isaitb/json-validator>`_ Docker image.
-* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl``.
+* **As a service**, by setting the handler to ``https://www.itb.ec.europa.eu/json/soap/any/validation?wsdl``.
 
 The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
 `SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingJSON/index.html#validation-via-soap-web-service-api>`__,
@@ -3215,6 +4238,9 @@ The following test case sample illustrates how to use the validator for the most
 RDF validator
 +++++++++++++
 
+.. note::
+    The built-in :ref:`ShaclValidator <handlers-ShaclValidator>` allows validating RDF data without needing an external service.
+
 The RDF validation service allows you to validate RDF content via `SHACL shapes <https://www.w3.org/TR/shacl/>`_
 definitions. It is the default, generic configuration of the Test Bed's `RDF validator component <https://hub.docker.com/r/isaitb/shacl-validator>`_ that
 expects the shapes to apply as inputs alongside the content to validate.
@@ -3230,7 +4256,7 @@ expects the shapes to apply as inputs alongside the content to validate.
 You can use the RDF validator by one of two approaches:
 
 * **Locally**, by pulling the `isaitb/shacl-validator <https://hub.docker.com/r/isaitb/shacl-validator>`_ Docker image.
-* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/shacl/soap/any/validation?wsdl``.
+* **As a service**, by setting the handler to ``https://www.itb.ec.europa.eu/shacl/soap/any/validation?wsdl``.
 
 The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
 `SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingRDF/index.html#validation-via-soap-web-service-api>`__,
@@ -3291,7 +4317,7 @@ the content to validate.
 You can use the XML validator by one of two approaches:
 
 * **Locally**, by pulling the `isaitb/xml-validator <https://hub.docker.com/r/isaitb/xml-validator>`_ Docker image.
-* **As a service**, by setting your handler to ``https://www.itb.ec.europa.eu/xml/api/validation?wsdl``.
+* **As a service**, by setting the handler to ``https://www.itb.ec.europa.eu/xml/api/validation?wsdl``.
 
 The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
 `SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingXML/index.html#validation-via-soap-web-service-api>`__,
@@ -3340,6 +4366,64 @@ Schematron rule file:
 .. note::
     When using the generic XML validator you don't need to always validate using XML Schema and Schematron. For example you could skip schema
     validation and only validate against a set of generated Schematron rules.
+
+.. index:: YAML (Reusable validation services)
+.. index:: JSON Schema (Reusable validation services - YAML validator)
+.. _handlers-reusable-handlers_validation_yaml:
+
+YAML validator
+++++++++++++++
+
+.. note::
+    The built-in :ref:`YamlValidator <handlers-YamlValidator>` allows the validation of YAML without needing an external service.
+
+The YAML validation service allows you to validate YAML content by means of one or more `JSON Schema <https://json-schema.org/>`_
+definitions. It is the default, generic configuration of the Test Bed's `JSON validator component <https://hub.docker.com/r/isaitb/json-validator>`_ 
+that is configured to force the input of YAML content instead of JSON, and that expects the schemas to apply as inputs alongside
+the content to validate.
+
+.. note::
+
+    The generic YAML validator is also available for standalone use via `user interface <https://www.itb.ec.europa.eu/json/yaml/upload>`__,
+    `REST API <https://www.itb.ec.europa.eu/json/swagger-ui/index.html>`__ and `SOAP API <https://www.itb.ec.europa.eu/json/soap/yaml/validation?wsdl>`__.
+    Furthermore, a custom validator with a predefinined configuration and specific settings can be defined following the Test Bed's 
+    `YAML validation guide <https://www.itb.ec.europa.eu/docs/guides/latest/validatingYAML/index.html>`_. The API of such a custom instance is identical to
+    the generic instance presented here.
+
+You can use the YAML validator by one of two approaches:
+
+* **Locally**, by pulling the `isaitb/json-validator <https://hub.docker.com/r/isaitb/json-validator>`_ Docker image and
+  `configuring it for YAML usage <https://www.itb.ec.europa.eu/docs/guides/latest/validatingYAML/>`__.
+* **As a service**, by setting the handler to ``https://www.itb.ec.europa.eu/json/soap/yaml/validation?wsdl``.
+
+The validator supports several inputs to customise the validation to take place. The available inputs are listed in the service's
+`SOAP API documentation <https://www.itb.ec.europa.eu/docs/guides/latest/validatingJSON/index.html#validation-via-soap-web-service-api>`__,
+where all listed inputs match exactly those that can be used in test cases through :ref:`verify<tdl-step-verify>` steps.
+
+The following test case sample illustrates how to use the validator for the most common use case of validating YAML content against a schema:
+
+.. code-block:: xml
+
+    <steps>
+        <!-- 
+            You can validate against any number of schemas in one go. In this case we use one schema (defined in $schema)
+            that is typically provided as an import but could also be loaded from configuration or even generated on the
+            fly in a previous test case step.
+         -->
+        <assign to="schema1{schema}">$schema</assign>
+        <!-- Set embeddingMethod to "STRING" if the content is defined as a string ("BASE64" corresponds to binary). -->
+        <assign to="schema1{embeddingMethod}">"BASE64"</assign>
+        <assign to="schemasToUse" append="true">$schema1</assign>
+        <!-- 
+            Call the validator.
+        -->
+        <verify handler="https://www.itb.ec.europa.eu/json/soap/yaml/validation?wsdl" desc="Validate YAML file">
+            <input name="contentToValidate">$fileToValidate</input>
+            <input name="externalSchemas">$schemasToUse</input>
+            <!-- Set embeddingMethod to "STRING" if the contentToValidate is defined as a string ("BASE64" corresponds to binary). -->
+            <input name="embeddingMethod">"BASE64"</input>
+        </verify>
+    </steps>
 
 .. index:: Custom external handlers
 .. _handlers-custom-handlers:

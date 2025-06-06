@@ -20,8 +20,8 @@ The following example represents a complete, simple test case for the validation
             <gitb:description>Test case to verify the correctness of a UBL invoice. The invoice is provided manually through user upload.</gitb:description>
         </metadata>
         <imports>
-            <artifact type="schema" name="schema">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
-            <artifact type="object" name="schematron">artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
+            <artifact name="schema">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
+            <artifact name="schematron">artifacts/BII/BII_CORE/BIICORE-UBL-T10-V1.0.xsl</artifact>
         </imports>
         <actors>
             <gitb:actor id="User" name="User" role="SUT"/>
@@ -181,11 +181,11 @@ target test suite as follows:
 This documentation can provide further information on the context of the test case, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
 overall specification. The content supplied supports several HTML features:
 
-    * Structure elements (e.g. headings, text blocks, lists).
-    * In-line styling.
-    * Tables.
-    * Links.
-    * Images.
+* Structure elements (e.g. headings, text blocks, lists).
+* In-line styling.
+* Tables.
+* Links.
+* Images.
 
 The simplest way to provide such information is to enclose the HTML content in a CDATA section to ensure the XML remains well-formed. The
 following sample provides an example of this approach:
@@ -207,8 +207,8 @@ following sample provides an example of this approach:
 
 Note that documentation such as this is also supported for:
 
-    * The overall :ref:`test suite<test-suite-metadata>`.
-    * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
+* The overall :ref:`test suite<test-suite-metadata>`.
+* Individual :ref:`test case steps<tdl-steps-common-documentation>`.
 
 .. index:: update (Test case)
 .. index:: updateMetadata (Test case update)
@@ -386,14 +386,14 @@ The value to which the ``prefix`` is mapped is provided as the ``ns`` element's 
 
 Namespaces declared using this approach can be used in two cases:
 
-    * Within any GITB TDL step that supports :ref:`expressions<test-case-expressions>`.
-    * As the expression to apply for the :ref:`XPathValidator<handlers-XPathValidator>` embedded validation handler.
+* Within any GITB TDL step that supports :ref:`expressions<test-case-expressions>`.
+* As the expression to apply for the :ref:`XPathValidator<handlers-XPathValidator>` embedded validation handler.
 
 The following example illustrates how namespaces can be used for XML-based processing. The sample test case:
 
-    #. Requests an invoice from the user.
-    #. Extracts the invoice's type using namespaces in an :ref:`assign step<tdl-step-assign>` and then logs it.
-    #. Validates the invoice's type using namespaces with the :ref:`XPathValidator<handlers-XPathValidator>`.
+#. Requests an invoice from the user.
+#. Extracts the invoice's type using namespaces in an :ref:`assign step<tdl-step-assign>` and then logs it.
+#. Validates the invoice's type using namespaces with the :ref:`XPathValidator<handlers-XPathValidator>`.
 
 .. code-block:: xml
 
@@ -424,8 +424,8 @@ The following example illustrates how namespaces can be used for XML-based proce
                 Use XPath to validate the invoice.
             -->
             <verify handler="XPathValidator" desc="Check invoice type">
-                <input name="xmldocument">$input{xml}</input>
-                <input name="xpathexpression">"/inv:Invoice/cbc:InvoiceTypeCode/text() = '380'"</input>
+                <input name="xml">$input{xml}</input>
+                <input name="expression">"/inv:Invoice/cbc:InvoiceTypeCode/text() = '380'"</input>
             </verify>  
         </steps>
     </testcase>
@@ -453,7 +453,7 @@ defines one or more ``artifact`` children with the following structure:
     @encoding | No | In case the artefact is to be treated as text, this is the character encoding to apply when reading its bytes (default is "UTF-8").
     @from | No | The identifier of another test suite from which this resource will be loaded. If unspecified the current test suite is assumed.
     @name | Yes | The name with which this artefact will be associated to the test session context for subsequent lookups.
-    @type | Yes | The type as which the artefact needs to be loaded.
+    @type | No | The type as which the artefact needs to be loaded (default is ``binary``).
 
 The text value of the ``artifact`` element is the path within the test suite from which the relevant resource will be loaded. This path may be provided as a
 fixed value or as a :ref:`variable reference<test-case-referring-to-variables>` to determine the imported resource dynamically. In case a variable reference
@@ -472,15 +472,17 @@ test suite. The lookup of the test suite using the ``from`` value is carried out
    specifications multiple matching test suites are found, one of them will be arbitrarily picked. To avoid such a scenario
    it is obvious that you should ensure test suites used to load shared resources can be uniquely identified.
 
-Regarding the ``type`` attribute, this needs to refer to an appropriate type from the GITB type system (see :ref:`test-case-types`). Given that in this case we are referring to a file
-being loaded, the types that can be used are:
+The ``type`` attribute is optional and defaults to ``binary`` denoting a general-purpose file (regardless of whether it is text-based or not). You would
+likely never need to set this explicitly, however if you choose to do so you can set it set as:
 
-* ``binary``: Load the artefact as a set of bytes without additional processing.
-* ``object``: Load the artefact as a XML Document Object Model. In this case it is best to also explicitly provide the ``encoding`` to consider.
-* ``schema``: Load the artefact as a XML Schema or Schematron file. As in the ``object`` case it is best to explicitly provide the ``encoding`` to consider.
+* ``binary``: To load the artefact as a set of bytes without additional processing.
+* ``object``: To load the artefact as a XML Document Object Model.
+* ``schema``: To load the artefact as a XML Schema or Schematron file.
+
+In case the file is text-based you also have the option of setting the ``encoding`` attribute to consider (by default set as ``UTF-8``).
 
 Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite ID as a prefix). As an
-example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable of type ``schema`` that is named "ublSchema". The
+example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable named "ublSchema". The
 path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources". This example also includes
 another input whose referenced resource is defined dynamically based on an external configuration parameter (at organisation level in this case).
 
@@ -491,11 +493,11 @@ another input whose referenced resource is defined dynamically based on an exter
             <!--
                 The "ublSchema" is loaded from a fixed resource within the test suite.
             -->
-            <artifact type="schema" encoding="UTF-8" name="ublSchema">resources/UBL-Invoice-2.1.xsd</artifact>
+            <artifact name="ublSchema">resources/UBL-Invoice-2.1.xsd</artifact>
             <!--
                 The "organisationSpecificSchema" is loaded dynamically based on an organisation-level configuration property named "xsdToUseForOrganisation".
             -->
-            <artifact type="schema" encoding="UTF-8" name="organisationSpecificSchema">$ORGANISATION{xsdToUseForOrganisation}</artifact>
+            <artifact name="organisationSpecificSchema">$ORGANISATION{xsdToUseForOrganisation}</artifact>
         </imports>
         <steps>
             <verify handler="XmlValidator" desc="Validate invoice against UBL 2.1 Invoice Schema">
@@ -518,7 +520,7 @@ test suite that contains the resource, in which case the provided path is resolv
             <!--
                 The "ublSchema" is loaded from a fixed resource within a test suite with identifier "testSuite2".
             -->
-            <artifact type="schema" encoding="UTF-8" name="ublSchema" from="testSuite2">resources/UBL-Invoice-2.1.xsd</artifact>
+            <artifact name="ublSchema" from="testSuite2">resources/UBL-Invoice-2.1.xsd</artifact>
         </imports>
     </testcase>
 
@@ -700,20 +702,20 @@ expressions to reference variable values is provided in :ref:`test-case-expressi
 Definition of variables using the ``variables`` element is **optional** given that test steps resulting in output will automatically create 
 variables as needed to store the output in the test session context. Such steps include:
 
-    * :ref:`Assign steps<tdl-step-assign>` that define new values or calculate expressions.
-    * :ref:`User interaction steps<tdl-step-interact>` that request data from the user.
-    * Messaging steps to record the output of a :ref:`send<tdl-step-send>` or a :ref:`receive<tdl-step-receive>`.
-    * :ref:`Processing steps<tdl-step-process>` to record the output of the process.
+* :ref:`Assign steps<tdl-step-assign>` that define new values or calculate expressions.
+* :ref:`User interaction steps<tdl-step-interact>` that request data from the user.
+* Messaging steps to record the output of a :ref:`send<tdl-step-send>` or a :ref:`receive<tdl-step-receive>`.
+* :ref:`Processing steps<tdl-step-process>` to record the output of the process.
 
 The type of the automatically created variables in the above cases is inferred from the type of the relevant data or expression result. For example,
 when assigning a string to a variable, this will automatically be set with a ``string`` type. Considering this, you would use the ``variables`` element
 to predefine variables in the following cases:
 
-    * To predefine all variables if you prefer this from the perspective of code organisation.
-    * To explicitly set the type of variables in cases where the automatic determination is not suitable (e.g. force a ``string`` type for a numeric value).
-    * To cover exceptional cases where automatic type determination is not possible.
-    * To provide initial values to variables.
-    * To cover inputs provided for test sessions started via `REST API <https://www.itb.ec.europa.eu/docs/itb-ou/latest/api/index.html#start>`__.
+* To predefine all variables if you prefer this from the perspective of code organisation.
+* To explicitly set the type of variables in cases where the automatic determination is not suitable (e.g. force a ``string`` type for a numeric value).
+* To cover exceptional cases where automatic type determination is not possible.
+* To provide initial values to variables.
+* To cover inputs provided for test sessions started via `REST API <https://www.itb.ec.europa.eu/docs/itb-ou/latest/api/index.html#start>`__.
 
 For examples of automatic variable definition refer to the corresponding steps as well as the documentation on :ref:`expressions<test-case-variables-from-expression-output>`.
 Coming back to explicitly defined variables, the following example shows two such cases, one to store a user-uploaded file and another to store a part of it, 
@@ -723,7 +725,7 @@ extracted via XPath:
 
     <testcase>
         <imports>
-            <artifact type="schema" encoding="UTF-8" name="schemaFile">testSuite/artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
+            <artifact name="schemaFile">artifacts/UBL/maindoc/UBL-Invoice-2.1.xsd</artifact>
         </imports>
         <variables>
             <var name="fileContent" type="object"/>
@@ -808,10 +810,10 @@ Test case logging
 The test case's **logging level** affects log statements produced automatically by the test bed or :ref:`added explicitly by the test case<tdl-step-log>`.
 While executing a test session, the test bed automatically produces the following log output:
 
-    * At ``DEBUG`` level, information on each step's start, end and latest status.
-    * At ``INFO`` level, information on key lifecycle points such as the start and end of the session.
-    * At ``WARNING`` level, detected issues that although not blocking for the test session could be signs of problems.
-    * At ``ERROR`` level, information on unexpected errors that forced the test session to fail.
+* At ``DEBUG`` level, information on each step's start, end and latest status.
+* At ``INFO`` level, information on key lifecycle points such as the start and end of the session.
+* At ``WARNING`` level, detected issues that although not blocking for the test session could be signs of problems.
+* At ``ERROR`` level, information on unexpected errors that forced the test session to fail.
 
 When using the ``logLevel`` attribute to set the test case's log level, this defines the minimum level of messages to be added to the
 session's log. A good example is setting the ``logLevel`` to ``WARN`` which will exclude all ``DEBUG`` and ``INFO`` output while including all output 
@@ -892,6 +894,10 @@ The test case's steps are defined as children of the ``steps`` element. The avai
 .. index:: default (Test case output)
 .. index:: cond (Test case output)
 .. index:: message (Test case output)
+.. index:: match (Test case output)
+.. index:: all (Test case output)
+.. index:: first (Test case output)
+.. index:: cascade (Test case output)
 .. _test-case-output:
 
 Output
@@ -916,10 +922,12 @@ The ``success``, ``failure`` and ``undefined`` elements share a common structure
 
 .. csv-table::
     :stub-columns: 1
+    :delim: ~
     :header: "Name", "Required?", "Description"
 
-    case, no, Zero or more specific cases to apply depending on the provided match conditions.
-    default, no, An optional default if no specific case was found to apply.
+    @match ~ no ~ The approach to follow when matching message cases. Can be ``first`` (the default), ``all`` or ``cascade``.
+    case ~ no ~ Zero or more specific cases to apply depending on the provided match conditions.
+    default ~ no ~ An optional default if no specific case was found to apply.
 
 Finally, each ``case`` element shares a common structure as follows:
 
@@ -986,8 +994,9 @@ and undefined states we only include a default message to make test sessions mor
 It may seem at first unintuitive to provide output messages for anything other than failures. However, there are a few cases where this could be
 particularly useful:
 
-    * A success message to **highlight a warning** (steps resulting in warnings are successful).
-    * An undefined message for an :ref:`exit step <tdl-step-exit>` that terminated with an undefined result.
+* A success message as a **user-friendly confirmation** that the test succeeded.
+* A success message to **highlight a warning** (steps resulting in warnings are successful).
+* An undefined message for an :ref:`exit step <tdl-step-exit>` that terminated with an undefined result.
 
 As mentioned earlier you can choose to omit certain outcomes altogether. For example, the following test case defines only failure messages
 (a specific one and a default one):
@@ -1008,6 +1017,39 @@ As mentioned earlier you can choose to omit certain outcomes altogether. For exa
             </failure>
         </output>
     </testcase>
+
+The examples up to this point consider outputting a single message depending on the result. It is possible to have **several messages** be 
+returned which could be used as an alternative to test step reports for simple test cases. This is achieved through the ``match`` attribute
+of the ``failure``, ``success`` and ``undefined`` elements that supports the following values:
+
+* ``first`` (the default), meaning that the first (sequentially) condition to match will be considered. If none match the
+  default applies.
+* ``all``, meaning that all conditions with passing conditions will be considered. If none match the default applies.
+* ``cascade``, meaning that once a first condition is found to pass, the check will cascade to subsequent conditions and include them if
+  they also pass. If a condition check fails then the cascade stops even if later conditions would also pass. If none match
+  the default applies.
+
+To illustrate this with an example, consider the following test case output section:
+
+.. code-block:: xml
+
+    <output>
+        <failure match="all">
+            <case>
+                <cond>$flag1</cond>
+                <message>"The integrity check on your data failed."</message>
+            </case>
+            <case>
+                <cond>$flag2</cond>
+                <message>"The syntax check on your data failed."</message>
+            </case>
+            <default>"Your data failed to be processed correctly. Please check the session log to determine the cause of the failure."</default>
+        </failure>
+    </output>
+
+In the above example given that match is set to ``all``, both messages could be displayed if both ``flag1`` and ``flag2`` are true.
+If ``match`` was set to ``first`` then only the first message would be generated. Finally, the ``cascade`` option allows you to
+fine-tune the display of multiple related messages, without forcing an all or nothing approach.
 
 .. note::
     **Messages are also expressions:** Output messages are themselves :ref:`expressions<test-case-expressions>` allowing dynamic
@@ -1068,8 +1110,8 @@ of the inputs provided by the user.
         <scriptlets>
             <scriptlet id="validateDocument">
                 <imports>
-                    <artifact type="schema" encoding="UTF-8" name="schemaToUse">resources/aSchemaFile.xsd</artifact>
-                    <artifact type="schema" encoding="UTF-8" name="schematronToUse">resources/aSchematronFile.sch</artifact>
+                    <artifact name="schemaToUse">resources/aSchemaFile.xsd</artifact>
+                    <artifact name="schematronToUse">resources/aSchematronFile.sch</artifact>
                 </imports>
                 <params>
                     <var name="contentToValidate" type="object"/>

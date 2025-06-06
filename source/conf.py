@@ -24,9 +24,9 @@ copyright = '2025, European Commission, DIGIT'
 author = 'European Commission, DIGIT'
 
 # The short X.Y version
-version = 'GITB TDL version 1.25.2'
+version = 'GITB TDL version 1.26.0'
 # The full version, including alpha/beta/rc tags
-release = 'GITB TDL version 1.25.2'
+release = 'GITB TDL version 1.26.0'
 
 html_show_sourcelink = False
 html_show_sphinx = False
@@ -85,6 +85,9 @@ pygments_style = 'sphinx'
 # documentation.
 #
 # html_theme_options = {}
+html_theme_options = {
+    "navigation_depth": 5
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
