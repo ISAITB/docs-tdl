@@ -2537,7 +2537,7 @@ Used to validate a JSON document (with support also for YAML) against JSON Schem
 
     ``json`` ~ Yes ~ ``string`` ~ The JSON content to validate.
     ``schema`` ~ No ~ ``string`` or ``list[string]`` ~ One or more JSON schemas to use for the validation. If no schema is provided the validation will by default succeed.
-    ``schemaCombinationApproach`` ~ No ~ ``string`` The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
+    ``schemaCombinationApproach`` ~ No ~ ``string`` ~ The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
     ``showSchema`` ~ No ~ ``boolean`` ~ Whether or not the schema(s) used will be displayed in the resulting step report. By default this is "true".
     ``supportYaml`` ~ No ~ ``boolean`` ~ Whether or not the provided content for the ``json`` input can also be YAML. By default this is "false".
 
@@ -3242,7 +3242,7 @@ Used to validate a YAML document (with support also for JSON) against JSON Schem
 
     ``yaml`` ~ Yes ~ ``string`` ~ The YAML content to validate.
     ``schema`` ~ No ~ ``string`` or ``list[string]`` ~ One or more JSON schemas to use for the validation. If no schema is provided the validation will by default succeed.
-    ``schemaCombinationApproach`` ~ No ~ ``string`` The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
+    ``schemaCombinationApproach`` ~ No ~ ``string`` ~ The combined validation approach when multiple schemas are used. This can be ``allOf`` (the default), ``anyOf``, or ``oneOf``.
     ``showSchema`` ~ No ~ ``boolean`` ~ Whether or not the schema(s) used will be displayed in the resulting step report. By default this is "true".
     ``supportJson`` ~ No ~ ``boolean`` ~ Whether or not the provided content for the ``yaml`` input can also be JSON. By default this is "false".
 
