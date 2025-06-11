@@ -94,9 +94,9 @@ Example 2: Validation of JSON content with fixed and dynamic schemas
 
 View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/validationOfJsonContentWithFixedAndDynamicSchemas>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/validationOfJsonContentWithFixedAndDynamicSchemas/testSuite.zip>`__.
 
-This example showcases validation of **JSON content** retrieved over HTTP, using a **remote validator** (the Test Bed's generic JSON validator).
-Besides checking the content's structure, the included test case also uses a **dynamically generated schema** to make session-specific tests,
-ensuring that referred dates and item counts match the test case's expectations.
+This example showcases validation of **JSON content** retrieved over HTTP. Besides checking the content's structure, the included test case
+also uses a **dynamically generated schema** to make session-specific tests, ensuring that referred dates and item counts match the test
+case's expectations.
 
 .. code-block:: none
 
@@ -123,7 +123,7 @@ ensuring that referred dates and item counts match the test case's expectations.
     :ref:`HttpMessagingV2 <handlers-httpmessagingv2>` | :ref:`Test step handler <handlers>` | Carry out the content retrieval using HTTP. | ``testCase1.xml``
     :ref:`import <test-case-imports>` | :ref:`Test case section <test-case>` | Import the schema to use and the template to generate the dynamic schema. | ``testCase1.xml``
     :ref:`interact <tdl-step-interact>` | :ref:`Test step <tdl-steps>` | Display popup with instructions for the user. | ``testCase1.xml``
-    :ref:`JSON validator <handlers-reusable-handlers_validation_json>` | :ref:`Test step handler <handlers>` | Validate the retrieved JSON content. | ``validate.xml``
+    :ref:`JsonValidator <handlers-JsonValidator>` | :ref:`Test step handler <handlers>` | Validate the retrieved JSON content. | ``validate.xml``
     :ref:`log <tdl-step-log>` | :ref:`Test step <tdl-steps>` | Log progress messages in the test session log. | ``validate.xml``
     :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion. | ``testCase1.xml``
     :ref:`process <tdl-step-process>` | :ref:`Test step <tdl-steps>` | Create the expected timestamp and generate the dynamic schema to use. | ``testCase1.xml``
@@ -257,8 +257,8 @@ Example 5: Linking test cases with specification references
 View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/linkingTestCasesWithSpecificationReferences>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/linkingTestCasesWithSpecificationReferences/testSuite.zip>`__.
 
 This test suite illustrates how test cases can be displayed with **specification references**, when it is important to have direct
-traceability between test cases and normative requirements. The included tests cover **XML and JSON validation** using **built-in** and
-**remote** validators, for XML and JSON content received via **HTTP GET** requests. The different syntaxes handled by each test case are
+traceability between test cases and normative requirements. The included tests cover **XML and JSON validation** using **built-in** validators
+for XML and JSON content received via **HTTP GET** requests. The different syntaxes handled by each test case are
 further highlighted using **tags**.
 
 .. code-block:: none
@@ -279,7 +279,7 @@ further highlighted using **tags**.
     :ref:`assign <tdl-step-assign>` | :ref:`Test step <tdl-steps>` | Prepare validator inputs. | ``testCase2.xml``
     :ref:`HttpMessagingV2 <handlers-httpmessagingv2>` | :ref:`Test step handler <handlers>` | Carry out content retrieval using HTTP. | ``testCase1.xml`` ``testCase2.xml``
     :ref:`import <test-case-imports>` | :ref:`Test case section <test-case>` | Import validation artefacts. | ``testCase1.xml`` ``testCase2.xml``
-    :ref:`JSON validator <handlers-reusable-handlers_validation_json>` | :ref:`Test step handler <handlers>` | Validate JSON content using JSON Schema. | ``testCase2.xml``
+    :ref:`JsonValidator <handlers-JsonValidator>` | :ref:`Test step handler <handlers>` | Validate JSON content using JSON Schema. | ``testCase2.xml``
     :ref:`log <tdl-step-log>` | :ref:`Test step <tdl-steps>` | Log progress messages in the test session log. | ``testCase1.xml`` ``testCase2.xml``
     :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion for different step outcomes. | ``testCase1.xml`` ``testCase2.xml``
     :ref:`send <tdl-step-send>` | :ref:`Test step <tdl-steps>` | Perform HTTP GETs to retrieve the content to validate. | ``testCase1.xml`` ``testCase2.xml``
