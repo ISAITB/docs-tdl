@@ -93,7 +93,7 @@ The ``supportsParallelExecution`` attribute is important in determining how the 
 that are interactively launched and followed by a tester). If this is set to "true", the default value considered if missing, the test case is assumed
 to be able to correctly function while other test cases are being executed in parallel for the same SUT. This means that the design of the test case
 caters for such concurrent sessions and is able to correctly map exchanged messages to sessions. This is not always possible to do, especially in 
-scenarios where messaging is initiated from the SUT (not by the test bed) or are asynchronous in nature.
+scenarios where messaging is initiated from the SUT (not by the Test Bed) or are asynchronous in nature.
 
 If the test case cannot correctly handle such concurrency, you need to set ``supportsParallelExecution`` to "true". Doing so instructs the test
 engine to always execute the given test case in isolation. Any ongoing test session will first need to complete before the current test case is executed
@@ -527,7 +527,7 @@ test suite that contains the resource, in which case the provided path is resolv
 .. note::
     **Test module import:** The GITB TDL schema allows also for ``module`` elements to be defined for the import of test modules (validation, 
     messaging and processing handlers). This approach is no longer supported as it required the handler implementations to be bundled within 
-    the test bed itself. The preferred and simpler approach now is to simply define the handler in the respective test step (e.g. the ``verify``
+    the Test Bed itself. The preferred and simpler approach now is to simply define the handler in the respective test step (e.g. the ``verify``
     step's ``handler`` attribute for validators) without previously importing it.
 
 .. index:: preliminary (Test case)
@@ -585,7 +585,7 @@ one or more ``actor`` children with the following structure:
     @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
     @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
     @name~ no~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case. Not specifying this will default to the name for actor provided in the test suite.
-    @role~ no~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" (the default value) if the actor is simulated by the test bed, or "MONITOR" if the actor is present for monitoring purposes.
+    @role~ no~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" (the default value) if the actor is simulated by the Test Bed, or "MONITOR" if the actor is present for monitoring purposes.
     endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
 
 The main purpose of the ``actors`` element in the test case is to identify which of the :ref:`actors defined in the test suite <test-suite-actors>`
@@ -642,7 +642,7 @@ conformance statement for the sender, the applicable test cases will be those de
 parameter will need to be entered before starting the test. How is the "deliveryAddress" then provided for the simulated receiver actor? 
 This can be achieved in two ways:
 
-* **Dynamically** through a :ref:`custom messaging handler <handlers-custom-handlers>`. Using this approach, the test bed, while in its initiation phase, will request configuration
+* **Dynamically** through a :ref:`custom messaging handler <handlers-custom-handlers>`. Using this approach, the Test Bed, while in its initiation phase, will request configuration
   properties from the handler that will be mapped to the SUT's corresponding endpoint (see :ref:`test-suite-actors-endpoints-simulated`).
 * **Statically** by defining the endpoint and one or more of its parameters within the test case itself.
 
@@ -807,8 +807,8 @@ of a GITB TDL step construct. The structure of the element is as follows:
 Test case logging
 +++++++++++++++++
 
-The test case's **logging level** affects log statements produced automatically by the test bed or :ref:`added explicitly by the test case<tdl-step-log>`.
-While executing a test session, the test bed automatically produces the following log output:
+The test case's **logging level** affects log statements produced automatically by the Test Bed or :ref:`added explicitly by the test case<tdl-step-log>`.
+While executing a test session, the Test Bed automatically produces the following log output:
 
 * At ``DEBUG`` level, information on each step's start, end and latest status.
 * At ``INFO`` level, information on key lifecycle points such as the start and end of the session.

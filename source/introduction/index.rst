@@ -5,7 +5,7 @@ Introduction
 
 The purpose of the current documentation is to make it possible for you to understand and create test suites
 using the GITB TDL. The approach followed herein is to document the available possibilities providing easy to 
-follow examples but also to note where appropriate certain considerations on the use of TDL in the GITB test bed
+follow examples but also to note where appropriate certain considerations on the use of TDL in the GITB Test Bed
 software.
 
 .. index:: GITB
@@ -15,8 +15,8 @@ What is the GITB TDL?
 ---------------------
 
 The `GITB project`_ represents a CEN standardisation initiative funded by the European Commission’s DG GROW 
-to provide the specifications for a generic interoperability test bed and their implementation in the form 
-of the GITB test bed software. The focus of these specifications and software is not any kind of testing 
+to provide the specifications for a generic interoperability Test Bed and their implementation in the form 
+of the GITB Test Bed software. The focus of these specifications and software is not any kind of testing 
 (e.g. performance, regression, penetration) but rather conformance and interoperability testing. Simply
 put, *conformance testing* verifies that the requirements of a given specification are met, whereas
 *interoperability testing* comes as a second step to verify that two or more parties can interact as expected.
@@ -34,21 +34,21 @@ elements to match its foreseen testing constructs.
 Where is it used?
 ~~~~~~~~~~~~~~~~~
 
-The short answer is that GITB TDL is used in the GITB test bed software to define and run tests.
+The short answer is that GITB TDL is used in the GITB Test Bed software to define and run tests.
 
-To be more complete however, GITB TDL is not tied to the GITB software per se but can be processed by any test bed
+To be more complete however, GITB TDL is not tied to the GITB software per se but can be processed by any Test Bed
 implementation that conforms to the GITB specifications. In fact, the GITB specification foresees the concept
 of TDL compliance and splits this in *GITB compliant TDL processors* and *GITB TDL compliant producers*. Simply
 put, a TDL processor is any software that can read GITB TDL content and understand it, typically being a
-test bed implementation that can read and execute GITB TDL test cases when requested (without necessarily conforming
+Test Bed implementation that can read and execute GITB TDL test cases when requested (without necessarily conforming
 to other elements of the overall GITB specification). On the other hand, a TDL producer is software that can 
 output TDL content, in which case we would typically be referring to test case editors or converter tools from
 other test case representations. Finally, consider that compliance to GITB TDL is not necessarily an "all-or-nothing"
 statement; compliance can be partial by supporting only a limited set of constructs. To support this last point, GITB
 TDL concepts and constructs are formalised using a `published taxonomy`_ that can be referenced to understand the TDL 
-constructs that are used (within a test case) or supported (by a test bed).
+constructs that are used (within a test case) or supported (by a Test Bed).
 
-One of the goals of GITB TDL is also to help reuse existing work by ideally sharing test cases between test bed 
+One of the goals of GITB TDL is also to help reuse existing work by ideally sharing test cases between Test Bed 
 implementations. To this effect the `GITB Test Registry and Repository (TRR)`_ aims to act as a reuse portal for 
 GITB TDL test cases by facilitating their discovery and listing their expected and used constructs.
 
@@ -137,7 +137,7 @@ some examples:
 Once actors are defined they play an important role in the testing process as follows:
 
 * They define properties relevant to the testing (think of them as actor-specific configuration elements).
-* Each test case foresees that actors are either simulated by the test bed or are the focus of the test. In the latter case
+* Each test case foresees that actors are either simulated by the Test Bed or are the focus of the test. In the latter case
   they are referred to as having a role of **SUT** (System Under Test).
 
 .. index:: Messaging handlers
@@ -148,17 +148,17 @@ Messaging handlers
 
 **Messaging handlers** are embedded or external components whose purpose is to allow 
 messaging for actors, defining how these receive and send messages. How this actually takes place can be
-completely arbitrary and is not tied to a specific protocol. What is important is that the test bed can signal to the handler that
+completely arbitrary and is not tied to a specific protocol. What is important is that the Test Bed can signal to the handler that
 it needs to send data or similarly signal that it is waiting to receive data. In this latter case, the handler notifies the 
-test bed by means of a call-back with the relevant received payload.
+Test Bed by means of a call-back with the relevant received payload.
 
-To enable interaction with the test bed, messaging handlers implement the `GITB messaging service API`_. This interface defines the 
-methods needed to signal events between the test bed and the handler and provide relevant input and output. Implementations can 
-either be embedded test bed components or external web service endpoints. Input to a handler is provided using the test session's
+To enable interaction with the Test Bed, messaging handlers implement the `GITB messaging service API`_. This interface defines the 
+methods needed to signal events between the Test Bed and the handler and provide relevant input and output. Implementations can 
+either be embedded Test Bed components or external web service endpoints. Input to a handler is provided using the test session's
 configuration and context whereas the output of messaging is recorded in the session context for subsequent use.
 
-Having the actual implementation of sending and receiving decoupled in dedicated components means that the test bed can be extended 
-to handle virtually any needed protocol, requiring only that an appropriate handler exists. If for example the test bed needs to send 
+Having the actual implementation of sending and receiving decoupled in dedicated components means that the Test Bed can be extended 
+to handle virtually any needed protocol, requiring only that an appropriate handler exists. If for example the Test Bed needs to send 
 and receive email, it does not need to support e.g. SMTP natively, it just needs access to a handler that can send and receive emails on its behalf.
 
 .. note::
@@ -175,10 +175,10 @@ Validation handlers
 
 **Validation handlers** are similar in concept to messaging handlers but much simpler. Their purpose is limited to validating content and 
 returning a report with the result. Validation is a fully decoupled process in that the content being validated, as well as any other parameters, 
-are provided by the test bed as input without needing to be aware of how validation actually takes place. The result of a validation handler is 
+are provided by the Test Bed as input without needing to be aware of how validation actually takes place. The result of a validation handler is 
 recorded in the test session context for subsequent use in the test case.
 
-Validation handlers implement the `GITB validation service API`_ that defines the operations needed by the test bed to request
+Validation handlers implement the `GITB validation service API`_ that defines the operations needed by the Test Bed to request
 validation for specific input and receive the results. Implementations can be either embedded components or external web service endpoints.
 
 .. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
@@ -189,11 +189,11 @@ validation for specific input and receive the results. Implementations can be ei
 Processing handlers
 ~~~~~~~~~~~~~~~~~~~
 
-**Processing handlers** are extensions to the test bed's capabilities to undertake actions that it does not natively support. The 
+**Processing handlers** are extensions to the Test Bed's capabilities to undertake actions that it does not natively support. The 
 purpose of a processing handler is to receive a set of input parameters that it can process and produce a 
 set of output values. These output values are stored in the test session context for subsequent use. 
 
-Processing handlers implement the `GITB processing service API`_ that defines the operations needed by the test bed to request
+Processing handlers implement the `GITB processing service API`_ that defines the operations needed by the Test Bed to request
 processing for specific input and receive the results. Implementations can be either embedded components or external web service endpoints.
 
 .. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
@@ -201,7 +201,7 @@ processing for specific input and receive the results. Implementations can be ei
 The lifecycle of a test session
 -------------------------------
 
-The following diagram illustrates the steps involved in creating and using a test case. These steps occur within a test bed as part of overall
+The following diagram illustrates the steps involved in creating and using a test case. These steps occur within a Test Bed as part of overall
 test management before and after the test's execution and also during the test session itself.
 
 .. figure:: images/lifecycle.png
@@ -253,7 +253,7 @@ that are needed to correctly express the expected flow. The test session eventua
 Step 6: Finalise
 ~~~~~~~~~~~~~~~~
 
-Upon finalisation the test bed cleans up the state relevant to the test session and also notifies external handler implementations to consider the 
+Upon finalisation the Test Bed cleans up the state relevant to the test session and also notifies external handler implementations to consider the 
 session as closed.
 
 Step 7: Consult
@@ -284,7 +284,7 @@ TDL constructs but also related specifications such as the WSDLs for messaging, 
   GITB validation service types, The XSD defining the validation service message types, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/schema/gitb_vs.xsd
   GITB processing service API, The WSDL defining processing service operations, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/wsdl/gitb_ps.wsdl
   GITB processing service types, The XSD defining the processing service message types, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/schema/gitb_ps.xsd
-  GITB test bed service API, The WSDL defining test bed service operations, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/wsdl/gitb_tbs.wsdl
-  GITB test bed service types, The XSD defining the test bed service message types, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/schema/gitb_tbs.xsd
+  GITB Test Bed service API, The WSDL defining Test Bed service operations, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/wsdl/gitb_tbs.wsdl
+  GITB Test Bed service types, The XSD defining the Test Bed service message types, https://github.com/ISAITB/gitb-types/blob/master/gitb-types-specs/src/main/resources/schema/gitb_tbs.xsd
 
 The final GITB workgroup report can be downloaded here [:download:`CEN_WS_GITB3_CWA_Final.pdf`].

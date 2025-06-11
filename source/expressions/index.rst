@@ -350,7 +350,7 @@ adds a level of customisation and parameterisation that can accommodate various 
 Such input is typically provided by testers but can also be supplied by administrators or externally scripted
 tooling.
 
-GITB TDL, as implemented in the GITB test bed software, offers four levels of such configuration, with a 
+GITB TDL, as implemented in the GITB Test Bed software, offers four levels of such configuration, with a 
 progressively narrower scope to address all potential needs:
 
 .. figure:: images/configuration_scopes.png
@@ -509,7 +509,7 @@ Actor configuration parameters
 
 Configuration relating to specific actors is defined by means of endpoints and parameters. These can be declared in the following ways:
 
-* **Externally:** Actors may be defined fully in the test bed. In this case the test suite simply references actors by their ID (see :ref:`test-suite-deploying`).
+* **Externally:** Actors may be defined fully in the Test Bed. In this case the test suite simply references actors by their ID (see :ref:`test-suite-deploying`).
 * **In the test suite:** Actors can be fully defined in a test suite, listing their endpoints and parameters (see :ref:`test-suite-actors`).
 * **During the test session initiation:** Simulated actors participating in messaging transactions with SUTs have their messaging handlers 
   called during test suite initiation at which time they can return endpoints and parameters (see :ref:`test-suite-actors-endpoints-simulated`).
@@ -825,7 +825,7 @@ that is instantiated with specific values when needed.
     approach is to use the :ref:`TemplateProcessor<handlers-TemplateProcessor>` with `FreeMarker templates <https://freemarker.apache.org/>`_.
 
 As an example consider the following scenario. A XML file is provided in the test suite as an artefact named "metadata-template.xml" that 
-serves as a template for metadata responses to be provided by the test bed. This file contains variable references as follows:
+serves as a template for metadata responses to be provided by the Test Bed. This file contains variable references as follows:
 
 .. code-block:: xml
     :emphasize-lines: 3,4

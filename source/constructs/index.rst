@@ -139,7 +139,7 @@ Note that ``etxn`` steps are not presented to the user.
 listen
 ~~~~~~
 
-The ``listen`` step is used to instruct the test bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
+The ``listen`` step is used to instruct the Test Bed to act as a proxy between messages sent to and from two actors defined as SUTs. 
 Similar to the ``send`` and ``receive`` steps, this step is expected to take place within a transaction created by ``btxn``, the 
 identifier of which it references. The structure of the ``listen`` element is as follows:
 
@@ -228,7 +228,7 @@ The structure of the ``receive`` element is as follows:
     output | no | Zero or more elements for the resulting output values. See :ref:`handlers-inputs-outputs` for details.
     property | no | Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
 
-When the test bed executes the ``receive`` step it performs two actions:
+When the Test Bed executes the ``receive`` step it performs two actions:
 
 #. It signals the step's messaging handler that content is expected to be received.
 #. It blocks waiting for a call-back from the messaging handler that will contain the received data, or until the configured timeout has elapsed.
@@ -236,7 +236,7 @@ When the test bed executes the ``receive`` step it performs two actions:
 Regarding the ``input`` elements provided these act as information provided to the messaging handler that are relevant to the
 message's reception. They act as a counterpart to ``config`` elements whose purpose is more to signal parameters for the communication
 setup rather than the involved message. The ``output`` elements provided are optional and serve only to restrict the messaging handler's
-output (returned via its call-back to the test bed) to the specified values. If not specified all available output values are returned.
+output (returned via its call-back to the Test Bed) to the specified values. If not specified all available output values are returned.
 
 .. code-block:: xml
     :emphasize-lines: 1,2,3,7,8,9,10,11
@@ -333,7 +333,7 @@ actor is also optional as long as the test case defines only a single non-SUT ac
 send
 ~~~~
 
-The ``send`` step allows the test bed to signal that content needs to be sent from one actor to another. This 
+The ``send`` step allows the Test Bed to signal that content needs to be sent from one actor to another. This 
 operation may be defined as part of a transaction created by ``btxn``, in which case it references the transaction's identifier. 
 Alternatively, it may work without a transaction by specifying directly the :ref:`messaging handler implementation<handlers-implementation>` to use.
 
@@ -2458,7 +2458,7 @@ user by means of a :ref:`user interaction step<tdl-step-interact>`:
 Using the ``log`` step provides flexibility to test developers for conveying information to users that may be difficult to present on the test execution
 diagram. When considering such log contributions, the ``log`` step is complemented by the `logging capabilities`_ of `custom test services`_ used as
 :ref:`remote service handlers<handlers>` for messaging (:ref:`send<tdl-step-send>`, :ref:`receive<tdl-step-receive>`), processing (:ref:`process<tdl-step-process>`)
-and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can contribute to the test session log via service call to the test bed.
+and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can contribute to the test session log via service call to the Test Bed.
 
 .. note::
     **Test case log level:** You can configure the :ref:`minimum log level for a test case<test-case-steps>` to control which log
@@ -2487,7 +2487,7 @@ verify
 ~~~~~~
 
 The ``verify`` step is used to trigger validation of content. Similar to :ref:`tdl-messaging-steps` and  :ref:`tdl-processing-steps`, validation
-takes place using a validation handler implementation that can either be an embedded test bed component or a remote service that implements the
+takes place using a validation handler implementation that can either be an embedded Test Bed component or a remote service that implements the
 `GITB validation service API`_. The content to validate is provided by the test case to the handler in terms of configuration and input, for which
 a test report is returned in the `GITB TRL (Test Reporting Language) format`_. The structure of the ``verify`` element is as follows:
 
@@ -2558,7 +2558,7 @@ validation service. The third ``verify`` step replicates the previous one but de
     concise to present this as a single validation step with one report. This also enhances maintainability of the test cases considering that use of the embedded
     :ref:`handlers-XSDValidator` and :ref:`handlers-SchematronValidator` means that you need to bundle (and maintain) the validation artefacts in each test suite. 
     When decoupled as a service artefacts can be updated without needing new test suite versions aside from the benefit that your service can also be invoked 
-    outside the test bed using any SOAP client.
+    outside the Test Bed using any SOAP client.
 
 It may be the case that the ``verify`` step also produces output that needs to be leveraged further on in the test session. This could be interesting in case an 
 :ref:`embedded validation handler<handlers-predefined-validation-handlers>` is used, the inputs of which are determined dynamically via an expression. Usually 

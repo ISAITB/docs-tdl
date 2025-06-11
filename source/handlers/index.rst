@@ -19,7 +19,7 @@ their purpose can be:
 .. _GITB processing service API: https://www.itb.ec.europa.eu/specs/latest/gitb_ps.wsdl
 .. _GITB validation service API: https://www.itb.ec.europa.eu/specs/latest/gitb_vs.wsdl
 
-Another important distinction for handlers is whether they are **built-in** within the test bed software or **external**.
+Another important distinction for handlers is whether they are **built-in** within the Test Bed software or **external**.
 For handlers that relate to domain-specific operations, the norm is to externalise them as remotely callable services.
 Nonetheless several common tasks that are frequently encountered in test cases are also available as built-in test engine capabilities.
 
@@ -47,7 +47,7 @@ Handlers are defined in the following steps:
 The element corresponding to each of these steps defines a ``handler`` attribute to identify the handler implementation.
 In case an built-in handler is to be used the value specified here is the name of the handler (see :ref:`handlers-predefined-handlers`). Using an external
 handler implementation is achieved by specifying as the ``handler`` value the address where the service's WSDL file is 
-located. The test bed will automatically detect in this case that the handler is external and will internally replace local method
+located. The Test Bed will automatically detect in this case that the handler is external and will internally replace local method
 invocations with web service calls.
 
 The value provided for the ``handler`` attribute can also be provided with a pure variable reference (see :ref:`test-case-referring-to-variables`)
@@ -88,7 +88,7 @@ Built-in handlers
 -----------------
 
 The sections that follow list the handler implementations that already exist as predefined built-in implementations
-in the GITB test bed software.
+in the GITB Test Bed software.
 
 .. index:: Built-in messaging handlers
 .. _handlers-predefined-handlers-messaging:
@@ -3499,10 +3499,10 @@ Used to send or receive content over HTTP.
     <etxn txnId="t1"/>
 
 .. note::
-    **Isolating communications:** When using a ``HttpMessaging`` handler to receive communication from a SUT, the test bed dynamically starts listening on 
-    a new port for incoming traffic. This port (along with the host) are presented to the test bed user upon test initiation so that he/she can configure
-    the SUT accordingly. To avoid unwanted communication being received on this port that is unrelated to the test session, the test bed will only 
-    listen to requests originating from the SUT's address, ignoring others originating from other sources. To achieve this, the test bed uses the 
+    **Isolating communications:** When using a ``HttpMessaging`` handler to receive communication from a SUT, the Test Bed dynamically starts listening on 
+    a new port for incoming traffic. This port (along with the host) are presented to the Test Bed user upon test initiation so that he/she can configure
+    the SUT accordingly. To avoid unwanted communication being received on this port that is unrelated to the test session, the Test Bed will only 
+    listen to requests originating from the SUT's address, ignoring others originating from other sources. To achieve this, the Test Bed uses the 
     ``network.host`` parameter configured for the SUT that needs to be provided by the tester as part of the SUT's configuration before starting a test.
 
     The value for the ``network.host`` parameter must be set with the **public IP Address** of the SUT endpoint.
@@ -3530,7 +3530,7 @@ The following example illustrates its use:
 
 Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
 if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
-test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+test SUT endpoints over which the Test Bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
 the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
 
 .. code-block:: xml
@@ -3791,7 +3791,7 @@ The following example illustrates its use:
 
 Note that the value "true" in this example could also have been provided as a variable reference (e.g. ``$isHTTPS``) allowing a test case to remain unaffected
 if the underlying communication needs to be over HTTP or HTTPS. This could be especially interesting in cases where the ``SoapMessaging`` handler is used to 
-test SUT endpoints over which the test bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
+test SUT endpoints over which the Test Bed has no control over the underlying transport channel. In this case the "http.ssl" parameter could be set as part of 
 the system's configuration, as in the following example (assuming an endpoint name of "sutInfo" and an endpoint parameter named "isHTTPS"):
 
 .. code-block:: xml
@@ -4609,6 +4609,6 @@ reference as the expression:
 
 The ``input`` and ``output`` options for service handlers are documented as part of their module definition. For handlers accessible
 via remote web service calls this information is returned when calling the handler's ``getModuleDefinition`` operation. This is also used internally
-by the test bed before calling a service handler to ensure that required parameters are provided by the test case.
+by the Test Bed before calling a service handler to ensure that required parameters are provided by the test case.
 
 .. _syntax used by the Java language: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html

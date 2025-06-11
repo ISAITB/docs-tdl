@@ -257,7 +257,7 @@ Actors
 ~~~~~~
 
 In the ``actors`` element we identify the actors that will be involved in the test suite's test cases. These actors may either be ones that will be tested 
-as systems under test (i.e. the focus of test cases) or be simulated by the test bed. At least one actor needs to be defined here. The ``actors`` element 
+as systems under test (i.e. the focus of test cases) or be simulated by the Test Bed. At least one actor needs to be defined here. The ``actors`` element 
 contains one or more ``actor`` elements with structure as follows:
 
 .. csv-table::
@@ -286,7 +286,7 @@ statements.
 The ``displayOrder`` attribute provides an indication on how the actor should be positioned in test execution diagrams relevant to other actors. This could be useful
 to set if you want an actor to always appear first in diagrams regardless of the TDL steps that a test case defines (e.g. to always show the SUT first). When the 
 ``displayOrder`` attribute for an actor is smaller relevant to others, or if no ``displayOrder`` is specified for other actors, the actor will appear first. Note that
-this ordering applies to actors defined in the specification, not special-purpose actor lifelines that could signify the test bed or the user. Finally, note that any 
+this ordering applies to actors defined in the specification, not special-purpose actor lifelines that could signify the Test Bed or the user. Finally, note that any 
 setting that is made for an actor at test suite level is considered as a default and can be overridden at test case level (see :ref:`test-case-actors`).
 
 Besides defining the roles of parties in a specification, actors can also have **configuration properties**. The purpose of these properties is to record
@@ -356,7 +356,7 @@ defined as "SECRET" are never presented to users nor are they ever transferred t
 and ``notForTests`` are used to increase the options available in defining a flexible and complete conformance testing strategy.
 
 Setting the ``adminOnly`` flag to "true" would typically be used for required parameters (i.e. ``use`` set to "R") as 
-doing so allows community or test bed administrators to verify and adapt a system's setup before allowing it to
+doing so allows community or Test Bed administrators to verify and adapt a system's setup before allowing it to
 execute tests. This could either be done as a simple eligibility check or to actually provide required information
 that is needed for the tests (e.g. a generated identifier or certificate). If a required parameter that is set as 
 ``adminOnly`` is not configured, the system in question is prevented from executing tests. Furthermore, such a parameter
@@ -607,8 +607,8 @@ GITB Test Bed software can be done in two ways:
 
 .. note::
 
-    **Deploying test suites during development:** When deploying test suites to a development test bed instance, the fastest way
-    is to use the test bed's `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#deploy>`_. You can find
+    **Deploying test suites during development:** When deploying test suites to a development Test Bed instance, the fastest way
+    is to use the Test Bed's `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#deploy>`_. You can find
     instructions `here <https://www.itb.ec.europa.eu/docs/guides/latest/developingComplexTests/index.html#step-3-prepare-your-workspace>`_
     on enabling the API and creating a script to automate its use.
 
