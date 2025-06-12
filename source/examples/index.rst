@@ -352,3 +352,39 @@ make poll attempts following **delays**, making **conditional processing**, and 
     :ref:`TokenGenerator <handlers-TokenGenerator>` | :ref:`Test step handler <handlers>` | Generate a timestamp for the polling responses. | ``createSimulatedStatusResponse.xml``
     :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate the retrieved status value. | ``testCase1.xml``
     :ref:`while <tdl-step-while>` | :ref:`Test step <tdl-steps>` | Iterate through the polling attempts until polling should complete. | ``testCase1.xml``
+
+.. _examples_example7:
+
+Example 7: Working with images
+------------------------------
+
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/workingWithImages>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/workingWithImages/testSuite.zip>`__.
+
+This is an example showing how to handle **images** in test cases, both ones that are retrieved from remote services and ones provided
+from the user. This example also includes several **interactions** (also for the display of images), validation, and determining of an
+uploaded image's **content type** tolerating **case differences**, with a fallback to processing the image's **file name** using a
+**XPath if/else statement**.
+
+.. code-block:: none
+
+  <archive root>
+  ├── testCases
+  │   └── testCase1.xml
+  └── testSuite.xml
+
+.. csv-table::
+    :header: "Concept used", "Type", "Purpose", "Resource(s)"
+    :delim: |
+
+    :ref:`assign <tdl-step-assign>` | :ref:`Test step <tdl-steps>` | Prepare step inputs and conditionally set variables with values. | ``testCase1.xml``
+    :ref:`CollectionUtils <handlers-CollectionUtils>` | :ref:`Test step handler <handlers>` | Lookup the QR code's content type from the response headers. | ``testCase1.xml``
+    :ref:`DisplayProcessor <handlers-simulatedmessaging>` | :ref:`Test step handler <handlers>` | Display a summary report. | ``testCase1.xml``
+    :ref:`hidden <tdl-steps-common-hidesteps>` | :ref:`Common concepts <tdl-steps-common>` | Hide the QR code request. | ``testCase1.xml``
+    :ref:`HttpMessagingV2 <handlers-httpmessagingv2>` | :ref:`Test step handler <handlers>` | Request the QR code via HTTP GET. | ``testCase1.xml``
+    :ref:`interact <tdl-step-interact>` | :ref:`Test step <tdl-steps>` | Display popups to present the QR code with instructions, and to request inputs. | ``testCase1.xml``
+    :ref:`log <tdl-step-log>` | :ref:`Test step <tdl-steps>` | Log information in the test session log. | ``testCase1.xml``
+    :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion. | ``testCase1.xml``
+    :ref:`send <tdl-step-send>` | :ref:`Test step <tdl-steps>` | Request the QR code to display. | ``testCase1.xml``
+    :ref:`stopOnError <tdl-steps-common-stoponerror>` | :ref:`Common concepts <tdl-steps-common>` | Immediately stop the test session if a step fails. | ``testCase1.xml``
+    :ref:`StringValidator <handlers-StringValidator>` | :ref:`Test step handler <handlers>` | Make text-based assertions. | ``testCase1.xml``
+    :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate expected values. | ``testCase1.xml``
