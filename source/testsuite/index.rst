@@ -588,8 +588,8 @@ complete test suite can be done in two ways:
 
 .. _test-suite-deploying:
 
-Deploying a test suite in the GITB software
--------------------------------------------
+Test suite organisation and deployment
+--------------------------------------
 
 A test suite is packaged as a **compressed ZIP archive** that contains:
 
@@ -597,10 +597,31 @@ A test suite is packaged as a **compressed ZIP archive** that contains:
 * One or more :ref:`test case files <test-case>` for the scenarios to cover (unless this is a :ref:`shared resource holder<test-suite-sharing-empty>`).
 * Zero or more :ref:`scriptlet files <scriptlets>` with common testing blocks reused across test cases.
 * Any number of arbitrary files used as resources within test cases.
+* Documentation files referred to by the test suite, test cases and test steps.
 
 The names of the archive, the test suite and the test case files are not important, neither is the archive's folder structure.
-The test suite's contents and references across resources will be validated upon deployment. Deploying a test suite to the 
-GITB Test Bed software can be done in two ways:
+Nonetheless, the following structure represents a **best practice** that achieves clarity and good organisation:
+
+.. code-block:: none
+
+  <archive root>
+  ├── docs
+  │   └── <HTML files containing documentation for the test suite and its test cases>
+  ├── resources
+  │   └── <Arbitrary files (nested as you please) used as imports in test cases and scriptlets>
+  ├── scriptlets
+  │   └── <Scriptlet files (reusable test step blocks) to use across test cases>
+  ├── testCases
+  │   └── <Test case files>
+  └── testSuite.xml
+
+Notice how the archive **does not include a top-level folder**. Considering that resource references are relative to the
+archive root, having a root folder would repeat in all path references. In terms of file naming the advised approach is to use
+**Camel Case** (e.g. "testCase1.xml" as opposed to "test-case-1.xml" or "test_case_1.xml"), at least for the files under
+your control (as opposed to e.g. sets of schema files that you copy into the test suite).
+
+When the test suite is deployed to GITB Test Bed software is will be validated in depth to ensure its overall correctness.
+Deploying a test suite can be achieved in two ways:
 
 * Using the `user interface <https://www.itb.ec.europa.eu/docs/itb-ta/latest/domainDashboard/index.html#upload-test-suite>`_.
 * Using the `REST API <https://www.itb.ec.europa.eu/docs/itb-ta/latest/api/index.html#deploy>`_ (if enabled).

@@ -353,6 +353,18 @@ make poll attempts following **delays**, making **conditional processing**, and 
     :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate the retrieved status value. | ``testCase1.xml``
     :ref:`while <tdl-step-while>` | :ref:`Test step <tdl-steps>` | Iterate through the polling attempts until polling should complete. | ``testCase1.xml``
 
+.. index:: assign (examples)
+.. index:: CollectionUtils (examples)
+.. index:: DisplayProcessor (examples)
+.. index:: hidden (examples)
+.. index:: interact (examples)
+.. index:: log (examples)
+.. index:: output (examples)
+.. index:: stopOnError (examples)
+.. index:: send (examples)
+.. index:: verify (examples)
+.. index:: HttpMessagingV2 (examples)
+.. index:: StringValidator (examples)
 .. _examples_example7:
 
 Example 7: Working with images
@@ -388,3 +400,90 @@ uploaded image's **content type** tolerating **case differences**, with a fallba
     :ref:`stopOnError <tdl-steps-common-stoponerror>` | :ref:`Common concepts <tdl-steps-common>` | Immediately stop the test session if a step fails. | ``testCase1.xml``
     :ref:`StringValidator <handlers-StringValidator>` | :ref:`Test step handler <handlers>` | Make text-based assertions. | ``testCase1.xml``
     :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate expected values. | ``testCase1.xml``
+
+.. index:: admin (examples)
+.. index:: ExpressionValidator (examples)
+.. index:: import (examples)
+.. index:: JsonValidator (examples)
+.. index:: if (examples)
+.. index:: interact (examples)
+.. index:: output (examples)
+.. index:: stopOnError (examples)
+.. index:: verify (examples)
+.. index:: STEP_STATUS (examples)
+.. index:: TEST_SUCCESS (examples)
+.. _examples_example8:
+
+Example 8: Administrator review of validation warnings
+------------------------------------------------------
+
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/adminVerificationOfValidationWarnings>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/adminVerificationOfValidationWarnings/testSuite.zip>`__.
+
+This is an example that focuses on having an **administrator** review the status of a test session. In addition, this example involves
+**interactions**, validation of **JSON content** at **warning level**, and use of **session status flags**, in **conditional logic**
+and the final **output** messages.
+
+.. code-block:: none
+
+  <archive root>
+  ├── testCases
+  │   └── testCase1.xml
+  └── testSuite.xml
+
+.. csv-table::
+    :header: "Concept used", "Type", "Purpose", "Resource(s)"
+    :delim: |
+
+    :ref:`admin <tdl-step-interact_admin_interactions>` | :ref:`Test step <tdl-steps>` | Administrator interaction. | ``testCase1.xml``
+    :ref:`ExpressionValidator <handlers-ExpressionValidator>` | :ref:`Test step handler <handlers>` | Check the review result as an expression. | ``testCase1.xml``
+    :ref:`if <tdl-step-if>` | :ref:`Test step <tdl-steps>` | Conditionally proceed with administrator review steps. | ``testCase1.xml``
+    :ref:`import <test-case-imports>` | :ref:`Test case section <test-case>` | Import the validation artefact to use and samples to use when providing manual input. | ``testCase1.xml``
+    :ref:`interact <tdl-step-interact>` | :ref:`Test step <tdl-steps>` | Display popups to for the user and the administrator. | ``testCase1.xml``
+    :ref:`JsonValidator <handlers-JsonValidator>` | :ref:`Test step handler <handlers>` | Validate JSON content using JSON Schema. | ``testCase1.xml``
+    :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion. | ``testCase1.xml``
+    :ref:`STEP_STATUS <test-case-expressions-step-status>` | :ref:`Expressions <test-case-expressions>` | Check the status of specific steps. | ``testCase1.xml``
+    :ref:`stopOnError <tdl-steps-common-stoponerror>` | :ref:`Common concepts <tdl-steps-common>` | Immediately stop the test session if a step fails. | ``testCase1.xml``
+    :ref:`TEST_SUCCESS <test-case-expressions-test-success>` | :ref:`Expressions <test-case-expressions>` | Check the status of the overall test session. | ``testCase1.xml``
+    :ref:`verify <tdl-step-verify>` | :ref:`Test step <tdl-steps>` | Validate JSON document and administrator review result. | ``testCase1.xml``
+
+.. index:: DelayProcessor (examples)
+.. index:: DisplayProcessor (examples)
+.. index:: group (examples)
+.. index:: hidden (examples)
+.. index:: import (examples)
+.. index:: output (examples)
+.. index:: process (examples)
+.. index:: SimulatedMessaging (examples)
+.. index:: variables (examples)
+.. _examples_example9:
+
+Example 9: Using simulation for demonstration purposes
+------------------------------------------------------
+
+View `test suite on GitHub <https://github.com/ISAITB/sample-test-suites/tree/master/testSuites/simulationForDemo>`__ or `download test suite archive <https://github.com/ISAITB/sample-test-suites/raw/refs/heads/master/testSuites/simulationForDemo/testSuite.zip>`__.
+
+This is an example illustrating how test cases can also be used to **demonstrate** how a protocol is expected to work.
+It involves use of several **simulated actors** with exchanges using **imported resources** as inputs and outputs, as
+well as **simulated processing steps** to present results. An additional **delay** is also added between steps to simulate
+asynchronous processing.
+
+.. code-block:: none
+
+  <archive root>
+  ├── testCases
+  │   └── testCase1.xml
+  └── testSuite.xml
+
+.. csv-table::
+    :header: "Concept used", "Type", "Purpose", "Resource(s)"
+    :delim: |
+
+    :ref:`DelayProcessor <handlers-DelayProcessor>` | :ref:`Test step handler <handlers>` | Force a delay between steps. | ``testCase1.xml``
+    :ref:`DisplayProcessor <handlers-simulatedmessaging>` | :ref:`Test step handler <handlers>` | Display an arbitrary step report simulating a processing step. | ``testCase1.xml``
+    :ref:`group <tdl-step-group>` | :ref:`Test step <tdl-steps>` | Group together visually the demonstration's steps. | ``testCase1.xml``
+    :ref:`hidden <tdl-steps-common-hidesteps>` | :ref:`Common concepts <tdl-steps-common>` | Force processing steps to be visible. | ``testCase1.xml``
+    :ref:`import <test-case-imports>` | :ref:`Test case section <test-case>` | Import the samples to use in exchanges. | ``testCase1.xml``
+    :ref:`output <test-case-output>` | :ref:`Test case section <test-case>` | Display user-friendly messages upon test completion. | ``testCase1.xml``
+    :ref:`process <tdl-step-process>` | :ref:`Test step <tdl-steps>` | Simulate delays and processing tasks. | ``testCase1.xml``
+    :ref:`SimulatedMessaging <handlers-simulatedmessaging>` | :ref:`Test step handler <handlers>` | Display a simulated exchange between specification actors. | ``testCase1.xml``
+    :ref:`variables <test-case-imports>` | :ref:`Test case section <test-case>` | Define the delay between steps. | ``testCase1.xml``

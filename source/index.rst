@@ -16,6 +16,7 @@ Chapter overview
    :delim: |
 
    :doc:`introduction/index` | Introducing the GITB TDL and its key concepts.
+   :doc:`helloWorld/index` | A simple hello world example for the GITB TDL.
    :doc:`testsuite/index` | Defining test suite descriptors and packaging your test suite archives.
    :doc:`testcase/index` | Defining the executable test cases to drive your tests.
    :doc:`scriptlets/index` | Reusing and customising common sets of test steps across test cases.
@@ -33,6 +34,7 @@ Chapter overview
    :includehidden:
 
    introduction/index
+   helloWorld/index
    testsuite/index
    testcase/index
    scriptlets/index
