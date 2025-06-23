@@ -20,6 +20,7 @@ Release 1.27.0 - 24/06/2025
     :delim: |
 
     New inputs for the ``HttpMessagingV2`` handler to control the display of information in step reports. | :ref:`handlers-httpmessagingv2` :ref:`handlers-httpmessagingv2-reportdisplay`
+    New inputs for the ``SoapMessagingV2`` handler to control the display of information in step reports. | :ref:`handlers-soapmessagingv2` :ref:`handlers-soapmessagingv2-reportdisplay`
     New ``showLocationPaths`` input for the ``XmlValidator`` and ``SchematronValidator`` handlers to show reported item's location paths. | :ref:`handlers-XmlValidator` :ref:`handlers-SchematronValidator`
 
 Release 1.26.0 - 12/06/2025
