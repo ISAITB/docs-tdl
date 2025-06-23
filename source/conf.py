@@ -24,9 +24,9 @@ copyright = '2025, European Commission, DIGIT'
 author = 'European Commission, DIGIT'
 
 # The short X.Y version
-version = 'GITB TDL version 1.26.0'
+version = 'GITB TDL version 1.27.0'
 # The full version, including alpha/beta/rc tags
-release = 'GITB TDL version 1.26.0'
+release = 'GITB TDL version 1.27.0'
 
 html_show_sourcelink = False
 html_show_sphinx = False

@@ -135,6 +135,17 @@ Used to send or receive content over HTTP.
 .. index:: HttpMessagingV2 (send - status)
 .. index:: HttpMessagingV2 (send - requestTimeout)
 .. index:: HttpMessagingV2 (send - connectionTimeout)
+.. index:: HttpMessagingV2 (send - showRequestUri)
+.. index:: HttpMessagingV2 (send - showRequestMethod)
+.. index:: HttpMessagingV2 (send - showRequestBody)
+.. index:: HttpMessagingV2 (send - showRequestHeaders)
+.. index:: HttpMessagingV2 (send - requestHeadersToShow)
+.. index:: HttpMessagingV2 (send - requestHeadersToHide)
+.. index:: HttpMessagingV2 (send - showResponseBody)
+.. index:: HttpMessagingV2 (send - showResponseStatus)
+.. index:: HttpMessagingV2 (send - showResponseHeaders)
+.. index:: HttpMessagingV2 (send - responseHeadersToShow)
+.. index:: HttpMessagingV2 (send - responseHeadersToHide)
 
 .. _handlers-httpmessagingv2-send:
 
@@ -156,7 +167,18 @@ To use this handler to **send a HTTP message** to a external system, set it as t
     ``queryParameters`` | No | ``map`` | The HTTP request parameters to include in the query string, provided as a map of strings (the map keys will be the parameter names).
     ``parameters`` | No | ``map`` | The HTTP request parameters to include, provided as a map of strings (the map keys will be the parameter names).
     ``parts`` | No | ``list`` | The parts to include for a multipart request, provided either as a list of maps or a single map. Each map corresponds to a part and includes keys *"name"* (required), *"content"* (required), *"fileName"* and *"contentType"*.
+    ``requestHeadersToHide`` | No | ``list[string]`` | When request headers are displayed (see ``showRequestHeaders``), this is the ``list`` of headers to explicitly hide (can also be provided as a single ``string``).
+    ``requestHeadersToShow`` | No | ``list[string]`` | When request headers are displayed (see ``showRequestHeaders``), this is the ``list`` of headers to explicitly show (can also be provided as a single ``string``).
     ``requestTimeout`` | No | ``number`` | The number of milliseconds to wait for after a connection is established to read back the complete response (by default no timeout is applied).
+    ``responseHeadersToHide`` | No | ``list[string]`` | When response headers are displayed (see ``showResponseHeaders``), this is the ``list`` of headers to explicitly hide (can also be provided as a single ``string``).
+    ``responseHeadersToShow`` | No | ``list[string]`` | When response headers are displayed (see ``showResponseHeaders``), this is the ``list`` of headers to explicitly show (can also be provided as a single ``string``).
+    ``showRequestBody`` | No | ``boolean`` | Whether to display the request's body in the step's report (default is true).
+    ``showRequestHeaders`` | No | ``boolean`` | Whether to display the request's headers in the step's report (default is true).
+    ``showRequestMethod`` | No | ``boolean`` | Whether to display the request's HTTP method in the step's report (default is true).
+    ``showRequestUri`` | No | ``boolean`` | Whether to display the request's URI in the step's report (default is true).
+    ``showResponseBody`` | No | ``boolean`` | Whether to display the response's body in the step's report (default is true).
+    ``showResponseHeaders`` | No | ``boolean`` | Whether to display the response's headers in the step's report (default is true).
+    ``showResponseStatus`` | No | ``boolean`` | Whether to display the response's status in the step's report (default is true).
     ``uri`` | Yes | ``string`` | The URI of the endpoint to be called.
     
 In terms of implicit default values for missing inputs and the processing logic applied, the test engine bases itself on the overall inputs provided. Specifically:
@@ -297,6 +319,17 @@ outputs (see inline comments for details per case).
 .. index:: HttpMessagingV2 (receive - headers)
 .. index:: HttpMessagingV2 (receive - body)
 .. index:: HttpMessagingV2 (receive - status)
+.. index:: HttpMessagingV2 (receive - showRequestUri)
+.. index:: HttpMessagingV2 (receive - showRequestMethod)
+.. index:: HttpMessagingV2 (receive - showRequestBody)
+.. index:: HttpMessagingV2 (receive - showRequestHeaders)
+.. index:: HttpMessagingV2 (receive - requestHeadersToShow)
+.. index:: HttpMessagingV2 (receive - requestHeadersToHide)
+.. index:: HttpMessagingV2 (receive - showResponseBody)
+.. index:: HttpMessagingV2 (receive - showResponseStatus)
+.. index:: HttpMessagingV2 (receive - showResponseHeaders)
+.. index:: HttpMessagingV2 (receive - responseHeadersToShow)
+.. index:: HttpMessagingV2 (receive - responseHeadersToHide)
 
 .. _handlers-httpmessagingv2-receive:
 
@@ -313,6 +346,17 @@ To use this handler to **receive a HTTP message** from an external system, set i
     ``body`` | No | ``binary`` | The HTTP body of the response.
     ``headers`` | No | ``map`` | The HTTP headers to include in the response.
     ``method`` | No | ``string`` | The HTTP method to expect. Supported methods are GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH, TRACE.
+    ``requestHeadersToHide`` | No | ``list[string]`` | When request headers are displayed (see ``showRequestHeaders``), this is the ``list`` of headers to explicitly hide (can also be provided as a single ``string``).
+    ``requestHeadersToShow`` | No | ``list[string]`` | When request headers are displayed (see ``showRequestHeaders``), this is the ``list`` of headers to explicitly show (can also be provided as a single ``string``).
+    ``responseHeadersToHide`` | No | ``list[string]`` | When response headers are displayed (see ``showResponseHeaders``), this is the ``list`` of headers to explicitly hide (can also be provided as a single ``string``).
+    ``responseHeadersToShow`` | No | ``list[string]`` | When response headers are displayed (see ``showResponseHeaders``), this is the ``list`` of headers to explicitly show (can also be provided as a single ``string``).
+    ``showRequestBody`` | No | ``boolean`` | Whether to display the request's body in the step's report (default is true).
+    ``showRequestHeaders`` | No | ``boolean`` | Whether to display the request's headers in the step's report (default is true).
+    ``showRequestMethod`` | No | ``boolean`` | Whether to display the request's HTTP method in the step's report (default is true).
+    ``showRequestUri`` | No | ``boolean`` | Whether to display the request's URI in the step's report (default is true).
+    ``showResponseBody`` | No | ``boolean`` | Whether to display the response's body in the step's report (default is true).
+    ``showResponseHeaders`` | No | ``boolean`` | Whether to display the response's headers in the step's report (default is true).
+    ``showResponseStatus`` | No | ``boolean`` | Whether to display the response's status in the step's report (default is true).
     ``status`` | No | ``number`` | The HTTP status to respond with (default is 200).
     ``uriExtension`` | No | ``string`` | A URI extension following the base endpoint path at which the request will be expected.
 
@@ -414,6 +458,112 @@ outputs (see inline comments for details per case).
     </receive>
     <log>$receive3{request}{uri}</log> <!-- Print the request URI. -->
     <log>$receive3{request}{body}</log> <!-- Print the request body. -->
+
+.. _handlers-httpmessagingv2-reportdisplay:
+
+Tuning reported data
+^^^^^^^^^^^^^^^^^^^^
+
+You can fine-tune the data displayed by the ``HttpMessagingV2`` handler in test step reports through a set inputs
+that apply both when used in :ref:`send <handlers-httpmessagingv2-send>` and :ref:`receive <handlers-httpmessagingv2-receive>` steps.
+The display of request and response data is addressed by the following ``boolean`` flags:
+
+* Flags ``showRequestBody``, ``showRequestHeaders``, ``showRequestMethod`` and ``showRequestUri`` for requests.
+* Flags ``showResponseBody``, ``showResponseHeaders`` and ``showResponseStatus`` for responses.
+
+These flags determine whether reports will display their respective data. They are optional and by default considered as
+true, meaning that all data is displayed. Regarding HTTP headers in particular further control is enabled by listing
+specific headers to be considered, specifically:
+
+* Inputs ``requestHeadersToHide`` and ``requestHeadersToShow`` to manage specific request headers.
+* Inputs ``responseHeadersToHide`` and ``responseHeadersToShow`` to manage specific response headers.
+
+These inputs are considered only in case HTTP headers are displayed, meaning that flags ``showRequestHeaders`` or
+``showResponseHeaders`` are not set, or are set explicitly to true. They are provided with either a ``list`` of header
+names or a single header, and disregard casing differences, meaning that for example, a "Content-Type" value will also
+match "content-type" headers. The headers listed in ``requestHeadersToShow`` and ``responseHeadersToShow`` serve as a
+**whitelist**, meaning that only the matching ones are displayed. In contrast, ``requestHeadersToHide`` and
+``responseHeadersToHide`` serve as a **blacklist**, meaning that the matching headers are hidden. In the uncommon
+scenario where a header is specified both as being explicitly displayed and hidden, the header will be hidden.
+
+Note that not specifying these inputs means they are full disregarded. In other words if you want to display all request
+headers you needn't list them explicitly as ``requestHeadersToShow``. Similarly, when hiding all headers you don't need
+to explicitly list them as ``requestHeadersToHide``. What you do achieve in listing them is ensuring that only certain
+headers are managed. The following examples show how header display is managed through these inputs:
+
+.. code-block:: xml
+
+    <!--
+      Hide all headers.
+    -->
+    <send id="send1" desc="Send data" handler="HttpMessagingV2">
+        ...
+        <input name="showRequestHeaders">false()</input>
+        <input name="showResponseHeaders">false()</input>
+    </send>
+    <!--
+      Show all headers (the inputs could also be skipped in this case as this is the default).
+    -->
+    <send id="send2" desc="Send data" handler="HttpMessagingV2">
+        ...
+        <input name="showRequestHeaders">true()</input>
+        <input name="showResponseHeaders">true()</input>
+    </send>
+    <!--
+      Hide a specific response header while showing all others.
+    -->
+    <send id="send3" desc="Send data" handler="HttpMessagingV2">
+        ...
+        <input name="responseHeadersToHide">"HEADER-TO-HIDE"</input>
+    </send>
+    <!--
+      Show only a specific response header while hiding all others.
+    -->
+    <send id="send4" desc="Send data" handler="HttpMessagingV2">
+        ...
+        <input name="responseHeadersToShow">"HEADER-TO-SHOW"</input>
+    </send>
+
+The following example illustrates a more complete scenario where you are making multiple requests to a SUT
+and want to ensure that a sensitive API key header is not displayed. Notice here how hidden data can still
+be leveraged in subsequent test steps:
+
+.. code-block:: xml
+
+    <!--
+      Call the SUT and hide the X-API-KEY header received in the response.
+    -->
+    <send id="getApiKey" desc="Get API key" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/key"</input>
+        <input name="responseHeadersToHide">"X-API-KEY"</input>
+    </send>
+    <!--
+      Call the SUT and hide only the X-API-KEY header included in the request.
+    -->
+    <assign to="submitHeaders{Content-Type}">"application/json"</assign>
+    <!--
+      The header received from the previous step was hidden in the report but it is still
+      stored in the test session context and can be used in subsequent steps.
+    -->
+    <assign to="submitHeaders{X-API-KEY}">$getApiKey{response}{headers}{X-API-KEY}</assign>
+    <send id="submit" desc="Submit data" handler="HttpMessagingV2">
+        <input name="uri">"https://my.sut.org/api/submit"</input>
+        <input name="method">"PUT"</input>
+        <input name="headers">$submitHeaders</input>
+        <!--
+          Hide (only) the X-API-KEY header from the request.
+        -->
+        <input name="requestHeadersToHide">"X-API-KEY"</input>
+        <!--
+          Hide the response's body and headers (i.e. show only the status).
+        -->
+        <input name="showResponseBody">false()</input>
+        <input name="showResponseHeaders">false()</input>
+    </send>
+
+Showing and hiding request and response data can be useful in removing **superfluous** information that is not needed in
+the step's report. It can also be important in not including information that might be **sensitive** in nature, while still
+keeping it available for use in further test steps.
 
 .. index:: HttpsMessaging
 .. index:: http_headers (HttpsMessaging)
@@ -2790,6 +2940,7 @@ This syntax also supports expression flags provided in an embedded manner, withi
 .. index:: showSchematron (SchematronValidator)
 .. index:: sortBySeverity (SchematronValidator)
 .. index:: showTests (SchematronValidator)
+.. index:: showLocationPaths (SchematronValidator)
 .. _handlers-SchematronValidator:
 
 SchematronValidator
@@ -2805,6 +2956,7 @@ Used to validate an XML document against a Schematron file.
     :header: "Input name", "Required?", "Type", "Description"
 
     ``schematron``, Yes, ``schema``, The Schematron file to use for the validation (XSTL or SCH).
+    ``showLocationPaths``, No, ``boolean``, Whether or reported items should include in their location information the path for the relevant element (default is ``false``).
     ``showSchematron``, No, ``boolean``, Whether or not to include in the step's report the Schematron used for the validation (default is "true").
     ``showTests``, No, ``boolean``, Whether or not to include in the step's report the assertion performed for each finding (default is ``false``).
     ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
@@ -2824,6 +2976,7 @@ Used to validate an XML document against a Schematron file.
         <input name="showSchematron">false()</input>
         <input name="sortBySeverity">true()</input>
         <input name="showTests">true()</input>
+        <input name="showLocationPaths">true()</input>
     </verify>
 
 .. index:: ShaclValidator
@@ -3001,6 +3154,7 @@ The following example illustrates how this validator can be used:
 .. index:: sortBySeverity (XmlValidator)
 .. index:: showValidationArtefacts (XmlValidator)
 .. index:: showSchematronTests (XmlValidator)
+.. index:: showLocationPaths (XmlValidator)
 .. _handlers-XmlValidator:
 
 XmlValidator
@@ -3013,8 +3167,9 @@ Used to validate an XML document against an XML Schema (XSD) and/or zero or more
 
     ``schematron``, No, ``list[schema]``, The list of Schematron files to validate the document's content against.
     ``schematronType``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the files' suffix. The overall default considered is ``sch``.
-    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is "true").
+    ``showLocationPaths``, No, ``boolean``, Whether or reported items for Schematron rules should include in their location information the path for the relevant element (default is ``false``).
     ``showSchematronTests``, No, ``boolean``, Whether or not the Schematron assertions applied should be displayed for each reported finding (default is ``false``).
+    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is "true").
     ``sortBySeverity``, No, ``boolean``, Whether findings should be sorted by severity ("true") or by location in the XML content (``false`` - the default).
     ``stopOnXsdErrors``, No, ``boolean``, Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is "true").
     ``xml``, Yes, ``object``, The XML document to validate.
@@ -3041,6 +3196,14 @@ The following examples illustrate how the ``XmlValidator`` can be used in variou
     <verify handler="XmlValidator" desc="XML validation">
         <input name="xml">$content</input>
         <input name="schematron">$schematron</input>
+    </verify>
+    <!--
+        Validate against a single Schematron file and include path locations in the resulting report.
+    -->
+    <verify handler="XmlValidator" desc="XML validation">
+        <input name="xml">$content</input>
+        <input name="schematron">$schematron</input>
+        <input name="showLocationPaths">true()</input>
     </verify>
     <!--
         Validate against two Schematron files.
