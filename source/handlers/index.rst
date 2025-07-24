@@ -3142,7 +3142,9 @@ Used to validate an XML document against a Schematron file.
 
 .. note::
     **XSLT vs SCH Schematron files:** XSLT versions of Schematron files are pre-processed files and offer significantly better
-    performance for complex rule cases. In addition, if Schematron rules import other resources, use of XSLT files is required.
+    performance for complex rule cases. In addition, if Schematron rules import other resources or use functions (built-in or custom),
+    use of XSLT files is required. The ``SchematronValidator`` considers SCH as the default format so you if you use XSLT-formatted Schematron,
+    you must define the ``type`` input with a value of ``xslt``.
 
 .. code-block:: xml
 
@@ -3355,6 +3357,12 @@ Used to validate an XML document against an XML Schema (XSD) and/or zero or more
 Regarding inputs, if you need to supply a single Schematron file you don't need to create a ``list`` and pass it as such. You can
 simply pass the Schematron file as-is and the test engine will automatically convert it to a single-element ``list``. Note that considering
 that both the ``xsd`` and ``schematron`` inputs are optional, if you provide neither, the validation will simply succeed with an empty report.
+
+.. note::
+    **XSLT vs SCH Schematron files:** XSLT versions of Schematron files are pre-processed files and offer significantly better
+    performance for complex rule cases. In addition, if Schematron rules import other resources or use functions (built-in or custom),
+    use of XSLT files is required. The ``XmlValidator`` considers SCH as the default format so you if you use XSLT-formatted Schematron,
+    you must define the ``schematronType`` input with a value of ``xslt``.
 
 The following examples illustrate how the ``XmlValidator`` can be used in various scenarios:
 
