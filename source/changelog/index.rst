@@ -10,7 +10,7 @@ Release numbers follow **global numbering** covering all Test Bed components, me
 actually introduced changes to the GITB TDL. The current page lists only the releases that introduced changes, whereas
 those not included are global maintenance releases that made no changes to the GITB TDL.
 
-The latest GITB TDL release is **1.27.3**.
+The latest GITB TDL release is **1.27.4**.
 
 Release 1.27.0 - 24/06/2025
 ---------------------------
