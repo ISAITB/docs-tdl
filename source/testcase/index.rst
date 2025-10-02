@@ -133,11 +133,13 @@ about the test case to help users understand its purpose. Its structure is as fo
     :header: "Name", "Required?", "Description"
 
     authors, no, A string to indicate the test case's authors.
+    dependencies, no, One or more ``dependency`` elements to record information on the test case's dependencies.
     description, no, A string to provide a user-friendly description of the test case that is displayed to users.
     documentation, no, Rich text content that provides further information on the current test case.
     lastModified, no, A string acting as an indication of the last modification time for the test case.
     name, yes, The name of the test case that is used to identify it to users.
     published, no, A string acting as an indication of the test case's publishing time.
+    scopes, no, One or more ``scope`` elements to record information on the test case's intended scope.
     specification, no, Optional information regarding the test case's normative specification reference.
     tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
     type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when more than one actor are defined as SUTs.
@@ -146,7 +148,48 @@ about the test case to help users understand its purpose. Its structure is as fo
 
 .. note::
     **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the
-    "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``published`` and ``lastModified`` values are recorded but never used or displayed.
+    "INTEROPERABILITY" type is not supported. Finally, the ``version``, ``authors``, ``dependencies``, ``published``, ``scopes`` and ``lastModified`` values are recorded but never used or displayed.
+
+.. index:: dependencies (Test case)
+.. index:: dependency (Test case)
+.. index:: identifier (Test case)
+.. index:: description (Test case)
+.. index:: uri (Test case)
+.. _test-case-metadata-dependencies:
+
+dependencies
+++++++++++++
+
+The ``dependencies`` element serves to include metadata on possible dependencies that this test case might mave, such as the existence of
+test services or other supporting software. It contains one or more ``dependency`` elements with the following structure:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+    :delim: |
+
+    description | no | A free text describing the nature of this dependency.
+    identifier | no | A unique identifier for the dependency (if applicable).
+    uri | no | A remote URI reference with further information on the dependency.
+
+The following example illustrates how dependency metadata could be included in a test case:
+
+.. code-block:: xml
+    :emphasize-lines: 4-10
+
+    <metadata>
+      <gitb:name>Test case 1</gitb:name>
+      <gitb:description>Test case description.</gitb:description>
+      <gitb:dependencies>
+        <gitb:dependency>
+          <gitb:identifier>DEP_1</gitb:identifier>
+          <gitb:description>Description for dependency.</gitb:description>
+          <gitb:uri>https://wiki.test.org/dep1</gitb:uri>
+        </gitb:dependency>
+      </gitb:dependencies>
+    </metadata>
+
+Dependency metadata is not currently leveraged in the Test Bed, and is only recorded as metadata in the test case descriptor.
 
 .. index:: documentation (Test case)
 .. index:: import (Test case documentation)
@@ -209,6 +252,47 @@ Note that documentation such as this is also supported for:
 
 * The overall :ref:`test suite<test-suite-metadata>`.
 * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
+
+.. index:: dependencies (Test case)
+.. index:: dependency (Test case)
+.. index:: identifier (Test case)
+.. index:: description (Test case)
+.. index:: uri (Test case)
+.. _test-case-metadata-scopes:
+
+scopes
+++++++
+
+The ``scopes`` element serves to include metadata on the test case's scope, such as functional coverage or legal articles.
+It contains one or more ``scope`` elements with the following structure:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+    :delim: |
+
+    description | no | A free text describing the covered scope.
+    identifier | no | A unique identifier for the scope (if applicable).
+    uri | no | A remote URI reference with further information on the covered scope.
+
+The following example illustrates how scope metadata could be included in a test case:
+
+.. code-block:: xml
+    :emphasize-lines: 4-10
+
+    <metadata>
+      <gitb:name>Test case 1</gitb:name>
+      <gitb:description>Test case description.</gitb:description>
+      <gitb:scopes>
+        <gitb:scope>
+          <gitb:identifier>Invoicing</gitb:identifier>
+          <gitb:description>Description for this scope.</gitb:description>
+          <gitb:uri>https://wiki.test.org/invoicing</gitb:uri>
+        </gitb:scope>
+      </gitb:scopes>
+    </metadata>
+
+Scope metadata is not currently leveraged in the Test Bed, and is only recorded as metadata in the test case descriptor.
 
 .. index:: update (Test case)
 .. index:: updateMetadata (Test case update)

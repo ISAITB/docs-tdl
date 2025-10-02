@@ -43,6 +43,7 @@ Handlers are defined in the following steps:
 * :ref:`tdl-step-bptxn`: When beginning a processing transaction.
 * :ref:`tdl-step-process`: When making a processing operation outside of a processing transaction.
 * :ref:`tdl-step-verify`: When validating content.
+* :ref:`tdl-step-interact`: When triggering an alternative to a UI-based user interaction.
 
 The element corresponding to each of these steps defines a ``handler`` attribute to identify the handler implementation.
 In case an built-in handler is to be used the value specified here is the name of the handler (see :ref:`handlers-predefined-handlers`). Using an external
@@ -146,6 +147,7 @@ Used to send or receive content over HTTP.
 .. index:: HttpMessagingV2 (send - showResponseHeaders)
 .. index:: HttpMessagingV2 (send - responseHeadersToShow)
 .. index:: HttpMessagingV2 (send - responseHeadersToHide)
+.. index:: HttpMessagingV2 (send - version)
 
 .. _handlers-httpmessagingv2-send:
 
@@ -180,7 +182,8 @@ To use this handler to **send a HTTP message** to a external system, set it as t
     ``showResponseHeaders`` | No | ``boolean`` | Whether to display the response's headers in the step's report (default is true).
     ``showResponseStatus`` | No | ``boolean`` | Whether to display the response's status in the step's report (default is true).
     ``uri`` | Yes | ``string`` | The URI of the endpoint to be called.
-    
+    ``version`` | No | ``string`` | The HTTP protocol version to use. Supported valued are "2" (the default, for HTTP v2) and "1.1" (for HTTP version 1.1).
+
 In terms of implicit default values for missing inputs and the processing logic applied, the test engine bases itself on the overall inputs provided. Specifically:
 
 * If no ``method`` is provided but a ``body`` or ``parts`` input is present, the request will be a POST.
@@ -1228,6 +1231,9 @@ The following example illustrates how to use the ``encode`` operation to process
 .. index:: item (CollectionUtils)
 .. index:: onlyMissing (CollectionUtils)
 .. index:: ignoreCase (CollectionUtils)
+.. index:: entries (CollectionUtils)
+.. index:: keys (CollectionUtils)
+.. index:: values (CollectionUtils)
 .. _handlers-CollectionUtils:
 
 CollectionUtils
@@ -1243,11 +1249,14 @@ a processing transaction to be established. The following operations are support
     ``append`` | Append the elements of one collection to another. | Yes | No.
     ``clear`` | Receive a collection as input and empty it. | Yes | No.
     ``contains`` | Check to see whether a collection contains a given value. | Yes | Yes, a ``boolean`` representing the check result.
+    ``entries`` | Extract a map's entries in a list. Each entry is a map with ``key`` and ``value`` elements | Yes | Yes, the list of entries (as maps).
     ``find`` | Search for and return a given value from the collection. | Yes | Yes, the matched item (if found).
+    ``keys`` | Extract a map's keys in a list. | Yes | Yes, the list of ``string`` keys.
     ``randomKey`` | Return a random key from a map. | Yes | Yes, one of the map's ``string`` keys.
     ``randomValue`` | Return a random value from a collection. | Yes | Yes, the selected value (type varies depending on the content).
     ``remove`` | Remove an entry from a collection. | Yes | No.
     ``size`` | Receive a collection as input and return the number of elements it contains. | Yes | Yes, a ``number`` named ``output`` in the resulting step's ``map``.
+    ``values`` | Extract a map's values in a list. | Yes | Yes, the list of values.
 
 Collection or *container* variables represent flexible means of recording arbitrary sequences of data or hierarchical data structures. In particular
 ``map`` variables are very common as these are used to store results of :ref:`processing<tdl-step-process>`, :ref:`messaging<tdl-messaging-steps>` and :ref:`validation<tdl-step-verify>` operations.
@@ -1428,6 +1437,36 @@ The following examples illustrate the operation's use:
     <!-- Prints "true" -->
     <log>$listCheck3</log>
 
+.. _handlers-CollectionUtils_entries:
+
+CollectionUtils - entries
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``entries`` operation is used to return the entries contained within a ``map``. The entries are returned as a ``list``
+with each entry being a ``map`` with ``key`` and ``value`` elements. In these, the ``key`` is always a ``string`` whereas the
+``value`` is the type of the original entry. The inputs expected by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``map`` | Yes | The ``map`` to process.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <assign to="myMap{key1}">"Value 1"</assign>
+    <assign to="myMap{key2}">"Value 2"</assign>
+    <assign to="myMap{key3}">"Value 3"</assign>
+    <process handler="CollectionUtils" operation="entries" output="extractedEntries">
+       <input name="map">$myMap</input>
+    </process>
+    <!-- Prints "[key]=[key1],[value]=[Value 1],[key]=[key2],[value]=[Value 2],[key]=[key3],[value]=[Value 3]" -->
+    <log>$extractedEntries</log>
+    <!-- Prints "Value 1" -->
+    <log>$extractedKeys{0}{value}</log>
+
 .. _handlers-CollectionUtils_find:
 
 CollectionUtils - find
@@ -1480,6 +1519,35 @@ The following examples illustrate the operation's use:
     <log>$listValueFound</log>
     <!-- Prints "Value1" -->
     <log>$listValue</log>
+
+.. _handlers-CollectionUtils_keys:
+
+CollectionUtils - keys
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``keys`` operation is used to return the keys contained within a ``map``, as a ``list`` of ``string``.
+The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``map`` | Yes | The ``map`` to process.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <assign to="myMap{key1}">"Value 1"</assign>
+    <assign to="myMap{key2}">"Value 2"</assign>
+    <assign to="myMap{key3}">"Value 3"</assign>
+    <process handler="CollectionUtils" operation="keys" output="extractedKeys">
+       <input name="map">$myMap</input>
+    </process>
+    <!-- Prints "key1,key2,key3" -->
+    <log>$extractedKeys</log>
+    <!-- Prints "key1" -->
+    <log>$extractedKeys{0}</log>
 
 .. _handlers-CollectionUtils_randomKey:
 
@@ -1637,6 +1705,34 @@ The following examples illustrate how this operation can be used:
 .. note::
     **Nested collections:** If a collection structure contains itself further collection structures as elements, the
     ``size`` operation will only count the collection's top level elements.
+
+.. _handlers-CollectionUtils_values:
+
+CollectionUtils - values
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``values`` operation is used to return the values contained within a ``map``. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``map`` | Yes | The ``map`` to process.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <assign to="myMap{key1}">"Value 1"</assign>
+    <assign to="myMap{key2}">"Value 2"</assign>
+    <assign to="myMap{key3}">"Value 3"</assign>
+    <process handler="CollectionUtils" operation="values" output="extractedValues">
+       <input name="map">$myMap</input>
+    </process>
+    <!-- Prints "Value 1,Value 2,Value 3" -->
+    <log>$extractedValues</log>
+    <!-- Prints "Value 1" -->
+    <log>$extractedValues{0}</log>
 
 .. index:: DelayProcessor
 .. index:: delay (DelayProcessor)
@@ -1799,11 +1895,150 @@ structures (maps and lists, nested at different levels).
     that they execute but are not displayed and do not produce a visible report. When using the ``DisplayProcessor`` you need
     to ensure that ``hidden`` is set to ``false`` for its use to be meaningful.
 
+.. index:: JsonPathProcessor
+.. index:: content (JsonPathProcessor)
+.. index:: expression (JsonPathProcessor)
+.. index:: outputType (JsonPathProcessor)
+.. index:: asYaml (JsonPathProcessor)
+.. _handlers-JsonPathProcessor:
+
+JsonPathProcessor
++++++++++++++++++
+
+Used to extract values, calculations, or complete elements from JSON content based on a provided `JSONPath expression <https://www.rfc-editor.org/rfc/rfc9535.html>`_.
+This processing handler does not require a processing transaction to be established. The following operations are supported:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``count`` | Run a JSONPath expression on a given JSON content and return the number of matching elements. | Yes | Yes, a ``number`` representing the match count.
+    ``exists`` | Check whether a JSONPath expression matches any elements in a given JSON content. | Yes | Yes, a ``boolean`` representing the check result.
+    ``process`` | Extract values or entire JSON blocks using a JSONPath expression on a given JSON content. | Yes | Yes, depending on the selected ``outputType``.
+
+.. _handlers-JsonPathProcessor_count:
+
+JsonPathProcessor - count
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``count`` operation is used to check the number of matches returned when running a JSONPath expression on a given JSON content
+(returned as a ``number`` result). The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``asYaml`` | No | A ``boolean`` flag on whether to treat the input as YAML (and produce YAML output).
+    ``content`` | Yes | The ``string`` JSON content to consider.
+    ``expression`` | Yes | The ``string`` JSONPath expression to use.
+
+The following example illustrates the ``count`` operation's use:
+
+.. code-block:: xml
+
+    <!--
+      Return the number of books that have a high price.
+    -->
+    <process handler="JsonPathProcessor" operation="count" output="matchingBooks">
+       <input name="content">$json</input>
+       <input name="expression">"$.store.book[?(@.price > 100)]"</input>
+    </process>
+    <!--
+      Log the count.
+    -->
+    <log>"Matched " || $matchingBooks || " book(s)."</log>
+
+.. _handlers-JsonPathProcessor_exists:
+
+JsonPathProcessor - exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``exists`` operation is used to check whether any matches are returned when running a JSONPath expression on a given JSON content
+(returned as a ``boolean`` result). The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``asYaml`` | No | A ``boolean`` flag on whether to treat the input as YAML (and produce YAML output).
+    ``content`` | Yes | The ``string`` JSON content to consider.
+    ``expression`` | Yes | The ``string`` JSONPath expression to use.
+
+The following example illustrates the ``exists`` operation's use:
+
+.. code-block:: xml
+
+    <!--
+      Check to see if any books are expensive.
+    -->
+    <process handler="JsonPathProcessor" operation="exists" output="hasExpensiveBook">
+       <input name="content">$json</input>
+       <input name="expression">"$.store.book[?(@.price > 100)]"</input>
+    </process>
+    <!--
+      If there are expensive books skip the following validation.
+    -->
+    <verify desc="Validate books" handler="..." skipped="$hasExpensiveBook">
+       ...
+    </verify>
+
+.. _handlers-JsonPathProcessor_process:
+
+JsonPathProcessor - process
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``process`` operation is used to run a JSONPath expression on a given JSON content, to retrieve matching
+values or entire JSON blocks. The input parameters supported by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``asYaml`` | No | A ``boolean`` flag on whether to treat the input as YAML (and produce YAML output).
+    ``content`` | Yes | The ``string`` JSON content to consider.
+    ``expression`` | Yes | The ``string`` JSONPath expression to use.
+    ``outputType`` | No | The type of output to return. This can be ``default`` (the default), ``list`` or ``raw``.
+
+Regarding the ``outputType`` input, the values it supports bear the following meaning:
+
+* ``default`` returns a list with the results. If resulting in a leaf node it will convert it to a basic type (e.g. a string or a list of string for an array). This is the default approach considered.
+* ``list`` is very similar to the ``default`` approach but will force a list for the result. This means that even if your expression results in a simple string property value, it will be wrapped in a list. This allows you to consistently check if your expression produced results (and how many if needed).
+* ``raw`` returns a JSON string with the raw result. This is always formatted as a JSON array containing the expression's matches.
+
+The following example illustrates the ``process`` operation's use:
+
+.. code-block:: xml
+
+    <!--
+      Prompt the user to provide JSON content, the expression to use, and the type of output to return.
+    -->
+    <interact id="data" desc="Provide inputs">
+       <request desc="JSON" name="json" inputType="CODE" mimeType="application/json"/>
+       <request desc="Expression" name="expression"/>
+       <request desc="Output" name="outputType" inputType="SELECT_SINGLE" options="default,raw,list"/>
+    </interact>
+    <!--
+      Run the expression on the content and return the output.
+    -->
+    <process handler="JsonPathProcessor" operation="process" output="result">
+       <!-- The JSON input to process. -->
+       <input name="content">$data{json}</input>
+       <!-- The JSONPath expression to use. -->
+       <input name="expression">$data{expression}</input>
+       <!-- The type of output to return (default is "default"). -->
+       <input name="outputType">$data{outputType}</input>
+    </process>
+    <!--
+      Log the result.
+    -->
+    <log>$result</log>
+
 .. index:: JsonPointerProcessor
 .. index:: JSONPointerProcessor
 .. index:: process (JsonPointerProcessor)
 .. index:: content (JsonPointerProcessor)
 .. index:: pointer (JsonPointerProcessor)
+.. index:: asYaml (JsonPointerProcessor)
 .. _handlers-JSONPointerProcessor:
 
 JsonPointerProcessor
@@ -1824,6 +2059,7 @@ The input parameters expected by the ``process`` operation are as follows:
     :header: "Input name", "Required?", "Description"
     :delim: |
 
+    ``asYaml`` | No | A ``boolean`` flag on whether to treat the input as YAML (and produce YAML output).
     ``content`` | Yes | A ``string`` representing the JSON content to process.
     ``pointer`` | Yes | A ``string`` representing the JSON Pointer expression to use.
 
@@ -2803,6 +3039,70 @@ be :ref:`imported<test-case-imports>` from the test suite's resources.
         <input name="xslt">$xsltContent</input>
     </process>
     <log>$result</log>
+
+.. index:: YamlConverter
+.. index:: jsonToYaml (YamlConverter)
+.. index:: yamlToJson (YamlConverter)
+.. index:: content (YamlConverter)
+.. _handlers-YamlConverter:
+
+YamlConverter
++++++++++++++
+
+The ``YamlConverter`` processor is used to convert JSON content to YAML and vice-versa. It supports the following operations:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``jsonToYaml`` | Convert JSON content to YAML. | Yes | Yes, the resulting YAML content.
+    ``yamlToJson`` | Convert YAML content to JSON. | Yes | Yes, the resulting JSON content.
+
+.. _handlers-YamlConverter_jsonToYaml:
+
+YamlConverter - jsonToYaml
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``jsonToYaml`` operation is used to convert JSON content to YAML. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``content`` | Yes | The JSON content to convert.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <!-- Convert JSON content to YAML. -->
+    <process handler="YamlConverter" output="yamlResult" operation="jsonToYaml">
+       <input name="content">$jsonSample</input>
+    </process>
+    <log>$yamlResult</log>
+
+.. _handlers-YamlConverter_yamlToJson:
+
+YamlConverter - yamlToJson
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``yamlToJson`` operation is used to convert YAML content to JSON. The inputs it expects are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``content`` | Yes | The YAML content to convert.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <!-- Convert YAML content to JSON. -->
+    <process handler="YamlConverter" output="jsonResult" operation="yamlToJson">
+       <input name="content">$yamlSample</input>
+    </process>
+    <log>$jsonResult</log>
 
 .. index:: Built-in validation handlers
 .. _handlers-predefined-validation-handlers:
@@ -4815,22 +5115,30 @@ Authentication for external handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Handlers defined as external service implementations may need to be protected with access control. To support such protected services,
-the GITB software foresees the possibility to authenticate as part of each service call. Authentication information needs to be configured
-before any exchanges take place with the service and as such, cannot use the ``config`` and ``input`` elements otherwise used to pass information. 
-Authentication configuration is handled with ``property`` elements that are used as part of the handler setup in:
+the GITB software foresees the possibility to authenticate as part of each service call.
+
+The authentication possibilities currently supported are:
+
+* **Basic HTTP authentication** for all calls to the service's HTTP/HTTPS endpoint. This is authentication at the transport layer.
+* Authentication using the **WS-Security UsernameToken profile** (see `here <https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm>`__), supporting text and digest password transmission with timestamps and nonces. This is authentication at the SOAP application layer.
+
+Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
+where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
+of a UsernameToken. Combining both approaches is rare but possible.
+
+As of release 1.28.0, you can configure authentication for test services from the Test Bed's UI or REST API, by registering your
+**test services** under the relevant **domain**. Settings configured as such, will be automatically propagated to all test sessions
+and apply whenever a given test service is used (matched by means of the key used to identify the service as a
+:ref:`domain configuration parameter <test-case-expressions-domain>`).
+
+As an alternative to this automatic configuration, you can still define authentication information within your test cases.
+Authentication configuration is defined through ``property`` elements that are used as part of the handler setup in:
 
 * The :ref:`tdl-step-btxn` step for transactional messaging services.
 * The :ref:`tdl-step-send`, :ref:`tdl-step-receive` and :ref:`tdl-step-listen` step for non-transactional messaging services.
 * The :ref:`tdl-step-bptxn` step for transactional processing services.
 * The :ref:`tdl-step-process` step for non-transactional processing services.
 * The :ref:`tdl-step-verify` step for validation services.
-
-The authentication possibilities currently supported are:
-
-* **Basic HTTP authentication** for all calls to the service's HTTP/HTTPS endpoint. This is authentication at the transport layer.
-* Authentication using the **WS-Security UsernameToken profile** (see `here`_), supporting text and digest password transmission with timestamps and nonces. This is authentication at the SOAP application layer.
-
-.. _here: https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm
 
 The properties that are supported in the ``property`` elements are listed in the following table:
 
@@ -4843,17 +5151,18 @@ The properties that are supported in the ``property`` elements are listed in the
     ``auth.token.password.type``, 'DIGEST' (the default) or 'TEXT', The way the password is to be serialised in the header. 'DIGEST' includes it as a DIGEST whereas 'TEXT' adds it in plaintext.
     ``auth.token.username``, Any ``string``, The username to include in the SOAP header as the UsernameToken's username.
 
-Note that use of HTTP basic authentication and the UsernameToken are not necessarily exclusive. A case where both are provided would be
-where a service protects access to its WSDL using HTTP basic authentication and adds additional protection for SOAP service calls by means
-of a UsernameToken. Combining both approaches is rare but possible. The following example illustrates use of these authentication properties
-calling various test services:
+.. note::
+  Authentication settings for test service handlers defined within test cases, will override any settings defined in the Test Bed
+  through the UI or REST API.
+
+The following example illustrates using authentication properties when calling test services:
 
 .. code-block:: xml
 
     <!--
         Transactional messaging service authentication with UsernameToken (DIGEST).
     -->
-    <btxn from="Sender" to="Receiver1" txnId="t1" handler="$messagingServiceURL">
+    <btxn from="Sender" to="Receiver1" txnId="t1" handler="$DOMAIN{messagingServiceURL}">
         <property name="auth.token.username">$DOMAIN{serviceUsername1}</property>
         <property name="auth.token.password">$DOMAIN{servicePassword1}</property>
         <property name="auth.token.password.type">DIGEST</property>
@@ -4863,7 +5172,7 @@ calling various test services:
     <!--
         Validation service authentication with UsernameToken (DIGEST - the default) and HTTP basic authentication.
     -->
-    <verify handler="$validationService1" desc="Validate content">
+    <verify handler="$DOMAIN{validationService1}" desc="Validate content">
         <property name="auth.basic.username">$DOMAIN{serviceUsername2}</property>
         <property name="auth.basic.password">$DOMAIN{servicePassword2}</property>
         <property name="auth.token.username">$DOMAIN{serviceUsername3}</property>
@@ -4873,7 +5182,7 @@ calling various test services:
     <!--
         Transactional processing service authentication with HTTP basic authentication.
     -->
-    <bptxn txnId="t1" handler="$processingServiceURL">
+    <bptxn txnId="t1" handler="$DOMAIN{processingServiceURL}">
         <property name="auth.basic.username">$DOMAIN{serviceUsername4}</property>
         <property name="auth.basic.password">$DOMAIN{servicePassword4}</property>
     </bptxn>
@@ -4885,7 +5194,7 @@ calling various test services:
     <!--
         Non-transactional processing service authentication with HTTP basic authentication.
     -->
-    <process id="result" handler="$otherProcessingServiceURL">
+    <process id="result" handler="$DOMAIN{otherProcessingServiceURL}">
         <property name="auth.basic.username">$DOMAIN{serviceUsername5}</property>
         <property name="auth.basic.password">$DOMAIN{servicePassword5}</property>
         <operation>action</operation>
@@ -4894,7 +5203,7 @@ calling various test services:
     <!--
         Validation service authentication with UsernameToken (TEXT) authentication.
     -->
-    <verify handler="$validationService2" desc="Validate content">
+    <verify handler="$DOMAIN{validationService2}" desc="Validate content">
         <property name="auth.token.username">$DOMAIN{serviceUsername6}</property>
         <property name="auth.token.password">$DOMAIN{servicePassword6}</property>
         <property name="auth.token.password.type">TEXT</property>
@@ -4903,7 +5212,7 @@ calling various test services:
     <!--
         Non-transactional messaging service with UsernameToken (TEXT) authentication.
     -->
-    <send id="dataSend" desc="Send message" from="Sender" to="Receiver" handler="$messagingServiceURL">
+    <send id="dataSend" desc="Send message" from="Sender" to="Receiver" handler="$DOMAIN{messagingServiceURL}">
         <property name="auth.token.username">$DOMAIN{serviceUsername7}</property>
         <property name="auth.token.password">$DOMAIN{servicePassword7}</property>
         <property name="auth.token.password.type">TEXT</property>

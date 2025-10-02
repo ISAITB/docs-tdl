@@ -72,11 +72,13 @@ manage existing test suites but also for end users to understand the test suite'
     :header: "Name", "Required?", "Description"
 
     authors, no, A string to indicate the test suite's authors.
+    dependencies, no, One or more ``dependency`` elements to record information on the test suite's dependencies.
     description, no, A string to provide a user-friendly description of the test suite that is displayed to users.
     documentation, no, Rich text content that provides further information on the current test suite.
     lastModified, no, A string acting as an indication of the last modification time for the test suite.
     name, yes, The name of the test suite that is used to identify it to users.
     published, no, A string acting as an indication of the test suite's publishing time.
+    scopes, no, One or more ``scope`` elements to record information on the test suite's intended scope.
     type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when multiple systems under test are considered in the test suite's test cases.
     update, no, Instructions determining the default choices when an update of this test suite is taking place.
     version, yes, A string that indicates the test suite's version.
@@ -84,8 +86,49 @@ manage existing test suites but also for end users to understand the test suite'
 .. note::
     **GITB software support:** The test suite's ``id`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
     within a given specification. An uploaded test suite whose ``id`` matches that of an existing test suite will result in the existing test suite
-    being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``published`` and ``lastModified`` 
+    being updated. Furthermore, the ``version`` value is used only for display purposes whereas the ``authors``, ``dependencies``, ``published``, ``scopes`` and ``lastModified``
     values are recorded but never used or displayed. Finally, the "INTEROPERABILITY" ``type`` (defined at test suite level) is currently ignored.
+
+.. index:: dependencies (Test suite)
+.. index:: dependency (Test suite)
+.. index:: identifier (Test suite)
+.. index:: description (Test suite)
+.. index:: uri (Test suite)
+.. _test-suite-metadata-dependencies:
+
+dependencies
+++++++++++++
+
+The ``dependencies`` element serves to include metadata on possible dependencies that this test suite might mave, such as the existence of
+test services or other supporting software. It contains one or more ``dependency`` elements with the following structure:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+    :delim: |
+
+    description | no | A free text describing the nature of this dependency.
+    identifier | no | A unique identifier for the dependency (if applicable).
+    uri | no | A remote URI reference with further information on the dependency.
+
+The following example illustrates how dependency metadata could be included in a test suite:
+
+.. code-block:: xml
+    :emphasize-lines: 4-10
+
+    <metadata>
+      <gitb:name>Test suite 1</gitb:name>
+      <gitb:description>Test suite description.</gitb:description>
+      <gitb:dependencies>
+        <gitb:dependency>
+          <gitb:identifier>DEP_1</gitb:identifier>
+          <gitb:description>Description for dependency.</gitb:description>
+          <gitb:uri>https://wiki.test.org/dep1</gitb:uri>
+        </gitb:dependency>
+      </gitb:dependencies>
+    </metadata>
+
+Dependency metadata is not currently leveraged in the Test Bed, and is only recorded as metadata in the test suite descriptor.
 
 .. index:: documentation (Test suite)
 .. index:: import (Test suite documentation)
@@ -120,11 +163,11 @@ target test suite as follows:
 This documentation can provide further information on the context of the test suite, diagrams or reference information that are useful to understand how it is to be completed or its purpose within the
 overall specification. The content supplied supports several HTML features:
 
-    * Structure elements (e.g. headings, text blocks, lists).
-    * In-line styling.
-    * Tables.
-    * Links.
-    * Images.
+* Structure elements (e.g. headings, text blocks, lists).
+* In-line styling.
+* Tables.
+* Links.
+* Images.
 
 The simplest way to provide such information is to enclose the HTML content in a CDATA section to ensure the XML remains well-formed. The
 following sample provides an example of this approach:
@@ -146,8 +189,49 @@ following sample provides an example of this approach:
 
 Note that documentation such as this is also supported for:
 
-    * The :ref:`test cases<test-case-metadata>` included in the test suite.
-    * Individual :ref:`test case steps<tdl-steps-common-documentation>`.
+* The :ref:`test cases<test-case-metadata>` included in the test suite.
+* Individual :ref:`test case steps<tdl-steps-common-documentation>`.
+
+.. index:: dependencies (Test suite)
+.. index:: dependency (Test suite)
+.. index:: identifier (Test suite)
+.. index:: description (Test suite)
+.. index:: uri (Test suite)
+.. _test-suite-metadata-scopes:
+
+scopes
+++++++
+
+The ``scopes`` element serves to include metadata on the test suite's scope, such as functional coverage or legal articles.
+It contains one or more ``scope`` elements with the following structure:
+
+.. csv-table::
+    :stub-columns: 1
+    :header: "Name", "Required?", "Description"
+    :delim: |
+
+    description | no | A free text describing the covered scope.
+    identifier | no | A unique identifier for the scope (if applicable).
+    uri | no | A remote URI reference with further information on the covered scope.
+
+The following example illustrates how scope metadata could be included in a test suite:
+
+.. code-block:: xml
+    :emphasize-lines: 4-10
+
+    <metadata>
+      <gitb:name>Test suite 1</gitb:name>
+      <gitb:description>Test suite description.</gitb:description>
+      <gitb:scopes>
+        <gitb:scope>
+          <gitb:identifier>Invoicing</gitb:identifier>
+          <gitb:description>Description for this scope.</gitb:description>
+          <gitb:uri>https://wiki.test.org/invoicing</gitb:uri>
+        </gitb:scope>
+      </gitb:scopes>
+    </metadata>
+
+Scope metadata is not currently leveraged in the Test Bed, and is only recorded as metadata in the test suite descriptor.
 
 .. index:: update (Test suite)
 .. index:: updateMetadata (Test suite update)
@@ -498,8 +582,8 @@ in a group are considered sequentially.
 
 To use test case groups two steps are needed:
 
-    * Define the groups as part of the test suite using the ``groups`` element.
-    * Reference the groups when listing test cases using the ``testcase`` element(s).
+* Define the groups as part of the test suite using the ``groups`` element.
+* Reference the groups when listing test cases using the ``testcase`` element(s).
 
 The optional ``groups`` element, used to define the groups you will refer to, contains one or more ``group`` elements for each of the
 test case groups. The structure of each ``group`` is as follows:
@@ -577,11 +661,11 @@ The order with which the test case entries are defined is important as it define
 cases are selected for execution at once, which typically occurs when launching a complete test suite as opposed to an individual test case. Executing a
 complete test suite can be done in two ways:
 
-    * **Interactively**, by presenting to the tester all test cases and launching each one in sequence while interacting with the tester and updating
-      the test session diagram and log.
-    * **In the background**, by launching all test cases as a batch, allowing also the tester to choose whether tests are executed in parallel or in 
-      sequence. Note that test cases that do not :ref:`support parallel execution<test-case>` can be configured as such so that they are always executed
-      in isolation (for a given SUT).
+* **Interactively**, by presenting to the tester all test cases and launching each one in sequence while interacting with the tester and updating
+  the test session diagram and log.
+* **In the background**, by launching all test cases as a batch, allowing also the tester to choose whether tests are executed in parallel or in
+  sequence. Note that test cases that do not :ref:`support parallel execution<test-case>` can be configured as such so that they are always executed
+  in isolation (for a given SUT).
 
 .. note::
     **GITB software support:** The ``prequisite`` and ``option`` values are currently ignored.

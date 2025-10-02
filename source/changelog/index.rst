@@ -10,7 +10,25 @@ Release numbers follow **global numbering** covering all Test Bed components, me
 actually introduced changes to the GITB TDL. The current page lists only the releases that introduced changes, whereas
 those not included are global maintenance releases that made no changes to the GITB TDL.
 
-The latest GITB TDL release is **1.27.4**.
+The latest GITB TDL release is **1.28.0**.
+
+Release 1.28.0 - XX/XX/2025
+---------------------------
+
+.. csv-table::
+    :header: "Description of changes", "Relevant sections"
+    :delim: |
+
+    New ``version`` input for the ``HttpMessagingV2`` handler to control the HTTP protocol version used when kaming requests. | :ref:`handlers-httpmessagingv2`
+    Automated configuration of test service handler authentication via the Test Bed's UI and REST API. | :ref:`handlers-authentication`
+    Test suite and test case metadata includes new ``dependencies`` and ``scopes`` sections. | :ref:`test-suite-metadata-dependencies`, :ref:`test-suite-metadata-scopes`, :ref:`test-case-metadata-dependencies`, :ref:`test-case-metadata-scopes`
+    The ``from`` and ``to`` actors of the ``btxn`` step are now optional, delegating to the relevant ``send`` or ``receive`` step actors. | :ref:`tdl-step-btxn`
+    Support for managing timeouts to external test service handlers used in test steps. | :ref:`tdl-steps-common-handlerTimeouts`
+    New ``JsonPathProcessor`` to process JSON content using JSONPath expressions (supporting ``process``, ``exists`` and ``count`` operations). | :ref:`handlers-JsonPathProcessor`
+    Support for YAML input and output when using the ``JsonPointerProcessor`` and ``JsonPathProcessor``. | :ref:`handlers-JSONPointerProcessor` :ref:`handlers-JsonPathProcessor`
+    New ``CollectionUtils`` map operations to extract ``keys``, ``values`` and ``entries``. | :ref:`handlers-CollectionUtils`
+    New ``YamlConverter`` processor with operations to convert JSON to YAML (``jsonToYaml``), and YAML to JSON (``yamltoJson``). | :ref:`handlers-YamlConverter`
+    New iterator-style looping for the ``foreach`` step using the new ``item`` and ``of`` attributes. | :ref:`tdl-step-foreach`
 
 Release 1.27.0 - 24/06/2025
 ---------------------------

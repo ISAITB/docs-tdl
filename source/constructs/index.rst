@@ -32,6 +32,7 @@ allowing content to be sent or received is implemented by a messaging handler (s
 .. index:: stopOnError (btxn)
 .. index:: property (btxn)
 .. index:: config (btxn)
+.. index:: handlerTimeout (btxn)
 .. _tdl-step-btxn:
 
 btxn
@@ -51,11 +52,12 @@ The structure of the ``btxn`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @from, yes, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
+    @from, no, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler, yes, A string value or variable reference identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
+    @handlerTimeout, no, A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
     @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
-    @to, yes, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
+    @to, no, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @txnid, yes, A string ID for the transaction.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     property, no, Zero or more elements to provide configuration regarding the setup of the messaging handler call that are not passed to the handler. Each ``property`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -67,12 +69,12 @@ and ``receive`` calls.
 .. code-block:: xml
     :emphasize-lines: 1
 
-    <btxn from="Actor1" to="Actor2" txnId="t1" handler="HttpMessagingV2"/>
-    <send id="dataSend" desc="Send data" from="Actor1" to="Actor2" txnId="t1">
+    <btxn txnId="t1" handler="HttpMessagingV2"/>
+    <send id="dataSend" desc="Send data" txnId="t1">
         <input name="uri">"https://my.sut.org/api/get"</input>
         <input name="method">"GET"</input>
     </send>
-    <receive id="dataReceive" desc="Receive data" from="Actor2" to="Actor1" txnId="t1">
+    <receive id="dataReceive" desc="Receive data" txnId="t1">
         <input name="method">"GET"</input>
     </receive>
     <etxn txnId="t1"/>
@@ -191,6 +193,8 @@ identifier of which it references. The structure of the ``listen`` element is as
 .. index:: ERROR (receive)
 .. index:: WARNING (receive)  
 .. index:: invert (receive)
+.. index:: handlerTimeout (receive)
+.. index:: handlerTimeoutFlag (receive)
 .. _tdl-step-receive:
 
 receive
@@ -210,6 +214,8 @@ The structure of the ``receive`` element is as follows:
     @desc | no | A description for this step to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @from | no | The ID of the actor (defaulting to the SUT actor) that will be sending the message (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler | no | The :ref:`messaging handler<handlers>` to use for this messaging step. If not specified (for transactional messaging) the ``txnid`` attribute is required.
+    @handlerTimeout | no | A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
+    @handlerTimeoutFlag | no | A string value with the name of a boolean variable to set informing whether or not a handler timeout occurred. See also :ref:`tdl-steps-common-handlerTimeouts`.
     @hidden | no | A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id | no | The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @invert | no | A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a communication failure to complete the step as a success.
@@ -328,6 +334,8 @@ actor is also optional as long as the test case defines only a single non-SUT ac
 .. index:: ERROR (send)
 .. index:: WARNING (send)    
 .. index:: invert (send)
+.. index:: handlerTimeout (send)
+.. index:: handlerTimeoutFlag (send)
 .. _tdl-step-send:
 
 send
@@ -347,6 +355,8 @@ The structure of the ``send`` element is as follows:
     @desc | no | A description for this step to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @from | no | The ID of the actor (defaulting to the non-SUT actor if one is defined) that will be sending the message (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler | no | The :ref:`messaging handler<handlers>` to use for this messaging step. If not specified (for transactional messaging) the ``txnid`` attribute is required.
+    @handlerTimeout | no | A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
+    @handlerTimeoutFlag | no | A string value with the name of a boolean variable to set informing whether or not a handler timeout occurred. See also :ref:`tdl-steps-common-handlerTimeouts`.
     @hidden | no | A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id | no | The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @invert | no | A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a communication failure to complete the step as a success.
@@ -438,6 +448,7 @@ Note that processing steps are not presented to the user.
 .. index:: stopOnError (bptxn)
 .. index:: property (bptxn)
 .. index:: config (bptxn)
+.. index:: handlerTimeout (bptxn)
 .. _tdl-step-bptxn:
 
 bptxn
@@ -466,6 +477,7 @@ The structure of the ``bptxn`` element (defined when a processing transaction is
     :header: "Name", "Required?", "Description"
 
     @handler, yes, A string value or variable reference identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
+    @handlerTimeout, no, A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
     @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @txnid, yes, A string identifier for the transaction.
@@ -534,6 +546,8 @@ completed and proceed with any needed actions such as resource clean-up.
 .. index:: ERROR (process)
 .. index:: WARNING (process)
 .. index:: invert (process)
+.. index:: handlerTimeout (process)
+.. index:: handlerTimeoutFlag (process)
 .. _tdl-step-process:
 
 process
@@ -553,6 +567,8 @@ The structure of the ``process`` element is as follows:
 
     @desc | no | A description for this step to display to the user (meaningful if ``hidden`` is "false") and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler | no | A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
+    @handlerTimeout | no | A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
+    @handlerTimeoutFlag | no | A string value with the name of a boolean variable to set informing whether or not a handler timeout occurred. See also :ref:`tdl-steps-common-handlerTimeouts`.
     @hidden | no | A boolean flag determining whether or not the step is displayed to users (default is "true"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id | no | The ID for the step. This is also the name of a ``map`` variable in the session context in which output will be stored.
     @input | no | An alternative to input elements to provide a single input when the processing handler expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-process__simplified`.
@@ -950,36 +966,42 @@ notification that is hidden.
 .. index:: hidden (foreach)
 .. index:: collapsed (foreach)
 .. index:: stopOnChildError (foreach)
+.. index:: item (foreach)
+.. index:: of (foreach)
 .. _tdl-step-foreach:
 
 foreach
 ~~~~~~~
 
-The ``foreach`` step allows you to execute a sequence of steps for a specific number of iterations. Its structure is as follows:
+The ``foreach`` step allows you to execute a sequence of steps for a specific number of iterations or to iterate over a set of items. Its structure is as follows:
 
 .. csv-table::
     :stub-columns: 1
+    :delim: |
     :header: "Name", "Required?", "Description"
 
-    @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
-    @counter, no, A name for the variable through which to expose the iteration counter (default is "i").
-    @desc, no, A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    @end, yes, A number that is considered as the maximum iteration count plus 1. This is provided as a constant or as a variable reference.
-    @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
-    @start, yes, A number to initialise the iteration index to. This is provided as a constant or as a variable reference.
-    @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
-    @title, no, A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    do, yes, Contains as children any sequence of steps to execute for a loop iteration.
-    documentation, no, Rich text content that provides further information on the current step.
+    @collapsed | no | A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
+    @counter | no | A name for the variable through which to expose the iteration counter (default is "i").
+    @desc | no | A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
+    @end | no | A number considered as the maximum iteration count plus 1, provided as a constant or as a variable reference. If the ``of`` attribute is not present, the `end` attribute becomes mandatory.
+    @hidden | no | A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
+    @item | no | The name of a variable that will hold the current iteration's item. This applies only when iterating over a collection provided through the ``of`` attribute.
+    @of | no | A variable reference for a collection (map or list) to iterate over. If this is not provided, the ``end`` attribute becomes mandatory.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @start | no | A number to initialise the zero-based iteration index with, provided as a constant or as a variable reference.
+    @stopOnError | no | A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
+    @title | no | A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
+    do | yes | Contains as children any sequence of steps to execute for a loop iteration.
+    documentation | no | Rich text content that provides further information on the current step.
 
-The ``start`` and ``end`` values define the number of iterations to perform. Specifically, the loop will continue as long as
-``start`` is less than ``end`` with ``start`` getting incremented by one at the end of each iteration.
+The ``foreach`` step allows you to run a specific number of iterations, as defined by the ``start`` and ``end`` values.
+When used in this way, iterations will continue as long as ``start`` is less than ``end`` with ``start`` getting incremented by one at the end of each iteration.
+If not specified, ``start`` is assumed to be zero.
 
 .. code-block:: xml
 
-    <!-- 
-        The loop will execute 2 times (start must be less than end). The currentIndex variable will be 5 in the first 
+    <!--
+        The loop will execute 2 times (start must be less than end). The currentIndex variable will be 5 in the first
         iteration and then 6. Note that referring to this is done as a variable reference (if not specified the variable
         would be named "i" and referred to as "$i").
     -->
@@ -999,7 +1021,50 @@ The ``start`` and ``end`` values define the number of iterations to perform. Spe
                 <instruct desc="Iteration">"Iteration " || $currentIndex</instruct>
             </interact>
         </do>
-    </foreach>	
+    </foreach>
+
+Another way of using the ``foreach`` step is as an iterator over a map or a list. In this case ``of`` becomes the key attribute
+to consider, that is set with the reference to the target map or list. With this approach you would typically also
+define the ``item`` attribute with the name of a variable to hold the current iteration item. When iterating over a map,
+the iterated items are the map's entries, each being exposed as a map with ``key`` and ``value`` entries.
+
+.. code-block:: xml
+
+    <!--
+      Prepare a map.
+    -->
+    <assign to="myMap{key1}">"value1"</assign>
+    <assign to="myMap{key2}">"value2"</assign>
+    <assign to="myMap{key3}">"value3"</assign>
+    <!--
+      Iterate over the map's entries
+    -->
+    <foreach item="entry" of="$myMap" counter="index" desc="Iterate entries">
+       <do>
+          <!--
+            Exposing and using the index counter is not needed, but we can use it if useful.
+          -->
+          <log>"In foreach of entries (" || $index || "): " || $entry{key} || ":" || $entry{value}</log>
+       </do>
+    </foreach>
+    <!--
+      Prepare a list.
+    -->
+    <assign to="myList" append="true">"value1"</assign>
+    <assign to="myList" append="true">"value2"</assign>
+    <assign to="myList" append="true">"value3"</assign>
+    <!--
+      Iterate over the list.
+    -->
+    <foreach item="item" of="$myList" desc="Iterate values">
+       <do>
+          <log>$item</log>
+       </do>
+    </foreach>
+
+When using the ``item`` and ``of`` attributes to iterate over a map or list, you can still make use of the ``start`` and ``end`` attributes.
+In this case, when ``start`` is present it defines the zero-based index to start the iteration from, whereas ``end``
+defines the end index. The ``start`` and ``end`` attributes can be used together, one at a time, or altogether skipped.
 
 .. index:: if
 .. index:: title (if)
@@ -1672,6 +1737,8 @@ Use of these attributes is illustrated in the following TDL snippet:
 .. index:: handler (interact)
 .. index:: handlerEnabled (interact)
 .. index:: handlerConfig (interact)
+.. index:: handlerTimeout (interact)
+.. index:: handlerTimeoutFlag (interact)
 .. _tdl-step-interact:
 
 interact
@@ -1695,6 +1762,8 @@ The structure of the ``interact`` element is as follows:
     @desc, no, A description for the user interaction to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler, no, The endpoint address for a `GITB messaging service <https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html>`__ that will be delegated the handling of this interaction in case ``handlerEnabled`` is true. See also :ref:`tdl-step-interact_handler`.
     @handlerEnabled, no, A boolean flag (by default "false") provided as a constant or a :ref:`variable reference <test-case-referring-to-variables>` to determine whether the interaction should be delegated to an external service (specified via the ``handler`` attribute). See also :ref:`tdl-step-interact_handler`.
+    @handlerTimeout, no, A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
+    @handlerTimeoutFlag, no, A string value with the name of a boolean variable to set informing whether or not a handler timeout occurred. See also :ref:`tdl-steps-common-handlerTimeouts`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -2480,7 +2549,8 @@ and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can 
 .. index:: ERROR (verify)
 .. index:: WARNING (verify)
 .. index:: invert (verify)
-
+.. index:: handlerTimeout (verify)
+.. index:: handlerTimeoutFlag (verify)
 .. _tdl-step-verify:
 
 verify
@@ -2501,6 +2571,8 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
 
     @desc~ no~ A description for this validation to display to the user and to include in the test session log. Within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`.
     @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
+    @handlerTimeout ~ no ~ A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
+    @handlerTimeoutFlag ~ no ~ A string value with the name of a boolean variable to set informing whether or not a handler timeout occurred. See also :ref:`tdl-steps-common-handlerTimeouts`.
     @hidden~ no~ A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id~ no~ The ID for the step. This is also the name of a ``boolean`` variable in the session context in which the validation result will be recorded ("true" for success).
     @invert~ no~ A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a validation failure to complete the step as a success.
@@ -3156,6 +3228,74 @@ that any failures they produce are ignored:
         <send desc="Delete test dataset 1" handler="HttpMessagingV2" level="WARNING">...</send>
         <send desc="Delete test dataset 2" handler="HttpMessagingV2" level="WARNING">...</send>
     </group>
+
+.. index:: handlerTimeout
+.. index:: handlerTimeoutFlag
+.. _tdl-steps-common-handlerTimeouts:
+
+Timeouts for external service handlers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Certain test steps support delegating processing to an external test service defined as the steps' :ref:`handler <handlers-custom-handlers>`.
+This is achieved by means of the ``handler`` attribute, which in the case of an external service is set with the URL of
+the service's endpoint. Moreover, this endpoint is typically defined as a :ref:`domain comfiguration parameter <test-case-expressions-domain>` for
+portability and easier configuration.
+
+.. code-block:: xml
+
+    <!--
+      Use a custom messaging service (the endpoint of which is configured as a domain parameter)
+      to send a message.
+    -->
+    <send id="sendMessage" desc="Send message" handler="$DOMAIN{messagingService}">
+        <input name="messageToSend">$message</input>
+    </send>
+
+When such a test service is called, the Test Bed will wait by default until the service completes its processing, no matter
+how long this may take. You might want to limit this waiting period by specifying a **response timeout**, ensuring that your
+test session does not block indefinitely. Managing such timeouts is done via two attributes:
+
+* ``handlerTimeout``, set with the number of milliseconds to wait before timing out (can also be provided via :ref:`variable reference <test-case-referring-to-variables>`).
+* ``handlerTimeoutFlag``, provided with the name of a boolean variable to set depending on whether a timeout occurred or not.
+
+Using these attributes it is possible to fine tune your test case, to better inform the user or even to adapt your testing logic.
+Taking the example of a :ref:`verify step <tdl-step-verify>` calling a remote validation service, you can use timeouts as follows:
+
+.. code-block:: xml
+
+    <!--
+      Time out if the response if not received within 10 seconds.
+      This could also have been provided via variable (e.g. $DOMAIN{handlerTimeout}).
+    -->
+    <verify handler="$DOMAIN{address}" handlerTimeout="10000" handlerTimeoutFlag="timeoutOccurred" desc="Call remote validator">
+        <input name="contentToValidate">$content</input>
+    </verify>
+    <!--
+      Prints 'true' if the step failed due to a timeout.
+    -->
+    <log>$timeoutOccurred</log>
+
+.. note::
+    These attributes have no effect when a :ref:`built-in handler <handlers-predefined-handlers>` is used. In addition, note that they
+    cover response timeouts, not **connection timeouts** that may come up due to networking issues or an invalid endpoint address.
+
+In the case of steps that are inherently asynchronous, notably the :ref:`receive <tdl-step-receive>` and :ref:`interact <tdl-step-interact>` steps,
+the ``handlerTimeout`` applies in addition to the steps' ``timeout`` attribute. The distinction here is that the ``timeout`` attribute
+limits how long the test session will idly wait for an update, whereas the ``handlerTimeout`` attribute limits how long to
+allow the service to actively process while poroviding a synchronous response. It is unlikely that you would need to specify
+both ``timeout`` and ``handlerTimeout`` attributes, but it could still be interesting if for example the synchronous processing
+carried out by a messaging service called via a ``receive`` step may take time before it begins waiting for a message.
+
+.. code-block:: xml
+
+    <!--
+      Use a custom service to receive a message from the SUT. Timeouts will be raised in two cases:
+      - After 10 seconds while making the call to the test service.
+      - After 5 minutes while waiting for the expected SUT message to be received by the service.
+    -->
+    <receive id="receiveMessage" desc="Receive message" handler="$DOMAIN{messagingService}" timeout="300000" handlerTimeout="10000">
+        <input name="expectedSender">$sender</input>
+    </receive>
 
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
 .. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive
