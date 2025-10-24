@@ -3581,7 +3581,7 @@ Used to verify that a provided ``string`` matches an expected value.
 XmlMatchValidator
 +++++++++++++++++
 
-Used to validate an XML document by matching it against a provided template.
+Used to validate an XML document by matching it against a provided reference document or template.
 
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
@@ -3590,6 +3590,7 @@ Used to validate an XML document by matching it against a provided template.
     ``template``, Yes, ``object``, The XML file to consider as the validation's template.
     ``xml``, Yes, ``object``, The XML file to validate.
 
+The ``template`` input can either be a complete XML reference document that you want the ``xml`` to match, or a match template.
 The matching process takes place by normalising whitespace, ignoring comments and tolerating naming differences in namespace prefixes. In addition,
 texts of elements or attributes in the provided ``template`` can be specified with the special value ``?``. This means that any value will be allowed
 for this element or attribute and will be ignored as part of the matching (e.g. to ignore random tokens, timestamps, or texts with no expected value).
