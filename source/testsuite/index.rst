@@ -146,7 +146,7 @@ The ``documentation`` element complements the test suite's ``description`` by al
     :header: "Name", "Required?", "Description"
 
     encoding, no, In case an ``import`` reference is defined this can be used to specify the file's encoding. If not provided ``UTF-8`` is considered.
-    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified, the current test suite is assumed.
+    from, no, The identifier of a test suite from which the ``import`` file will be loaded. If unspecified the current test suite is assumed.
     import, no, A reference to a separate file within the test suite archive that defines the documentation content.
 
 Using the above attributes to specify a reference to a separate file is not mandatory. The documentation's content can also be provided as the element's text content,
