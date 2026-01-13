@@ -144,7 +144,7 @@ about the test case to help users understand its purpose. Its structure is as fo
     tags, no, Optional tags used to record additional metadata for the test case and visually highlight its attributes.
     type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when more than one actor are defined as SUTs.
     update, no, Instructions determining the default choices when an update of this test case is taking place.
-    version, yes, A string that indicates the test case's version.
+    version, no, A string that indicates the test case's version.
 
 .. note::
     **GITB software support:** The test case ``type`` must currently be set to "CONFORMANCE" (the default value) as the

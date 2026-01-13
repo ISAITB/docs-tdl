@@ -81,7 +81,7 @@ manage existing test suites but also for end users to understand the test suite'
     scopes, no, One or more ``scope`` elements to record information on the test suite's intended scope.
     type, no, Either "CONFORMANCE" (the default) or "INTEROPERABILITY". "INTEROPERABILITY" is used when multiple systems under test are considered in the test suite's test cases.
     update, no, Instructions determining the default choices when an update of this test suite is taking place.
-    version, yes, A string that indicates the test suite's version.
+    version, no, A string that indicates the test suite's version.
 
 .. note::
     **GITB software support:** The test suite's ``id`` attribute is used to uniquely identify the test suite within a specification so ensure that it's unique 
