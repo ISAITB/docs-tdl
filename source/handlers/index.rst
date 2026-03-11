@@ -1767,8 +1767,8 @@ The following examples illustrate how the ``DelayProcessor`` can be used to paus
 
     <!-- Wait for a random duration between 5 and 10 seconds. -->
     <process handler="TokenGenerator" operation="random" output="randomDelay">
-        <input name="minimum">5</input>
-        <input name="maximum">10</input>
+        <input name="minimum">5000</input>
+        <input name="maximum">10000</input>
         <input name="integer">true()</input>
     </process>
     <process handler="DelayProcessor" operation="delay" output="$randomDelay"/> 
