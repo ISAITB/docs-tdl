@@ -1771,7 +1771,7 @@ The following examples illustrate how the ``DelayProcessor`` can be used to paus
         <input name="maximum">10000</input>
         <input name="integer">true()</input>
     </process>
-    <process handler="DelayProcessor" operation="delay"/>
+    <process handler="DelayProcessor" operation="delay" input="$randomDelay"/>
 
 .. index:: DisplayProcessor
 .. index:: result (DisplayProcessor)
