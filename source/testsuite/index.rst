@@ -39,10 +39,22 @@ A test suite is defined as the XML file's root element ``testsuite``. The follow
     :header: "Name", "Required?", "Description"
 
     @id, yes, A string to uniquely identify the test suite by.
+    @order, no, A number used to establish the relative ordering of this test suite compared to other test suites.
     actors, no, The list of actors that relate to the test suite's test cases. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
     groups, no, A list of groups to be referenced by test cases. Only a single successful test case is needed from within a group to consider the entire group as successful (see :ref:`test-suite-groups` for details).
     metadata, yes, A block containing the metadata used to describe the test suite.
     testcase, no, A set of one or more test cases that are included in the test suite. If not defined the test suite is assumed to be used only for :ref:`resource sharing<test-suite-sharing>`.
+
+Regarding the test suite's ``order`` attribute, this is set with an integer (negative, zero or positive) defining its relative
+order compared to other test suites, and defaulting to zero if unspecified. This is not considered as an absolute value
+because test suites may be associated to multiple specifications, either as copies or as shared test suites. Ordering is
+established once all applicable test suites are loaded, comparing first their ``order`` value, followed by their name.
+
+Test suite ordering affects the test suite's display in screens and reports, as well as their execution order when
+multiple test suites are executed in one batch. You could choose to manage ordering in a fine grained manner, setting
+it for each test suite, or use a convention to manage exceptions. For example, you could use a convention whereby test
+suites that are to always be displayed first are set with a negative order, leaving others to be naturally sorted based
+on their name.
 
 Elements
 --------

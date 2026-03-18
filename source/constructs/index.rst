@@ -548,6 +548,7 @@ completed and proceed with any needed actions such as resource clean-up.
 .. index:: invert (process)
 .. index:: handlerTimeout (process)
 .. index:: handlerTimeoutFlag (process)
+.. index:: actor (process)
 .. _tdl-step-process:
 
 process
@@ -565,6 +566,7 @@ The structure of the ``process`` element is as follows:
     :header: "Name", "Required?", "Description"
     :delim: |
 
+    @actor | no | The identifier of an :ref:`actor <test-case-actors>` under which to display the step (if visible). See also :ref:`tdl-steps-common-step-actor`.
     @desc | no | A description for this step to display to the user (meaningful if ``hidden`` is "false") and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler | no | A string value or variable reference identifying the processing handler for this step (see :ref:`handlers-implementation`). This is omitted in favour of the ``txnId`` in case a transaction is referenced.
     @handlerTimeout | no | A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
@@ -1147,8 +1149,8 @@ Displaying only an ``if`` step's children is possible via two approaches:
 
 The **first approach**, defining a static ``if``, means that the step's condition is evaluated when the test case is loaded as opposed
 to a runtime evaluation when the step is executed. The result of this is the inclusion of either the step's ``then`` or ``else``
-block in the test case without the ``if`` step's overall boundary. Using this feature is meaningful for ``if`` steps within 
-:ref:`scriptlets<scriptlets>` as it allows their content to be dynamically adapted based on the needs of the given test case.
+block in the test case without the ``if`` step's overall boundary. Using this feature is meaningful for tests triggered via API call,
+or when ``if`` steps appear within :ref:`scriptlets<scriptlets>` as it allows their content to be dynamically adapted based on the needs of the given test case.
 For more details on this check :ref:`how scriptlets can dynamically define their steps <scriptlets_dynamic_steps>`.
 
 The **second approach**, using the ``hidden`` attribute, achieves a similar effect as the ``static`` flag but with the key difference
@@ -1510,7 +1512,8 @@ is looked up depends on its type, which defines how the ``path`` and ``from`` at
 If the ``from`` attribute is not specified, the test engine first attempts to load the scriptlet from the ones defined
 within the test case, by matching the ``path`` value against the defined scriptlets' ``id``. If no match is found a
 further lookup is made within the test case's containing test suite, in which case the ``path`` value is considered as
-the path to the scriptlet's XML file. When the ``from`` attribute is specified the scriptlet is always considered to be
+the path to the scriptlet's XML file (relative to the test suite root or, as a fallback, to the test suite definition file).
+When the ``from`` attribute is specified the scriptlet is always considered to be
 external to the test case, and its value is considered to be a test suite's ``id``. The lookup in this case proceeds as
 follows:
 
@@ -1739,6 +1742,7 @@ Use of these attributes is illustrated in the following TDL snippet:
 .. index:: handlerConfig (interact)
 .. index:: handlerTimeout (interact)
 .. index:: handlerTimeoutFlag (interact)
+.. index:: actor (interact)
 .. _tdl-step-interact:
 
 interact
@@ -1757,6 +1761,7 @@ The structure of the ``interact`` element is as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
+    @actor, no, The identifier of an :ref:`actor <test-case-actors>` to replace the "Test engine" in the step's display. See also :ref:`tdl-steps-common-step-actor`.
     @blocking, no, A boolean flag determining whether or not the interaction step will force the test session to wait until the interation completes (default is "true").
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
     @desc, no, A description for the user interaction to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -1786,6 +1791,14 @@ The structure of the ``interact`` element is as follows:
 .. index:: asTemplate (instruct)
 .. index:: mimeType (instruct)
 .. index:: forceDisplay (instruct)
+.. index:: showControls (instruct)
+.. index:: level (instruct)
+.. index:: ERROR (instruct)
+.. index:: WARNING (instruct)
+.. index:: INFO (instruct)
+.. index:: SUCCESS (instruct)
+.. index:: NONE (instruct)
+.. index:: report (instruct)
 
 The ``instruct`` elements define what is going to presented to the user. They have the following structure:
 
@@ -1797,8 +1810,11 @@ The ``instruct`` elements define what is going to presented to the user. They ha
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @desc~ yes~ The label to display to the user.
     @forceDisplay~ no~ Whether the content should be always displayed inline rather than in an editor. By default this is "false".
+    @level~ no~ A severity level used to stylise the presentation of the displayed text. Can be set to ``ERROR``, ``WARNING``, ``INFO``, ``SUCCESS`` and ``NONE`` (the default), and also be provided via :ref:`variable reference <test-case-referring-to-variables>`.
     @mimeType~ no~ A `mime type`_ value (e.g. ``text/xml``) provided as a string or a variable reference, to hint how this value should be highlighted when displayed. In case an invalid or unsupported mime type is provided no such highlighting will be applied.
     @name~ no~ In case of ``instruct`` elements that used to share binary content, this is used as the name of the file presented for download.
+    @report~ no~ Whether To include this element in the step's report. By default this is "false".
+    @showControls~ no~ Whether or not to display user interface controls for this elements (copy, view and download). By default such controls are displayed.
     @source~ no~ A pure variable reference identifying a source variable. Used as the target upon which to evaluate the contained expression.
     @type~ no~ The ``type`` to consider for the displayed value. If this is not specified the ``type`` will be inferred from the referred variable (if defined) or default to ``string``.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -1818,6 +1834,9 @@ The ``instruct`` elements define what is going to presented to the user. They ha
 .. index:: report (request)
 .. index:: fileName (request)
 .. index:: required(request)
+.. index:: size(request)
+.. index:: accept(request)
+.. index:: default(request)
 
 The ``request`` elements define how information shall be requested from the user. Their structure is as follows:
 
@@ -1826,8 +1845,9 @@ The ``request`` elements define how information shall be requested from the user
     :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
+    @asTemplate~ no~ Whether or not the result will be considered as a :ref:`template for placeholder replacement <test-case-expressions-template-files>`. By default this is "false".
     @contentType~ no~ Defines how the specified variable's value is to be set ("STRING", "BASE64" or "URI"). The default is "STRING".
+    @default~ no~ The default value to display in the presented input field. This can be provided inline or via :ref:`variable reference <test-case-referring-to-variables>`.
     @desc~ yes~ The label to display to the user.
     @encoding~ no~ Used in case of text binary input to specify the character encoding to consider. The default is "UTF-8".
     @fileName~ no~ The name of a variable or output map property that will record the file name for the uploaded file (in case of a file upload). This can be set as a fixed ``string`` or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`.
@@ -1839,6 +1859,7 @@ The ``request`` elements define how information shall be requested from the user
     @options~ no~ Used to render a dropdown list by providing the option values to consider (comma-separated values, a reference to a string variable of comma-separated values, or a reference to a list variable of strings).
     @required~ no~ Whether or not this input is mandatory (by default "false"). When set to "true" the relevant input control will appear as mandatory and the interaction will not be able to be completed unless a value is provided. Note that this flag can also be set as a :ref:`variable reference <test-case-referring-to-variables>`.
     @report~ no~ Whether or not this value will be included in the presentation of the test step's report (by default "true"). When set to "false" the requested value will be stored in the test session context but not displayed in the step's report.
+    @size~ no~ A number defining the size of the input control in terms of its height. This is considered for the rows of ``MULTILINE_TEXT`` inputs, the pixels of ``CODE`` editors, and the presented items of ``SELECT_MULTIPLE`` selections.
     @with~ no~ The ID of the actor this interaction refers to. If not specified this is taken from the ``interact`` parent element (which itself defaults to the test case's SUT actor). Within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`.
 
 Both instructions and requests can be included in the same ``interact`` step to display and/or request multiple sets of
@@ -1877,10 +1898,33 @@ it is presented as follows:
 * For all other types, the value is displayed **inline as text**. This is also the default approach if the value's type was not
   set and could not be inferred.
 
+Instruction elements are considered as informational features and by default only figure in the step's presentation on
+the user interface when the step is being executed. If you want to ensure certain ``instruct`` elements are presented
+also for completed steps, both on the user interface and produced step reports, you can set their ``report`` attribute
+to true.
+
 When displaying the **value inline** it could be the case that the text is too long. In this case the user will instead
 be provided with controls to download it as a file or open it in a code editor (as in the case of e.g. binary content).
 You can override this behaviour by setting the ``forceDisplay`` attribute to true, which will result in an inline display
-regardless of the value's size.
+regardless of the value's size. In addition, you can set the ``showControls`` attribute to false, to hide the display of
+user interface copy and view controls.
+
+When conveying feedback, status or instructions, you may also find useful the ``level`` attribute. This is used to adapt
+the display of ``instruct`` elements to convey severity by means of colour highlighting. It supports values ``ERROR``,
+``WARNING``, ``INFO``, ``SUCCESS`` and ``NONE`` (the default), that result in the instruction being presented with a
+coloured background (e.g. green background for ``SUCCESS``). The value for this attribute can also be determined at
+runtime by providing it as a :ref:`variable reference <test-case-referring-to-variables>`. Using the ``level`` attribute
+to display stylised messages, can be optionally complemented by the ``forceDisplay`` and ``showControls`` attributes to
+ensure that the message is presented without truncation and without superfluous UI controls.
+
+.. code-block:: xml
+
+    <!--
+        Display a blue information message ensuring that no UI controls are displayed.
+    -->
+    <interact inputTitle="Next step" desc="Show instructions">
+        <instruct level="INFO" forceDisplay="true" showControls="false">"Please send a request referring to identifier " || $expectedIdentifier</instruct>
+    </interact>
 
 As a complement to the ``type``, you can also specify the ``mimeType`` attribute. This is meaningful for binary or large text content
 as it serves two purposes: it allows you to specify the content type and **file extension** to use when the content is downloaded as a file, and it
@@ -1989,12 +2033,15 @@ that supports the following values:
     :header: "Input type", "Description"
 
     ``TEXT`` ~ A simple text field (the default if not specified).
-    ``MULTILINE_TEXT`` ~ A textarea supporting input of multiple lines.
+    ``MULTILINE_TEXT`` ~ A textarea supporting input of multiple lines. You can also set in this case the ``size`` attribute to define the control's height (in rows).
     ``SECRET`` ~ A control to add a secret value such as a password.
-    ``UPLOAD`` ~ A file upload control. You can also set in this case the ``fileName`` attribute to record the name of the uploaded file (the ``fileName`` value being the key to use in the step's output map).
-    ``CODE`` ~ A code editor. To complement this you can also specify the ``mimeType`` attribute with a `mime type`_ (e.g. ``text/xml``) to have appropriate syntax highlighting.
+    ``UPLOAD`` ~ A file upload control. You can also set in this case the ``fileName`` attribute to record the name of the uploaded file (the ``fileName`` value being the key to use in the step's output map). The ``accept`` attribute can also be used to limit the types of accepted files.
+    ``CODE`` ~ A code editor. To complement this you can also specify the ``mimeType`` attribute with a `mime type`_ (e.g. ``text/xml``) to have appropriate syntax highlighting. The ``size`` attribute can also be used to define the editor's height (in pixels).
     ``SELECT_SINGLE`` ~ A single-select dropdown list, specifying the options via the ``options`` and ``optionLabels`` attributes.
-    ``SELECT_MULTIPLE`` ~ A multi-select dropdown list using similarly the ``options`` and ``optionLabels`` attributes.
+    ``SELECT_MULTIPLE`` ~ A multi-select dropdown list using similarly the ``options`` and ``optionLabels`` attributes. You can also set in this case the ``size`` attribute to define the number of presented items.
+
+.. note::
+    The value received from a ``SELECT_MULTIPLE`` input will be a comma-separated string in which the individual parts match the selected values.
 
 The following example produces a popup presenting a text field, textarea and file upload.
 
@@ -2008,8 +2055,41 @@ The following example produces a popup presenting a text field, textarea and fil
     <!-- Log the provided values. -->
     <log>"Invoice "|| $data{invoiceNumber} || " uploaded as " || $data{invoiceFileName} || " with comment: " || $data{invoiceComment}</log>
 
-.. note::
-    The value received from a ``SELECT_MULTIPLE`` input will be a comma-separated string in which the individual parts match the selected values.
+In the example above, the types of uploaded files could also be controlled by using the ``accept`` attribute to specify the accepted file
+types as `mime types <https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types>`__. This can
+be specified inline as a comma-separated string or provided dynamically by referencing a ``string`` or ``list`` variable.
+
+.. code-block:: xml
+
+    <assign to="acceptedImageTypes" append="true">"image/png"</assign>
+    <assign to="acceptedImageTypes" append="true">"image/jpeg"</assign>
+    <interact id="data" desc="Provide inputs">
+        <request desc="Evidence screenshot" name="screenshot" fileName="evidenceFile" inputType="UPLOAD" accept="$acceptedImageTypes"/>
+        <request desc="Invoice file" name="invoiceFile" fileName="invoiceFileName" inputType="UPLOAD" accept="application/pdf"/>
+    </interact>
+
+For certain input types, notably ``MULTILINE_TEXT``, ``CODE`` and ``SELECT_MULTIPLE``, you can specify the ``size`` attribute
+to control the height of the resulting control. In all cases this needs to be a positive integer, provided inline or via
+:ref:`variable reference <test-case-referring-to-variables>`. For ``MULTILINE_TEST`` inputs this is interpreted as the
+number of rows displayed by default, for ``CODE`` inputs as the height in pixels of the editor, and for ``SELECT_MULTIPLE``
+as the number of visible items in the selection list.
+
+.. code-block:: xml
+
+    <interact id="data" desc="Provide inputs">
+        <request desc="Invoice comment:" name="invoiceComment" inputType="MULTILINE_TEXT" size="5"/>
+        <request desc="Invoice content:" name="invoiceContent" inputType="CODE" size="500"/>
+    </interact>
+
+Where is is meaningful to present a default value in an input control you can use the ``default`` attribute. With this
+you can specify a default value inline, or provide a :ref:`variable reference <test-case-referring-to-variables>` pointing
+to a :ref:`configuration value <test-case-configuration>` or another value from the test session context.
+
+.. code-block:: xml
+
+    <interact id="data" desc="Provide inputs">
+        <request desc="The name of your software" name="softwareName" inputType="TEXT" default="$SYSTEM{shortName}" required="true"/>
+    </interact>
 
 Prior to GITB TDL version 1.14.0, the way to determine the input control to use was the ``contentType`` attribute. Although less expressive, this approach is
 still supported as follows:
@@ -2551,6 +2631,7 @@ and validation (:ref:`verify<tdl-step-verify>`) steps. Such custom services can 
 .. index:: invert (verify)
 .. index:: handlerTimeout (verify)
 .. index:: handlerTimeoutFlag (verify)
+.. index:: actor (verify)
 .. _tdl-step-verify:
 
 verify
@@ -2569,6 +2650,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     :delim: ~
     :header: "Name", "Required?", "Description"
 
+    @actor~ no~ The identifier of an :ref:`actor <test-case-actors>` under which to display the step. See also :ref:`tdl-steps-common-step-actor`.
     @desc~ no~ A description for this validation to display to the user and to include in the test session log. Within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`.
     @handler~ yes~ A string value or variable reference identifying the the validation handler (see :ref:`handlers-implementation`).
     @handlerTimeout ~ no ~ A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
@@ -3296,6 +3378,57 @@ carried out by a messaging service called via a ``receive`` step may take time b
     <receive id="receiveMessage" desc="Receive message" handler="$DOMAIN{messagingService}" timeout="300000" handlerTimeout="10000">
         <input name="expectedSender">$sender</input>
     </receive>
+
+.. index:: actor
+.. _tdl-steps-common-step-actor:
+
+Display steps under specific actors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test steps are displayed under :ref:`actors <test-case-actors>` depending on their type. Specifically:
+
+* Messaging steps (:ref:`receive <tdl-step-receive>`, and :ref:`send <tdl-step-send>`) are presented as arrows between
+  the ``from`` and ``to`` actors, with their direction matching the communication flow.
+* Interactions (:ref:`interact <tdl-step-interact>` steps) are presented as arrows between the predefined user or
+  administrator (for :ref:`administrator-related interactions <tdl-step-interact_admin_interactions>`) actor, and the
+  "Test engine" actor. The direction depends on the presence of :ref:`input requests <tdl-step-interact_form_inputs>` and
+  :ref:`instructions <tdl-step-interact_instruct_presentation>`.
+* All other steps (:ref:`verify <tdl-step-verify>`, :ref:`process <tdl-step-process>`, and :ref:`exit <tdl-step-exit>`) are
+  displayed under the predefined "Test engine" actor.
+
+With the exception of messaging steps where related actors are explicit, all other steps support the ``actor`` attribute,
+to specify the actor under which they are displayed. In doing so, you can effectively replace the "Test engine"
+actor if doing so results in a more meaningful test execution diagram. The ``actor`` attribute is set in all cases with
+the ``id`` of the relevant :ref:`actor element <test-case-actors>`, and in the case of :ref:`scriptlets <scriptlets>`,
+can also be :ref:`set dynamically <scriptlets_dynamic_references>` at test case load time.
+
+The following example shows a simulated actor receiving a message from the SUT and displaying its validation
+under the same actor, as opposed to using the "Test engine" actor.
+
+.. code-block:: xml
+
+    <!--
+      Receive a message. This is sent from the 'sender' (the SUT) to the 'receiver'.
+    -->
+    <receive id="receiveMessage" desc="Receive message" from="sender" to="receiver" handler="HttpMessagingV2">
+       ...
+    </receive>
+    <!--
+      Validate the message. Show this under the 'receiver' actor to illustrate where the validation
+      conceptually takes place.
+    -->
+    <verify desc="Validate message" actor="receiver" handler="JsonValidator">
+        <input name="json">$receiveMessage{request}{body}</input>
+        <input name="schema">$schema</input>
+    </verify>
+
+Using the ``actor`` attribute only affects how the test execution diagram is presented. You would typically use it to
+show that steps are conceptually executed by certain actors. In contrast, using the default "Test engine" actor could
+help distinguish assertions and processing actions as test engine steps. It is up to you to determine which presentation
+approach is more appropriate for your users.
+
+.. note::
+    Besides replacing the "Test engine" actor in steps, you can also :ref:`adapt its name and display order <test-case-actors>`.
 
 .. _validation report context: https://www.itb.ec.europa.eu/docs/services/latest/common/index.html#constructing-a-validation-report-tar
 .. _messaging service documentation: https://www.itb.ec.europa.eu/docs/services/latest/messaging/index.html#receive

@@ -115,8 +115,270 @@ Built-in messaging handlers
 The title of each section corresponds to the name of the handler that needs to be configured in the relevant step's ``handler`` attribute (in 
 :ref:`send <tdl-step-send>`, :ref:`receive <tdl-step-receive>` or :ref:`btxn <tdl-step-btxn>` steps).
 
-.. index:: HttpMessagingV2
+.. index:: DomibusMessaging
+.. _handlers-DomibusMessaging:
 
+DomibusMessaging
+++++++++++++++++
+
+Used to send or receive messages over eDelivery by means of a `Domibus Access Point <https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus>`__.
+
+The ``DomibusMessaging`` handler is used to interact with a Domibus Access Point that is set up externally from the Test Bed.
+The installation, configuration and management of this Access Point, are not handled by the Test Bed. In addition, note that
+operations are carried out through the Domibus backend web service API which should be accessible to the test engine.
+
+.. index:: DomibusMessaging (send - backendAddress)
+.. index:: DomibusMessaging (send - backendAuthType)
+.. index:: DomibusMessaging (send - backendPassword)
+.. index:: DomibusMessaging (send - backendUsername)
+.. index:: DomibusMessaging (send - header)
+.. index:: DomibusMessaging (send - payload)
+.. index:: DomibusMessaging (send - messageIdentifier)
+.. _handlers-DomibusMessaging-send:
+
+Use in send steps
+^^^^^^^^^^^^^^^^^
+
+To use this handler to **send a message** via a Domibus Access Point, set it as the ``handler`` of a :ref:`send <tdl-step-send>` step
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``backendAddress`` | Yes | ``string`` | The full URL for the WSDL of the Domibus backend web service API.
+    ``backendAuthType`` | No | ``string`` | The authentication type needed to call the backend web service API. Can be "basic" (the default) or "digest".
+    ``backendPassword`` | No | ``string`` | The password to use when calling the backend web service API (if authentication is needed).
+    ``backendUsername`` | No | ``string`` | The username to use when calling the backend web service API (if authentication is needed).
+    ``header`` | Yes | ``binary`` | The message header.
+    ``payload`` | Yes | ``list[binary]`` | A list of payloads, or a single payload, to include in the message.
+
+Once the :ref:`send <tdl-step-send>` step completes, the resulting report will include the following data:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``messageIdentifier`` | Yes | ``string`` | The identifier that was assigned to the sent message by Domibus.
+    ``header`` | Yes | ``binary`` | The header of the message that was sent.
+    ``payload`` | Yes | ``list[map]`` | A list of the sent payloads. Each payload entry is a map, with keys ``identifier`` (for the payload identifier) and ``content`` (for the payload data).
+
+The following example shows how to use the handler to send messages through Domibus. The Domibus backend API is
+configured as a :ref:`domain parameter <test-case-expressions-domain>`.
+
+.. code-block:: xml
+
+    <!--
+        Send a message with two payloads.
+    -->
+    <assign to="payloads" append="true">$payload1</assign>
+    <assign to="payloads" append="true">$payload2</assign>
+    <send id="message" desc="Send message" handler="DomibusMessaging">
+        <!--
+            The header could be defined via a template and processed with the TemplateProcessor
+            to replace information such as the recipient identifier, using the system's
+            configuration (e.g. $SYSTEM{partyIdentifier}).
+        -->
+        <input name="header">$header</input>
+        <!--
+            If sending a single payload this could be passed as-is without needing a list.
+        -->
+        <input name="payload">$payloads</input>
+        <!--
+            Set to e.g. 'http://10.0.0.4:18080/domibus/services/backend?wsdl'
+        -->
+        <input name="backendAddress">$DOMAIN{domibusBackend}</input>
+    </send>
+    <!--
+        Print the generated message identifier.
+    -->
+    <log>$message{messageIdentifier}</log>
+    <!--
+        Print the header that was used.
+    -->
+    <log>$message{header}</log>
+    <!--
+        Print the payload identifiers.
+    -->
+    <foreach item="payload" of="$message{payload}" hidden="true">
+       <do>
+          <log>$payload{identifier}</log>
+       </do>
+    </foreach>
+
+.. index:: DomibusMessaging (receive message - backendAddress)
+.. index:: DomibusMessaging (receive message - backendAuthType)
+.. index:: DomibusMessaging (receive message - backendPassword)
+.. index:: DomibusMessaging (receive message - backendUsername)
+.. index:: DomibusMessaging (receive message - initialPollDelay)
+.. index:: DomibusMessaging (receive message - maximumPollAttempts)
+.. index:: DomibusMessaging (receive message - messageIdentifier)
+.. index:: DomibusMessaging (receive message - pollInterval)
+.. index:: DomibusMessaging (receive message - type)
+.. index:: DomibusMessaging (receive message - header)
+.. index:: DomibusMessaging (receive message - payload)
+.. _handlers-DomibusMessaging-receive-message:
+
+Use in receive steps to receive messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To use this handler to **receive a message** through your Domibus Access Point, set it as the ``handler`` of a :ref:`receive <tdl-step-receive>` step
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``backendAddress`` | Yes | ``string`` | The full URL for the WSDL of the Domibus backend web service API.
+    ``backendAuthType`` | No | ``string`` | The authentication type needed to call the backend web service API. Can be "basic" (the default) or "digest".
+    ``backendPassword`` | No | ``string`` | The password to use when calling the backend web service API (if authentication is needed).
+    ``backendUsername`` | No | ``string`` | The username to use when calling the backend web service API (if authentication is needed).
+    ``initialPollDelay`` | No | ``number`` | The initial delay before the first polling attempt.
+    ``maximumPollAttempts`` | No | ``number`` | The maximum number of polling attempts to make.
+    ``messageIdentifier`` | Yes | ``string`` | The identifier of the message to wait for.
+    ``pollInterval`` | No | ``number`` | The internal in milliseconds between polling attempts.
+    ``type`` | No | ``string`` | Leave unspecified or set explicitly to ``message`` (the default value).
+
+Receiving a message is based on an expected **message identifier**. The check for this message is made by polling the
+Domibus backend web service API until the polling threshold elapses, or until the message is downloaded. Polling steps
+are logged in the test session log to allow monitoring of the step's status.
+
+.. code-block:: none
+
+  ...
+  Polling for message [message-123456789]...
+  Message [message-123456789] not found after 1 attempt...
+  Message [message-123456789] not found after 2 attempts...
+  Downloaded message [message-123456789].
+
+Once the :ref:`receive <tdl-step-receive>` step completes, the resulting report will include the following data:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``messageIdentifier`` | Yes | ``string`` | The message's identifier.
+    ``header`` | Yes | ``binary`` | The header of the received message.
+    ``payload`` | Yes | ``list[map]`` | A list of the received payloads. Each payload entry is a map, with keys ``identifier`` (for the payload identifier), ``content`` (for the payload data), and ``contentType`` for the content type (if defined).
+
+The following example shows how to use this handler to receive an expected message. In this case, the message identifier is provided
+by the user in a prior :ref:`interact <tdl-step-interact>` step.
+
+.. code-block:: xml
+
+    <!--
+        Request the message identifier to wait for.
+    -->
+    <interact id="userData" desc="Provide inputs">
+        <request desc="Message identifier" name="identifier" required="true"/>
+    </interact>
+    <!--
+        Wait to receive a message with the provided identifier.
+    -->
+    <receive id="messageData" desc="Receive message" handler="DomibusMessaging">
+        <input name="messageIdentifier">$userData{identifier}</input>
+        <input name="backendAddress">$DOMAIN{domibusBackend}</input>
+        <!--
+            Make 10 total attempts separated by 5 second intervals.
+        -->
+        <input name="maximumPollAttempts">10</input>
+        <input name="pollInterval">5000</input>
+    </receive>
+
+.. index:: DomibusMessaging (check acknowledgement - backendAddress)
+.. index:: DomibusMessaging (check acknowledgement - backendAuthType)
+.. index:: DomibusMessaging (check acknowledgement - backendPassword)
+.. index:: DomibusMessaging (check acknowledgement - backendUsername)
+.. index:: DomibusMessaging (check acknowledgement - failureState)
+.. index:: DomibusMessaging (check acknowledgement - initialPollDelay)
+.. index:: DomibusMessaging (check acknowledgement - maximumPollAttempts)
+.. index:: DomibusMessaging (check acknowledgement - messageIdentifier)
+.. index:: DomibusMessaging (check acknowledgement - pollInterval)
+.. index:: DomibusMessaging (check acknowledgement - successState)
+.. index:: DomibusMessaging (check acknowledgement - type)
+.. index:: DomibusMessaging (check acknowledgement - status)
+.. _handlers-DomibusMessaging-receive-ack:
+
+Use in receive steps to check for acknowledgements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To use this handler to **check for a message acknowledgement**, set it as the ``handler`` of a :ref:`receive <tdl-step-receive>` step
+(or the step's :ref:`transaction <tdl-step-btxn>`). In this case the supported step **inputs** are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
+
+    ``backendAddress`` | Yes | ``string`` | The full URL for the WSDL of the Domibus backend web service API.
+    ``backendAuthType`` | No | ``string`` | The authentication type needed to call the backend web service API. Can be "basic" (the default) or "digest".
+    ``backendPassword`` | No | ``string`` | The password to use when calling the backend web service API (if authentication is needed).
+    ``backendUsername`` | No | ``string`` | The username to use when calling the backend web service API (if authentication is needed).
+    ``failureState`` | No | ``list[string]`` | The list of final status values that will result in a failed acknowledgement check (by default ``SEND_FAILURE`` and ``NOT_FOUND``).
+    ``initialPollDelay`` | No | ``number`` | The initial delay before the first polling attempt.
+    ``maximumPollAttempts`` | No | ``number`` | The maximum number of polling attempts to make.
+    ``messageIdentifier`` | Yes | ``string`` | The identifier of the message to check for an acknowledgement.
+    ``pollInterval`` | No | ``number`` | The internal in milliseconds between polling attempts.
+    ``successState`` | No | ``list[string]`` | The list of final status values that will result in a successful acknowledgement check (by default ``ACKNOWLEDGED``).
+    ``type`` | Yes | ``string`` | Set explicitly to ``acknowledgement``.
+
+Acknowledgement checks expect the **message identifier** of the message in question. The check for the acknowledgement
+is made by polling the Domibus backend web service API until the polling threshold elapses, or until a final
+acknowledgement status is received. The ``successState`` and ``failureState`` inputs make it possible to adapt the
+step's behaviour, by considering for example failed status values as a success state when checking for
+a message that should not have been accepted. Polling steps are logged in the test session log to allow
+monitoring of the step's status.
+
+.. code-block:: none
+
+  ...
+  Polling for acknowledgement [message-123456789]...
+  Acknowledgement [message-123456789] not found after 1 attempt...
+  Acknowledgement [message-123456789] not found after 2 attempts...
+  Successful acknowledgement [ACKNOWLEDGED] for message [message-123456789].
+
+Once the :ref:`receive <tdl-step-receive>` step completes, the resulting report will include the following data:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``messageIdentifier`` | Yes | ``string`` | The message's identifier.
+    ``status`` | Yes | ``string`` | The final reported status.
+
+The following example shows how to use this handler to check for a message's acknowledgement. The message identifier to
+check for is the resulting from sending a message through Domibus.
+
+.. code-block:: xml
+
+    <!--
+        Send a message.
+    -->
+    <send id="messageData" desc="Send message" handler="DomibusMessaging">
+        <input name="header">$header</input>
+        <input name="payload">$payloads</input>
+        <input name="backendAddress">$DOMAIN{domibusBackend}</input>
+    </send>
+    <!--
+        Wait to receive the acknowledgement.
+    -->
+    <receive id="ackData" desc="Receive message" handler="DomibusMessaging">
+        <input name="type">"acknowledgement"</input>
+        <input name="messageIdentifier">$messageData{messageIdentifier}</input>
+        <input name="backendAddress">$DOMAIN{domibusBackend}</input>
+        <!--
+            The 'successState' and 'failureState' inputs could also have been
+            skipped as they are set with their default values.
+        -->
+        <input name="successState">"ACKNOWLEDGED"</input>
+        <input name="failureState">"NOT_FOUND,SEND_FAILURE"</input>
+        <!--
+            Make 10 total attempts separated by 5 second intervals.
+        -->
+        <input name="maximumPollAttempts">10</input>
+        <input name="pollInterval">5000</input>
+    </receive>
+
+.. index:: HttpMessagingV2
 .. _handlers-httpmessagingv2:
 
 HttpMessagingV2
@@ -588,6 +850,9 @@ keeping it available for use in further test steps.
 .. index:: contentTypes (SimulatedMessaging)
 .. index:: result (SimulatedMessaging)
 .. index:: delay (SimulatedMessaging)
+.. index:: reportItems (SimulatedMessaging)
+.. index:: reportSteps (SimulatedMessaging)
+.. index:: sortReportBySeverity (SimulatedMessaging)
 
 .. _handlers-simulatedmessaging:
 
@@ -604,7 +869,10 @@ place.
     ``contentTypes``| Send/receive input| No| ``map``| An optional ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
     ``delay``| Receive input| No| ``number``| An optional number of milliseconds to delay before presenting the :ref:`receive step<tdl-step-receive>` as completed.
     ``parameters``| Send/receive input| No| ``map``| An optional ``map`` of data to display in the step report.
+    ``reportItems`` | Send/receive input | No | ``map`` | A ``map`` of report items to display as a detailed validation report.
+    ``reportSteps`` | Send/receive input | No | ``list`` |A ``list`` of step identifiers from which to source the current step's detailed validation report.
     ``result``| Send/receive input| No| ``string``| Set to ``SUCCESS``, ``WARNING`` or ``FAILURE`` to specify the step's result (default is ``SUCCESS``).
+    ``sortReportBySeverity`` | Send/receive input | No | ``boolean`` | A ``boolean`` flag (false by default) specifying whether report items should be sorted based on severity first and then location.
 
 The following example illustrates usage of the ``SimulatedMessaging`` handler to present a simulated exchange between actors, each
 with its own report:
@@ -639,10 +907,14 @@ to the actual data to be displayed.
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{input}">$file1</assign>
     <assign to="params{output}">$file2</assign>
-    <!-- Define the content types. -->
+    <!--
+        Define the content types.
+    -->
     <assign to="contentTypes{input}">'application/json'</assign>
     <assign to="contentTypes{output}">'application/xml'</assign>
     <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
@@ -656,12 +928,16 @@ content type is unknown.
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{aFile}">$file</assign>
     <assign to="params{countryCode}">$countryCode</assign>
     <assign to="params{message}">"Transformation was successful."</assign>
     <assign to="params{aSecondFile}">$secondFile</assign>
-    <!-- Define the content type only for the first file. -->
+    <!--
+        Define the content type only for the first file.
+    -->
     <assign to="contentTypes{aFile}">'application/xml'</assign>
     <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
         <input name="parameters">$params</input>
@@ -673,7 +949,9 @@ structures (maps and lists, nested at different levels).
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{input}{file1}">$file1</assign>
     <assign to="params{input}{file2}">$file2</assign>
     <assign to="params{input}{messageId}">$messageIdentifier</assign>
@@ -681,17 +959,132 @@ structures (maps and lists, nested at different levels).
     <assign to="params{input}{attachments}" append="true">$attachment2</assign>
     <assign to="params{output}{response}">$response</assign>
     <assign to="params{output}{message}">"Input processed successfully."</assign>
-    <!-- Define the content types. -->
+    <!--
+        Define the content types.
+    -->
     <assign to="types{input}{file1}">"application/xml"</assign>
     <assign to="types{input}{file2}">"application/xml"</assign>
     <assign to="types{input}{attachments}" append="true">"text/plain"</assign>
     <assign to="types{input}{attachments}" append="true">"application/pdf"</assign>
     <assign to="types{output}{response}">"application/json"</assign>
-    <!-- Call the send step. -->
+    <!--
+        Call the send step.
+    -->
     <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
         <input name="parameters">$params</input>
         <input name="contentTypes">$types</input>
     </send>
+
+Besides presenting data, the ``SimulatedMessaging`` handler can also display a **detailed validation report**.
+This can be constructed by using one or both of the ``reportItems`` and ``reportSteps`` inputs:
+
+* Use ``reportItems`` to manually construct a report based on provided items.
+* Use ``reportSteps`` to include the report items from other steps.
+
+The ``reportItems`` input is used to provide a map of report items, mapped by severity level under keys named ``error``,
+``warning`` and ``info``. Each of these map entries can either be set with a list of items, or with a single item.
+Each item can be provided as a simple string, or as a map to include additional information. In this latter case
+(item set as a map), the keys you can set are ``description``, ``location``, ``assertionId``, and ``test``.
+
+The following example illustrates how a report can be produced with two information messages (provided as simple strings),
+one warning (also provided as a string), and an error (provided as a map to include an assertion ID).
+
+.. code-block:: xml
+
+    <!--
+        Include an XML document to display as the step's context data.
+    -->
+    <assign to="parameters{xml}">$xmlData</assign>
+    <assign to="contentTypes{xml}">"application/xml"</assign>
+    <!--
+        Define information messages and a warning message to include in the report.
+    -->
+    <assign to="reportItems{info}" append="true">'First information message.'</assign>
+    <assign to="reportItems{info}" append="true">'Second information message.'</assign>
+    <assign to="reportItems{warning}" append="true">'A warning message.'</assign>
+    <!--
+        Define an error message as a map to highlight additional information.
+    -->
+    <assign to="xmlError{description}">'An error message.'</assign>
+    <!--
+        Set the 'location' to point to line 2, column 0 of the data named 'xml'.
+        This is included in the parameters above.
+    -->
+    <assign to="xmlError{location}">'xml:2:0'</assign>
+    <assign to="xmlError{assertionId}">'ITB01'</assign>
+    <assign to="xmlError{test}">'X + Y = 10'</assign>
+    <assign to="reportItems{error}" append="true">$xmlError</assign>
+    <!--
+        Call the send step.
+    -->
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <input name="parameters">$parameters</input>
+        <input name="contentTypes">$contentTypes</input>
+        <input name="reportItems">$reportItems</input>
+    </send>
+
+The ``reportSteps`` input can be used instead of, or alongside, manually created report items, to include other steps'
+reports. The steps in question are identified by means of their ``id`` attributes, and can be defined as a
+comma-separated string or a list, provided inline or as a :ref:`variable reference <test-case-referring-to-variables>`.
+
+Referring to other step's reports can be particularly useful if you want to present an **aggregated report** instead of multiple
+individual ones. When reports are merged, this includes all report items as well as reported context data. In the example
+below we are performing multiple individual checks as hidden steps, before presenting a single aggregated report with all
+findings. The result is the same but results in a more concise report.
+
+.. code-block:: xml
+
+    <!--
+        Carry out individual validations. We're doing this in a group to avoid the test session
+        completing immediately if a step fails.
+    -->
+    <group hidden="true" stopOnError="false">
+        <verify id="checkString" handler="StringValidator" desc="Check string" hidden="true">
+            <input name="actual">$aString</input>
+            <input name="expected">"expected_string"</input>
+            <input name="successMessage">"The provided value is correct."</input>
+            <input name="failureMessage">"The provided value does not match the requirements."</input>
+        </verify>
+        <assign to="stepsToReport" append="true">"checkString"</assign>
+        <verify id="checkExpression" handler="ExpressionValidator" desc="Validate UUID">
+            <input name="expression">$variable != "unwantedValue"</input>
+            <input name="successMessage">"The provided UUID is correct."</input>
+            <input name="failureMessage">"The provided UUID does not match the requirements."</input>
+        </verify>
+        <assign to="stepsToReport" append="true">"checkExpression"</assign>
+    </group>
+    <!--
+        Show the aggregated items in the send step's report.
+    -->
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <!--
+            The steps to report could also have been provided inline as "checkString,checkExpression".
+        -->
+        <input name="reportSteps">$stepsToReport</input>
+    </send>
+
+When displaying a detailed validation report, using ``reportItems``, ``reportSteps`` or both, you can order its items
+based on their severity level by setting the ``sortReportBySeverity`` input to ``true()``. Otherwise, the ordering
+follows the items' location information. Regarding the step's result, this is calculated based on the report items. If an
+explicit result is passed by means of the ``result`` input, this is respected as long as there are no report items with
+a higher severity (in which case the overall result is adapted).
+
+.. code-block:: xml
+
+    <send desc="Send message" from="Actor1" to="Actor2" handler="SimulatedMessaging">
+        <!--
+            Include manually created report items.
+        -->
+        <input name="reportItems">$reportItems</input>
+        <!--
+            Include reports from other steps.
+        -->
+        <input name="reportSteps">$stepsToReport</input>
+        <!--
+            Sort the aggregated report's items by severity.
+        -->
+        <input name="sortReportBySeverity">true()</input>
+    </process>
 
 .. index:: SoapMessagingV2
 
@@ -1777,6 +2170,9 @@ The following examples illustrate how the ``DelayProcessor`` can be used to paus
 .. index:: result (DisplayProcessor)
 .. index:: parameters (DisplayProcessor)
 .. index:: contentTypes (DisplayProcessor)
+.. index:: reportItems (DisplayProcessor)
+.. index:: reportSteps (DisplayProcessor)
+.. index:: sortReportBySeverity (DisplayProcessor)
 .. _handlers-DisplayProcessor:
 
 DisplayProcessor
@@ -1799,22 +2195,28 @@ The input parameters expected by the ``display`` operation are as follows:
     :delim: |
 
     ``contentTypes`` | No | A ``map`` including the content types (e.g. ``application/json``) to consider when displaying different parameters.
-    ``result`` | No | A ``string`` with the status (``SUCCESS``, ``FAILURE`` or ``WARNING``) to use for the relevant :ref:`process<tdl-step-process>` step (default is ``SUCCESS``).
     ``parameters`` | No | A ``map`` including the values to display (labelled using the ``map`` keys).
+    ``reportItems`` | No | A ``map`` of report items to display as a detailed validation report.
+    ``reportSteps`` | No | A ``list`` of step identifiers from which to source the current step's detailed validation report.
+    ``result`` | No | A ``string`` with the status (``SUCCESS``, ``FAILURE`` or ``WARNING``) to use for the relevant :ref:`process<tdl-step-process>` step (default is ``SUCCESS``).
+    ``sortReportBySeverity`` | No | A ``boolean`` flag (false by default) specifying whether report items should be sorted based on severity first and then location.
 
 The following example illustrates usage of the ``DisplayProcessor`` to create a step report for a given set of data that the user may
 choose to view:
 
 .. code-block:: xml
 
-    <!-- Display a report based on a set of parameters. -->
+    <!--
+        Display a report based on a set of parameters.
+    -->
     <assign to="parameters{textValue}">'A sample value'</assign>
     <assign to="parameters{listValues}" append="true">'Value 1'</assign>
     <assign to="parameters{listValues}" append="true">'Value 2'</assign>
     <assign to="parameters{listValues}" append="true">`Value 3`</assign>
     <process desc="Show values" hidden="false" handler="DisplayProcessor" input="$parameters"/>
-
-    <!-- Display a report but also mark the step as failed if we have errors. -->
+    <!--
+        Display a report but also mark the step as failed if we have errors.
+    -->
     <assign to="result">if ($status = "OK") then "SUCCESS" else "FAILURE"</assign>
     <assign to="report{comments}">$errorDescription</assign>    
     <process desc="Show values" hidden="false" handler="DisplayProcessor">
@@ -1836,10 +2238,14 @@ Notice how the ``contentTypes`` input is defined in a manner identical to the ac
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{input}">$file1</assign>
     <assign to="params{output}">$file2</assign>
-    <!-- Define the content types. -->
+    <!--
+        Define the content types.
+    -->
     <assign to="contentTypes{input}">'application/json'</assign>
     <assign to="contentTypes{output}">'application/xml'</assign>
     <process desc="Process data" hidden="false" handler="DisplayProcessor">
@@ -1853,24 +2259,30 @@ content type is unknown.
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{aFile}">$file</assign>
     <assign to="params{countryCode}">$countryCode</assign>
     <assign to="params{message}">"Transformation was successful."</assign>
     <assign to="params{aSecondFile}">$secondFile</assign>
-    <!-- Define the content type only for the first file. -->
+    <!--
+        Define the content type only for the first file.
+    -->
     <assign to="contentTypes{aFile}">'application/xml'</assign>
     <process desc="Process data" hidden="false" handler="DisplayProcessor">
         <input name="parameters">$params</input>
         <input name="contentTypes">$contentTypes</input>
     </process>
 
-Finally, the following example illustrates how content types can be provided when the parameters are defined within complex
+The following example illustrates how content types can be provided when the parameters are defined within complex
 structures (maps and lists, nested at different levels).
 
 .. code-block:: xml
 
-    <!-- Define the data. -->
+    <!--
+        Define the data.
+    -->
     <assign to="params{input}{file1}">$file1</assign>
     <assign to="params{input}{file2}">$file2</assign>
     <assign to="params{input}{messageId}">$messageIdentifier</assign>
@@ -1878,16 +2290,131 @@ structures (maps and lists, nested at different levels).
     <assign to="params{input}{attachments}" append="true">$attachment2</assign>
     <assign to="params{output}{response}">$response</assign>
     <assign to="params{output}{message}">"Input processed successfully."</assign>
-    <!-- Define the content types. -->
+    <!--
+        Define the content types.
+    -->
     <assign to="types{input}{file1}">"application/xml"</assign>
     <assign to="types{input}{file2}">"application/xml"</assign>
     <assign to="types{input}{attachments}" append="true">"text/plain"</assign>
     <assign to="types{input}{attachments}" append="true">"application/pdf"</assign>
     <assign to="types{output}{response}">"application/json"</assign>
-    <!-- Call the process step. -->
+    <!--
+        Call the process step.
+    -->
     <process desc="Process data" hidden="false" handler="DisplayProcessor">
         <input name="parameters">$params</input>
         <input name="contentTypes">$types</input>
+    </process>
+
+Besides sharing data, the ``DisplayProcessor`` can also be used to display a **detailed validation report**.
+This can be constructed by using one or both of the ``reportItems`` and ``reportSteps`` inputs:
+
+* Use ``reportItems`` to manually construct a report based on provided items.
+* Use ``reportSteps`` to include the report items from other steps.
+
+The ``reportItems`` input is used to provide a map of report items, mapped by severity level under keys named ``error``,
+``warning`` and ``info``. Each of these map entries can either be set with a list of items, or with a single item.
+Each item can be provided as a simple string, or as a map to include additional information. In this latter case
+(item set as a map), the keys you can set are ``description``, ``location``, ``assertionId``, and ``test``.
+
+The following example illustrates how a report can be produced with two information messages (provided as simple strings),
+one warning (also provided as a string), and an error (provided as a map to include an assertion ID).
+
+.. code-block:: xml
+
+    <!--
+        Include an XML document to display as the step's context data.
+    -->
+    <assign to="parameters{xml}">$xmlData</assign>
+    <assign to="contentTypes{xml}">"application/xml"</assign>
+    <!--
+        Define information messages and a warning message to include in the report.
+    -->
+    <assign to="reportItems{info}" append="true">'First information message.'</assign>
+    <assign to="reportItems{info}" append="true">'Second information message.'</assign>
+    <assign to="reportItems{warning}" append="true">'A warning message.'</assign>
+    <!--
+        Define an error message as a map to highlight additional information.
+    -->
+    <assign to="xmlError{description}">'An error message.'</assign>
+    <!--
+        Set the 'location' to point to line 2, column 0 of the data named 'xml'.
+        This is included in the parameters above.
+    -->
+    <assign to="xmlError{location}">'xml:2:0'</assign>
+    <assign to="xmlError{assertionId}">'ITB01'</assign>
+    <assign to="xmlError{test}">'X + Y = 10'</assign>
+    <assign to="reportItems{error}" append="true">$xmlError</assign>
+    <!--
+        Produce the report.
+    -->
+    <process desc="Show report" hidden="false" handler="DisplayProcessor">
+        <input name="parameters">$parameters</input>
+        <input name="contentTypes">$contentTypes</input>
+        <input name="reportItems">$reportItems</input>
+    </process>
+
+The ``reportSteps`` input can be used instead of, or alongside, manually created report items, to include other steps'
+reports. The steps in question are identified by means of their ``id`` attributes, and can be defined as a
+comma-separated string or a list, provided inline or as a :ref:`variable reference <test-case-referring-to-variables>`.
+
+Referring to other step's reports can be particularly useful if you want to present an **aggregated report** instead of multiple
+individual ones. When reports are merged, this includes all report items as well as reported context data. In the example
+below we are performing multiple individual checks as hidden steps, before presenting a single aggregated report with all
+findings. The result is the same but results in a more concise report.
+
+.. code-block:: xml
+
+    <!--
+        Carry out individual validations. We're doing this in a group to avoid the test session
+        completing immediately if a step fails.
+    -->
+    <group hidden="true" stopOnError="false">
+        <verify id="checkString" handler="StringValidator" desc="Check string" hidden="true">
+            <input name="actual">$aString</input>
+            <input name="expected">"expected_string"</input>
+            <input name="successMessage">"The provided value is correct."</input>
+            <input name="failureMessage">"The provided value does not match the requirements."</input>
+        </verify>
+        <assign to="stepsToReport" append="true">"checkString"</assign>
+        <verify id="checkExpression" handler="ExpressionValidator" desc="Validate UUID">
+            <input name="expression">$variable != "unwantedValue"</input>
+            <input name="successMessage">"The provided UUID is correct."</input>
+            <input name="failureMessage">"The provided UUID does not match the requirements."</input>
+        </verify>
+        <assign to="stepsToReport" append="true">"checkExpression"</assign>
+    </group>
+    <!--
+        Show the aggregated report.
+    -->
+    <process desc="Show report" hidden="false" handler="DisplayProcessor">
+        <!--
+            The steps to report could also have been provided inline as "checkString,checkExpression".
+        -->
+        <input name="reportSteps">$stepsToReport</input>
+    </process>
+
+When displaying a detailed validation report, using ``reportItems``, ``reportSteps`` or both, you can order its items
+based on their severity level by setting the ``sortReportBySeverity`` input to ``true()``. Otherwise, the ordering
+follows the items' location information. Regarding the step's result, this is calculated based on the report items. If an
+explicit result is passed by means of the ``result`` input, this is respected as long as there are no report items with
+a higher severity (in which case the overall result is adapted).
+
+.. code-block:: xml
+
+    <process desc="Show report" hidden="false" handler="DisplayProcessor">
+        <!--
+            Include manually created report items.
+        -->
+        <input name="reportItems">$reportItems</input>
+        <!--
+            Include reports from other steps.
+        -->
+        <input name="reportSteps">$stepsToReport</input>
+        <!--
+            Sort the aggregated report's items by severity.
+        -->
+        <input name="sortReportBySeverity">true()</input>
     </process>
 
 .. note::
@@ -3104,6 +3631,172 @@ The following example illustrates the operation's use:
     </process>
     <log>$jsonResult</log>
 
+.. index:: ZipProcessor
+.. index:: initialize (ZipProcessor)
+.. index:: extract (ZipProcessor)
+.. _handlers-ZipProcessor:
+
+ZipProcessor
+++++++++++++
+
+The ``ZipProcessor`` is a built-in processing handler allowing you to process ZIP (or ZIP-like) archives, to read and
+extract their contents. It supports the following operations:
+
+.. csv-table::
+    :header: "Operation", "Description", "Input(s)", "Output(s)"
+    :delim: |
+
+    ``extract`` | Extract one or more entries from the archive (loaded through the ``initialize`` operation). | Yes | Yes, the requested entries.
+    ``initialize`` | Load a ZIP archive and return information on its entries. | Yes | Yes, the map listing the archive's entries.
+
+Using the ``ZipProcessor`` should always be done in the context of a :ref:`processing transaction <tdl-step-bptxn>`. Doing
+so allows you to load an archive once and extract content without needing to reload it every time.
+
+.. _handlers-ZipProcessor_extract:
+
+ZipProcessor - extract
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``extract`` operation is used to extract one or more entries from a ZIP archive. It is expected to be called within
+a :ref:`processing transaction <tdl-step-bptxn>`, after the :ref:`initialize operation <handlers-ZipProcessor_initialize>`
+has been called to load the archive in question. The inputs expected by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``case`` | No | A boolean flag determining whether path matching should be case sensitive. The default is false.
+    ``match`` | No | A string value determining how the provided ``path`` is matched with archive entries. This can be ``exact`` or ``regexp`` (the default), the latter considering it as a regular expression that can match multiple entries.
+    ``path`` | Yes | The path for the entry to extract. This can be provided as a string or as a list of strings in case we want to extract multiple entries.
+
+Once the operation completes, it returns a map with the following entries:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``entries`` | Yes | ``number`` | The number of entries that were matched and returned.
+    ``matched`` | Yes | ``boolean`` | Whether or not any entries were matched.
+    ``entry`` | No | ``list[map]`` | A list of the matched entries that can be missing if none were matched. Each item of the list is a map, with keys ``path`` (for the entry path in the archive provided as a string value) and ``content`` (for the entry's data provided as a binary value).
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <!--
+      Create a processing transaction.
+    -->
+    <bptxn txnId="t1" handler="ZipProcessor"/>
+    <!--
+      Load the archive.
+    -->
+    <process desc="Initialise archive" txnId="t1">
+        <operation>initialize</operation>
+        <input name="zip">$archive</input>
+    </process>
+    <!--
+      Prepare the paths to match. If this was a single path it could also have
+      been provided as a string (inline or as a variable reference).
+      Note how the first path is provided as a regular expression meaning
+      that multiple entries may be matched.
+    -->
+    <assign to="pathsToMatch" append="true">"resources/invoice/.+"</assign>
+    <assign to="pathsToMatch" append="true">"resources/summary/notes.txt"</assign>
+    <!--
+      Extract the entries.
+    -->
+    <process desc="Extract entries" txnId="t1" hidden="false" output="data">
+        <operation>extract</operation>
+        <input name="path">$pathsToMatch</input>
+        <!--
+          The"regexp" (regular expression) match type could have been omitted
+          as it is the default.
+        -->
+        <input name="match">"regexp"</input>
+        <!--
+          Case-insensitive matching. Could also have been skipped as 'false' is
+          the default.
+        -->
+        <input name="case">false()</input>
+    </process>
+    <!--
+      Log the entries that were retrieved.
+    -->
+    <log>"Matched " || $data{entries} || " entries"</log>
+    <!--
+      If we have matches, iterate over them.
+    -->
+    <assign to="skipLoop">not($data{matched})</assign>
+    <foreach skipped="$skipLoop" item="entry" of="$data{entry}">
+        <do>
+            <!--
+              Log the matched entry's path. The extracted content is available
+              as $entry{content}.
+            -->
+            <log>$entry{path}</log>
+        </do>
+    </foreach>
+    <!--
+      Close the transaction when done.
+    -->
+    <eptxn txnId="t1"/>
+
+.. _handlers-ZipProcessor_initialize:
+
+ZipProcessor - initialize
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``initialize`` operation is used to load a ZIP archive for further processing and return a description of its
+entries. It is expected to be called within a :ref:`processing transaction <tdl-step-bptxn>`, potentially followed
+by subsequent ``extract`` operations. The inputs expected by this operation are as follows:
+
+.. csv-table::
+    :header: "Input name", "Required?", "Description"
+    :delim: |
+
+    ``zip`` | Yes | A binary variable holding the archive to load.
+
+Once the operation completes, it returns a map with the following entries:
+
+.. csv-table::
+    :header: "Output name", "Always present?", "Type", "Description"
+    :delim: |
+
+    ``entries`` | Yes | ``number`` | The number of entries included in the archive.
+    ``entryPaths`` | Yes | ``list[string]`` | A list with the entry paths included in the archive.
+
+The following example illustrates the operation's use:
+
+.. code-block:: xml
+
+    <!--
+      Create a processing transaction.
+    -->
+    <bptxn txnId="t1" handler="ZipProcessor"/>
+    <!--
+      Load the archive.
+    -->
+    <process desc="Initialise archive" txnId="t1" output="archiveInfo">
+        <operation>initialize</operation>
+        <input name="zip">$archive</input>
+    </process>
+    <!--
+      Log the entries that were retrieved.
+    -->
+    <log>"Archive contains " || $archiveInfo{entries} || " entries"</log>
+    <foreach item="entry" of="$archiveInfo{entryPaths}">
+        <do>
+            <!--
+              Log the entry path.
+            -->
+            <log>$entry</log>
+        </do>
+    </foreach>
+    <!--
+      Close the transaction when done.
+    -->
+    <eptxn txnId="t1"/>
+
 .. index:: Built-in validation handlers
 .. _handlers-predefined-validation-handlers:
 
@@ -3635,6 +4328,7 @@ The following example illustrates how this validator can be used:
 .. index:: showValidationArtefacts (XmlValidator)
 .. index:: showSchematronTests (XmlValidator)
 .. index:: showLocationPaths (XmlValidator)
+.. index:: schemaVersion (XmlValidator)
 .. _handlers-XmlValidator:
 
 XmlValidator
@@ -3644,16 +4338,18 @@ Used to validate an XML document against an XML Schema (XSD) and/or zero or more
 
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
 
-    ``schematron``, No, ``list[schema]``, The list of Schematron files to validate the document's content against.
-    ``schematronType``, No, ``string``, The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the files' suffix. The overall default considered is ``sch``.
-    ``showLocationPaths``, No, ``boolean``, Whether or reported items for Schematron rules should include in their location information the path for the relevant element (default is ``false``).
-    ``showSchematronTests``, No, ``boolean``, Whether or not the Schematron assertions applied should be displayed for each reported finding (default is ``false``).
-    ``showValidationArtefacts``, No, ``boolean``, Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is "true").
-    ``sortBySeverity``, No, ``boolean``, Whether findings should be sorted by severity ("true") or by location in the XML content (``false`` - the default).
-    ``stopOnXsdErrors``, No, ``boolean``, Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is "true").
-    ``xml``, Yes, ``object``, The XML document to validate.
-    ``xsd``, No, ``schema``, The XSD to validate the document's structure against.
+    ``schematron`` | No | ``list[schema]`` | The list of Schematron files to validate the document's content against.
+    ``schematronType`` | No | ``string`` | The type of Schematron file to consider (``xslt`` or ``sch``) in case this cannot be determined from the files' suffix. The overall default considered is ``sch``.
+    ``schemaVersion`` | No | ``string`` | The XML Schema specification version to consider (``1.0`` or ``1.1``). If unspecified, this is defined by the schema's root ``minVersion`` element defaulting to ``1.0``.
+    ``showLocationPaths`` | No | ``boolean`` | Whether or reported items for Schematron rules should include in their location information the path for the relevant element (default is ``false``).
+    ``showSchematronTests`` | No | ``boolean`` | Whether or not the Schematron assertions applied should be displayed for each reported finding (default is ``false``).
+    ``showValidationArtefacts`` | No | ``boolean`` | Whether or not the XSDs and/or Schematrons used for the validation should be included in the step's report (default is "true").
+    ``sortBySeverity`` | No | ``boolean`` | Whether findings should be sorted by severity ("true") or by location in the XML content (``false`` - the default).
+    ``stopOnXsdErrors`` | No | ``boolean`` | Whether or not XSD errors should prevent validation from proceeding with Schematron validations (default is "true").
+    ``xml`` | Yes | ``object`` | The XML document to validate.
+    ``xsd`` | No | ``schema`` | The XSD to validate the document's structure against.
 
 Regarding inputs, if you need to supply a single Schematron file you don't need to create a ``list`` and pass it as such. You can
 simply pass the Schematron file as-is and the test engine will automatically convert it to a single-element ``list``. Note that considering
@@ -3675,7 +4371,15 @@ The following examples illustrate how the ``XmlValidator`` can be used in variou
     <verify handler="XmlValidator" desc="XML validation">
         <input name="xml">$content</input>
         <input name="xsd">$schema</input>
-    </verify> 
+    </verify>
+    <!--
+        Validate against an XSD and force the use of XML Schema 1.1.
+    -->
+    <verify handler="XmlValidator" desc="XML validation with XML Schema 1.1">
+        <input name="xml">$content</input>
+        <input name="xsd">$schema</input>
+        <input name="schemaVersion">"1.1"</input>
+    </verify>
     <!--
         Validate against a single Schematron file.
     -->
@@ -3842,6 +4546,7 @@ The following example illustrates how you can use namespace prefixes with your X
 .. index:: xmldocument (XsdValidator)
 .. index:: showSchema (XsdValidator)
 .. index:: sortBySeverity (XsdValidator)
+.. index:: schemaVersion (XsdValidator)
 .. _handlers-XSDValidator:
 
 XsdValidator
@@ -3855,11 +4560,13 @@ Used to validate an XML document against an XML Schema (XSD) instance.
 
 .. csv-table::
     :header: "Input name", "Required?", "Type", "Description"
+    :delim: |
 
-    ``showSchema``, No, ``boolean``, Whether to include in the step's report the XSD used for the validation (default is "true").
-    ``sortBySeverity``, No, ``boolean``, Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
-    ``xml``, Yes, ``object``, The XML document to validate.
-    ``xsd``, Yes, ``schema``, The XSD to validate the document against.
+    ``schemaVersion`` | No | ``string`` | The XML Schema specification version to consider (``1.0`` or ``1.1``). If unspecified, this is defined by the schema's root ``minVersion`` element defaulting to ``1.0``.
+    ``showSchema``| No | ``boolean`` | Whether to include in the step's report the XSD used for the validation (default is "true").
+    ``sortBySeverity``| No | ``boolean`` | Whether to sort findings by severity ("true") or location in the input (``false`` - the default).
+    ``xml``| Yes | ``object`` | The XML document to validate.
+    ``xsd``| Yes | ``schema`` | The XSD to validate the document against.
 
 .. code-block:: xml
 
@@ -4542,6 +5249,10 @@ as well as directly in :ref:`send<tdl-step-send>` and :ref:`receive<tdl-step-rec
 AS4 messaging
 +++++++++++++
 
+.. note::
+  The built-in :ref:`DomibusMessaging <handlers-DomibusMessaging>` handler allows eDelivery message exchanges via a Domibus
+  Access Point without needing an external service.
+
 The AS4 messaging component allows integration with a `Domibus eDelivery access point <https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus>`_
 to send and receive messages over eDelivery using the AS4 protocol. This component allows you to:
 
@@ -4647,6 +5358,9 @@ The following sections summarise reusable processing services that can be used a
 
 ZIP processing
 ++++++++++++++
+
+.. note::
+  The built-in :ref:`ZipProcessor <handlers-ZipProcessor>` allows ZIP archive processing without needing an external service.
 
 The ZIP processing service allows you to extract files from received ZIP archives, or ZIP-like archives such as ASiC containers. Using this service you can:
 

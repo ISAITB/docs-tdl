@@ -381,6 +381,7 @@ The cases where otherwise fixed values can be set via variable reference are:
 * The ``from`` and ``to`` actor references in messaging steps (:ref:`btxn<tdl-step-btxn>`, :ref:`send<tdl-step-send>`, :ref:`receive<tdl-step-receive>`).
 * The ``reply`` attribute of messaging steps (:ref:`tdl-step-send`, :ref:`tdl-step-receive`, :ref:`tdl-step-listen`).
 * The ``hidden`` attribute of all steps (see also how this can be used to :ref:`dynamically adapt the content of scriptlets<scriptlets_dynamic_steps>`).
+* The ``actor`` attribute of steps where this is supported (to adapt steps' :ref:`related actor <tdl-steps-common-step-actor>`).
 
 Values set in this way need to be provided as **inputs** to the scriptlet and resolve to constants before the test begins. In practical terms this
 means that you will need to:

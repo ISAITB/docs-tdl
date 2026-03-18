@@ -565,8 +565,11 @@ likely never need to set this explicitly, however if you choose to do so you can
 
 In case the file is text-based you also have the option of setting the ``encoding`` attribute to consider (by default set as ``UTF-8``).
 
-Regarding the path to the resource this is the resource's path within the test suite archive (with or without the test suite ID as a prefix). As an
-example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable named "ublSchema". The
+Regarding the path to the resource, this is considered first as relative to the test suite root, and if not found, as relative
+to the test suite definition file. In both cases the resource path can be prefixed with the test suite identifier (done
+for backwards compatibility and ideally avoided for new test suites).
+
+As an example consider the following test case fragment where a XML schema is loaded and set in the session context as a variable named "ublSchema". The
 path specified suggests that the file is named "UBL-Invoice-2.1.xsd" and exists in a folder within the test suite archive named "resources". This example also includes
 another input whose referenced resource is defined dynamically based on an external configuration parameter (at organisation level in this case).
 
@@ -653,104 +656,97 @@ The following example shows a test case that prompts the user before starting to
 .. index:: role (Test case actors)
 .. index:: displayOrder (Test case actors)
 .. index:: endpoint (Test case actors)
+.. index:: adminDisplayOrder (Test case actors)
+.. index:: adminName (Test case actors)
+.. index:: engineDisplayOrder (Test case actors)
+.. index:: engineName (Test case actors)
+.. index:: userDisplayOrder (Test case actors)
+.. index:: userName (Test case actors)
+
 .. _test-case-actors:
 
 Actors
 ~~~~~~
 
-The ``actors`` element is where the test case defines the actors involved in its steps and, importantly, their role. It contains
-one or more ``actor`` children with the following structure:
+The ``actors`` element is where the test case defines the actors involved in its steps and, importantly, their role. It
+defines the following attributes:
 
 .. csv-table::
     :stub-columns: 1
     :delim: ~
     :header: "Name", "Required?", "Description"
 
-    @displayOrder~ no~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding setting at test suite level (see :ref:`test-suite-actors` for details).
-    @id~ yes~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
-    @name~ no~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case. Not specifying this will default to the name for actor provided in the test suite.
-    @role~ no~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, "SIMULATED" (the default value) if the actor is simulated by the Test Bed, or "MONITOR" if the actor is present for monitoring purposes.
-    endpoint~ no~ An optional sequence of configuration endpoints if the actor is simulated.
+    @adminDisplayOrder ~ no ~ A number indicating the relative display order of the predefined administrator actor used for :ref:`administrator interactions <tdl-step-interact_admin_interactions>`.
+    @adminName ~ no ~ A custom name to display for the predefined administrator actor used for :ref:`administrator interactions <tdl-step-interact_admin_interactions>` (default is "Administrator").
+    @engineDisplayOrder ~ no ~ A number indicating the relative display order of the predefined test engine actor used to display :ref:`verify <tdl-step-verify>`, :ref:`process <tdl-step-process>` and :ref:`exit <tdl-step-exit>` steps.
+    @engineName ~ no ~  A custom name to display for the predefined test engine actor used to display :ref:`verify <tdl-step-verify>`, :ref:`process <tdl-step-process>` and :ref:`exit <tdl-step-exit>` steps (default is "Test engine").
+    @userDisplayOrder ~ no ~  A number indicating the relative display order of the predefined user actor used for :ref:`user interactions <tdl-step-interact>`.
+    @userName ~ no ~ A custom name to display for the predefined user actor used for :ref:`user interactions <tdl-step-interact>` (default is the ``SUT`` actor's name).
 
-The main purpose of the ``actors`` element in the test case is to identify which of the :ref:`actors defined in the test suite <test-suite-actors>`
-is the SUT (the actor the target system is testing for). This is done simply by defining the ``role`` attribute as follows:
+Besides these attributes, the ``actors`` element defines one or more ``actor`` children to list the specification actors
+involved in the test case. Each ``actor`` element has the following structure:
 
-.. code-block:: xml
+.. csv-table::
+    :stub-columns: 1
+    :delim: ~
+    :header: "Name", "Required?", "Description"
 
-    <testcase>
-        <gitb:actor id="sender" role="SUT"/>
-        <!-- The "SIMULATED" role is considered by default. -->
-        <gitb:actor id="receiver"/>
-    </testcase>
+    @displayOrder ~ no ~ A number indicating the relative positioning that needs to be respected when displaying the actor in test case's execution diagram. Setting this here overrides any corresponding :ref:`setting at test suite level <test-suite-actors>`.
+    @id ~ yes ~ The actor's unique (within the specification) ID. This must match an actor ID specified in the test suite.
+    @name ~ no ~ The name to display for the actor. This can differ from the ID to display an actor name specific to the test case. Not specifying this will default to the name for actor provided in the test suite.
+    @role ~ no ~ The actor's role in the test case. This is "SUT" if the actor is the focus of the test case, or "SIMULATED" (the default value) if the actor is simulated by the Test Bed.
 
-Besides defining the actors involved in the test case, you can also override their presentation by means of the ``name`` and ``displayOrder``
-attributes:
-
-.. code-block:: xml
-
-    <testcase>
-        <gitb:actor id="sender" role="SUT" name="Message sender" displayOrder="0"/>
-        <gitb:actor id="receiver" name="Message receiver" displayOrder="1"/>
-    </testcase>
-
-Actor ``endpoint`` elements used in test cases require a bit more explanation to understand their use. They serve a niche case for test suites
-including multiple actors defined in test cases as SUTs, and for each of which actor-level configuration properties are foreseen. In practice,
-a simpler and typically more flexible approach is to use several :ref:`system-level configuration properties <test-case-expressions-system>`.
-
-If you still require actor-level configuration for such cases, you can use the actors' ``endpoint`` elements to define default configuration values for
-simulated actors. Imagine a specification that defines "sender" and "receiver" actors that can both be the SUTs depending on the actor a system selects to test for.
-As such, a test suite focusing on the sender will include test cases with the sender as the SUT and the receiver as being simulated. Similarly, a
-test suite focusing on the receiver will define the receiver as SUT and the sender as simulated. In terms of configuration properties, the sender
-might need to define a "replyToAddress" to receive replies, whereas the receiver simply needs to define his "deliveryAddress" which is where messages
-are expected. In terms of :ref:`actor configuration in the test suite <test-suite-actors>` this would look like this:
-
-.. code-block:: xml
-
-    <testsuite>
-        <gitb:actor id="sender">
-            <gitb:name>Sender</gitb:name>
-            <gitb:endpoint name="info">
-                <gitb:config name="replyToAddress" desc="The address to return replies to" kind="SIMPLE"/>
-            </gitb:endpoint>
-        </gitb:actor>
-        <gitb:actor id="receiver">
-            <gitb:name>Receiver</gitb:name>
-            <gitb:endpoint name="info">
-                <gitb:config name="deliveryAddress" desc="The address to receive messages on" kind="SIMPLE"/>
-            </gitb:endpoint>
-        </gitb:actor>
-    </testsuite>
-
-Depending on the test case at hand, the user will be expected to provide the appropriate configuration parameters. For example, in a
-conformance statement for the sender, the applicable test cases will be those defining the sender actor as the SUT, and the "replyToAddress"
-parameter will need to be entered before starting the test. How is the "deliveryAddress" then provided for the simulated receiver actor? 
-This can be achieved in two ways:
-
-* **Dynamically** through a :ref:`custom messaging handler <handlers-custom-handlers>`. Using this approach, the Test Bed, while in its initiation phase, will request configuration
-  properties from the handler that will be mapped to the SUT's corresponding endpoint (see :ref:`test-suite-actors-endpoints-simulated`).
-* **Statically** by defining the endpoint and one or more of its parameters within the test case itself.
-
-The second option is why we are able to configure ``endpoint`` elements as part of the test case. The values configured here will be used only 
-if not already specified by the response of the simulated actor's handler. The below snippet illustrates this considering the sender as the SUT:
+The main purpose of the ``actors`` element is to identify which of the :ref:`actors defined in the test suite <test-suite-actors>`
+is the SUT (System Under Test - the actor the target system is testing for). This is done by defining the ``role`` attribute as follows:
 
 .. code-block:: xml
 
     <testcase>
-        <gitb:actor id="sender" name="sender" role="SUT"/>
-        <gitb:actor id="receiver" name="receiver">
-            <gitb:endpoint name="info">
-                <gitb:config name="deliveryAddress">SIMULATED_ADDRESS</gitb:config>
-            </gitb:endpoint>
-        </gitb:actor>
-        <steps>
-            <!-- 
-                receiver's address can be referenced by $sender{receiver}{deliveryAddress} 
-            -->
-        </steps>
+        <actors>
+          <gitb:actor id="sender" role="SUT"/>
+          <!-- The "SIMULATED" role is considered by default. -->
+          <gitb:actor id="receiver"/>
+        </actors>
     </testcase>
+
+When a test case is executed, it is presented as a series of :ref:`test steps <tdl-steps>` associated to the test case's
+:ref:`actors <test-case-actors>`. The presentation resembles a sequence diagram with the actors displayed at the top as
+the diagram's lifelines. The displayed actors include:
+
+* The actors defined in the test case using the ``actor`` elements.
+* Predefined actors to represent the **user** (for user inputs), the **administrator** (for administrator inputs), and the **test engine** (for validations and processing steps).
+
+Actors are displayed as long as they are associated with a visible test step. For your defined actors this takes place
+by referring to them in :ref:`send <tdl-step-send>` and :ref:`receive <tdl-step-receive>` steps, whereas for
+predefined actors this involves the use of other displayed steps, notably :ref:`interact <tdl-step-interact>`,
+:ref:`process <tdl-step-process>`, :ref:`verify <tdl-step-verify>` and :ref:`exit <tdl-step-exit>` steps.
 
 .. note::
-    **GITB software support:** The "MONITOR" value for the actor ``role`` is currently not supported.
+    You can also :ref:`explicitly set the actor <tdl-steps-common-step-actor>` under which to display each test step,
+    overriding the Test Bed's default display.
+
+The presentation of actors, both declared in the test case and predefined ones, can be managed by adapting
+their name and relative display order. For test case actors declared in ``actor`` elements, you do this by setting the
+``name`` and ``displayOrder`` attributes, whereas for predefined actors you use:
+
+* ``adminName`` and ``adminDisplayOrder`` for the administrator actor.
+* ``userName`` and ``userDisplayOrder`` for the user actor.
+* ``engineName`` and ``engineDisplayOrder`` for the test engine actor.
+
+The following example shows use of custom ordering and naming to manage the actors' display:
+
+.. code-block:: xml
+
+    <testcase>
+        <!--
+            Display first the SUT 'sender' actor, followed by the simulated 'receiver' actor.
+            Following these present the user, administrator and test engine actors (as needed).
+        -->
+        <actors userName="User" userDisplayOrder="2" adminName="Administrator" adminDisplayOrder="3" engineName="Test Bed" engineDisplayOrder="4">
+          <gitb:actor id="sender" role="SUT" name="Message sender" displayOrder="0"/>
+          <gitb:actor id="receiver" name="Message receiver" displayOrder="1"/>
+        </actors>
+    </testcase>
 
 .. index:: variables (Test case)
 .. index:: name (Test case variables)

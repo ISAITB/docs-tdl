@@ -10,7 +10,32 @@ Release numbers follow **global numbering** covering all Test Bed components, me
 actually introduced changes to the GITB TDL. The current page lists only the releases that introduced changes, whereas
 those not included are global maintenance releases that made no changes to the GITB TDL.
 
-The latest GITB TDL release is **1.28.5**.
+The latest GITB TDL release is **1.29.0**.
+
+Release 1.29.0 - XX/03/2026
+---------------------------
+
+.. csv-table::
+    :header: "Description of changes", "Relevant sections"
+    :delim: |
+
+    New ``DomibusMessaging`` built-in handler to allow sending and receiving messages, and also acknowledgment checks, through a Domibus eDelivery Access Point. | :ref:`handlers-DomibusMessaging`
+    New ``ZipProcessor`` built-in handler to allow processing of ZIP archives. | :ref:`handlers-ZipProcessor`
+    New ``order`` attribute for test suites to define their relative ordering in displays, reports and during test execution. | :ref:`test-suite`
+    Extend the ``DisplayProcessor`` handler to enable displaying a detailed validation report, created manually or by aggregating other step reports. | :ref:`handlers-DisplayProcessor`
+    Extend the ``SimulatedMessaging`` handler to enable displaying a detailed validation report, created manually or by aggregating other step reports. | :ref:`handlers-simulatedmessaging`
+    New ``showControls`` attribute for ``instruct`` elements of ``interact`` steps, to hide user interface controls for the instruction. | :ref:`tdl-step-interact_instruct_presentation`
+    New ``level`` attribute for ``instruct`` elements of ``interact`` steps, to present messages as stylised severity or status feedback. | :ref:`tdl-step-interact_instruct_presentation`
+    New ``report`` attribute for ``instruct`` elements of ``interact`` steps, to include them in reports. | :ref:`tdl-step-interact_instruct_presentation`
+    New ``size`` attribute for ``request`` elements of ``interact`` steps, to control the height of text areas and editors, and the number of presented items in multiple selection lists. | :ref:`tdl-step-interact_form_inputs`
+    New ``accept`` attribute for ``request`` elements of ``interact`` steps, to limit the accepted file types for file uploads. | :ref:`tdl-step-interact_form_inputs`
+    New ``default`` attribute for ``request`` elements of ``interact`` steps, to set a default value for input controls. | :ref:`tdl-step-interact_form_inputs`
+    When looking up test suite resources (e.g., in ``imports``), fall back to considering paths as relative to the test suite definition file if not found under the test suite root. | :ref:`test-case-imports`, :ref:`tdl-step-call`, :ref:`tdl-steps-common-documentation`
+    Support XML Schema 1.1 in the ``XmlValidator`` and ``XsdValidator``, and support the ``schemaVersion`` attribute to specify the version to use. | :ref:`handlers-XmlValidator`, :ref:`handlers-XSDValidator`
+    Consider REST API inputs when evaluating expressions at test case load time (e.g., ``if`` steps marked as ``static``). | :ref:`tdl-step-if_hide_boundary`
+    Step reports for steps lacking a description now use their title if applicable and present. | :ref:`tdl-steps`
+    Support for adapting the name and relative display order of predefined actors (user, administrator and test engine). | :ref:`test-case-actors`
+    New ``actor`` attribute for ``verify``, ``process`` and ``interact`` steps, to select the actor under which to display the step. | :ref:`tdl-steps-common-step-actor`
 
 Release 1.28.0 - 10/10/2025
 ---------------------------
@@ -19,7 +44,7 @@ Release 1.28.0 - 10/10/2025
     :header: "Description of changes", "Relevant sections"
     :delim: |
 
-    New ``version`` input for the ``HttpMessagingV2`` handler to control the HTTP protocol version used when kaming requests. | :ref:`handlers-httpmessagingv2`
+    New ``version`` input for the ``HttpMessagingV2`` handler to control the HTTP protocol version used when naming requests. | :ref:`handlers-httpmessagingv2`
     Automated configuration of test service handler authentication via the Test Bed's UI and REST API. | :ref:`handlers-authentication`
     Test suite and test case metadata includes new ``dependencies`` and ``scopes`` sections. | :ref:`test-suite-metadata-dependencies`, :ref:`test-suite-metadata-scopes`, :ref:`test-case-metadata-dependencies`, :ref:`test-case-metadata-scopes`
     The ``from`` and ``to`` actors of the ``btxn`` step are now optional, delegating to the relevant ``send`` or ``receive`` step actors. | :ref:`tdl-step-btxn`
