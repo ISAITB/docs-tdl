@@ -12,7 +12,7 @@ those not included are global maintenance releases that made no changes to the G
 
 The latest GITB TDL release is **1.29.0**.
 
-Release 1.29.0 - XX/03/2026
+Release 1.29.0 - 27/03/2026
 ---------------------------
 
 .. csv-table::
