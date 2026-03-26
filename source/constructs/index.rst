@@ -55,7 +55,7 @@ The structure of the ``btxn`` element is as follows:
     @from, no, The ID of the actor that acts as the messaging source (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @handler, yes, A string value or variable reference identifying the messaging handler to use for the transaction (see :ref:`handlers-implementation`).
     @handlerTimeout, no, A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to, no, The ID of the actor that acts as the messaging target (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @txnid, yes, A string ID for the transaction.
@@ -97,7 +97,7 @@ ID. It is structured as follows:
     :stub-columns: 1
     :header: "Name", "Required?", "Description"
 
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @txnid, yes, The identifier of the transaction to end.
 
@@ -157,7 +157,7 @@ identifier of which it references. The structure of the ``listen`` element is as
     @invert | no | A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a communication failure to complete the step as a success.
     @level | no | The severity level to be considered when this step fails. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`. See :ref:`tdl-steps-common-level` for further details.
     @reply | no | A boolean flag indicating that this communication should be presented as a reply (default is "false"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError | no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to | no | The ID of the actor (defaulting to the non-SUT actor if one is defined) that will be receiving the message (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @txnid | no | The ID of the transaction this ``listen`` belongs to. If not specified (for non-transactional messaging) the ``handler`` attribute is required.
@@ -221,7 +221,7 @@ The structure of the ``receive`` element is as follows:
     @invert | no | A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a communication failure to complete the step as a success.
     @level | no | The severity level to be considered when this step fails. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`. See :ref:`tdl-steps-common-level` for further details.
     @reply | no | A boolean flag indicating that this communication should be presented as a reply (default is "false"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError | no | A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @timeout | no | An optional timeout (in milliseconds) on the time to wait for a message to be received. This is provided as a ``number`` or a variable reference.
     @timeoutFlag | no | An optional name for a boolean flag to record whether or not the timeout was triggered that will be stored in the result ``map`` named using the ``id`` attribute. This is provided as a ``string`` or a variable reference.
@@ -362,7 +362,7 @@ The structure of the ``send`` element is as follows:
     @invert | no | A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a communication failure to complete the step as a success.
     @level | no | The severity level to be considered when this step fails. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`. See :ref:`tdl-steps-common-level` for further details.
     @reply | no | A boolean flag indicating that this communication should be presented as a reply (default is "false"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError | no | A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to | no | The ID of the actor (defaulting to the SUT actor) that will be receiving the message (see :ref:`test-case-actors`). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @txnid | no | The ID of the transaction this ``send`` belongs to. If not specified (for non-transactional messaging) the ``handler`` attribute is required.
@@ -478,7 +478,7 @@ The structure of the ``bptxn`` element (defined when a processing transaction is
 
     @handler, yes, A string value or variable reference identifying the the processing handler for the transaction (see :ref:`handlers-implementation`).
     @handlerTimeout, no, A number or variable reference with the maximum time (in milliseconds) to wait for the handler service call to complete (in case of an external test service being used as a handler). See also :ref:`tdl-steps-common-handlerTimeouts`.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @txnid, yes, A string identifier for the transaction.
     config, no, Zero or more elements to provide configuration when creating the transaction. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
@@ -514,7 +514,7 @@ close a transaction the ID of which it references. The structure of the ``eptxn`
     :header: "Name", "Required?", "Description"
 
     @txnid, yes, A string identifier for the processing transaction to end.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
 
 The ``eptxn`` step results in a call to the transaction's processing handler to signal that it should consider the transaction as
@@ -578,7 +578,7 @@ The structure of the ``process`` element is as follows:
     @level | no | The severity level to be considered when this step fails. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`. See :ref:`tdl-steps-common-level` for further details.
     @operation | no | An alternative to the operation element providing the operation to carry out by the processing handler. See also :ref:`tdl-step-process__simplified`.
     @output | no | The name to use for the session context variable to store the processing output as an alternative to using the ``id``. See also :ref:`tdl-step-process__simplified`.
-    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError | no | A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @txnId | no | The ID of the transaction to which this processing step belongs. Can be omitted if a transaction is not needed but in this case the ``handler`` attribute must be defined.
     documentation | no | Rich text content that provides further information on the current step (meaningful if ``hidden`` is "false").
@@ -797,6 +797,7 @@ The ``exit`` step is used to immediately exit the test case from any execution b
 
     @desc, no, A description for the step to display to the user and to include in the test session log. Within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be a :ref:`variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @success, no, Whether or not this step should be considered as a success or failure (the default). This is provided as a ``boolean`` or a :ref:`variable reference<test-case-referring-to-variables>`.
     @undefined, no, Whether or not this step should complete the test session with an undefined outcome (considered only if ``success`` is not set to ``true``). This is provided as a ``boolean`` or a :ref:`variable reference<test-case-referring-to-variables>`.
     documentation, no, Rich text content that provides further information on the current step.
@@ -889,7 +890,7 @@ joined at the end of the ``flow`` step to continue sequential execution. The str
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
     @desc, no, A description for this thread fork to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title, no, A short title to display for this step (default is "flow"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     documentation, no, Rich text content that provides further information on the current step.
@@ -989,7 +990,7 @@ The ``foreach`` step allows you to execute a sequence of steps for a specific nu
     @hidden | no | A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @item | no | The name of a variable that will hold the current iteration's item. This applies only when iterating over a collection provided through the ``of`` attribute.
     @of | no | A variable reference for a collection (map or list) to iterate over. If this is not provided, the ``end`` attribute becomes mandatory.
-    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped | no | A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @start | no | A number to initialise the zero-based iteration index with, provided as a constant or as a variable reference.
     @stopOnError | no | A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title | no | A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -1096,7 +1097,7 @@ The ``if`` step is used to run one of more steps if a condition is met. Its stru
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
     @desc, no, A description for this check to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @static, no, A boolean flag determining whether the step's conditions is evaluated at test case load time ("true") or at runtime ("false" - the default). See also :ref:`scriptlets_dynamic_steps`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title, no, A short title to display for this step (default is "decision"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -1215,7 +1216,7 @@ should take place. The structure of the ``repuntil`` element is as follows:
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
     @desc, no, A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title, no, A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     cond, yes, The condition to verify in order to execute again the steps contained in ``do``. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -1268,7 +1269,7 @@ continues to be true. The structure of the ``while`` element is as follows:
     @collapsed, no, A boolean flag determining whether or not the step is displayed as initially collapsed (default is "false"). See also :ref:`tdl-steps-common-collapsed`.
     @desc, no, A description for this loop to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title, no, A short title to display for this step (default is "loop"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     cond, yes, The condition to verify in order to execute the contained steps. This is provided as an expression (see :ref:`test-case-expressions`).
@@ -1337,7 +1338,7 @@ The element's structure is as follows:
     @asTemplate, no, Whether or not the result will be considered as a :ref:`template for placeholder replacement <test-case-expressions-template-files>`. By default this is "false".
     @byValue, no, Whether adding a value to a ``map`` or ``list`` will be by-value as opposed to by-reference. By default this is "false" (i.e., by-reference).
     @lang, no, Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @source, no, A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @to, yes, The target variable to assign the result of the expression to.
@@ -1496,7 +1497,7 @@ its required input parameters and receive its output. The structure of the ``cal
     @input, no, An alternative to input elements to provide a single input when the scriptlet expects a single input or (if multiple) a single mandatory input. See also :ref:`tdl-step-call__simplified`.
     @output, no, The name to use for the session context variable to store the scriptlet output as an alternative to using the ``id``. See also :ref:`tdl-step-call__simplified`.
     @path, yes, The identifier scriptlet to call. The value provided here depends on the whether the scriptlet is :ref:`external to the test case<scriptlets>` or :ref:`defined within it<test-case-scriptlets>`.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     input, no, Zero or more elements for the ``scriptlet``'s input parameters. See :ref:`handlers-inputs-outputs` for details.
     output, no, Zero or more elements for the ``scriptlet``'s output parameters to specify which outputs you require.
@@ -1650,7 +1651,7 @@ the test execution but it can be used to apply a common behaviors to all child s
     @desc, no, A description for this group to display to the user and to include in the test session log. Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @hiddenContainer, no, A boolean flag determining whether or not the group's boundary will be displayed or not (default is "false").
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnChildError, no, A boolean flag determining whether the execution of this step's children should stop in case of a failure (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @title, no, A short title to display for this step (default is "group"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -1772,7 +1773,7 @@ The structure of the ``interact`` element is as follows:
     @hidden, no, A boolean flag determining whether or not the step is displayed to users (default is "false"). Note that within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`. See :ref:`tdl-steps-common-hidesteps` for further details.
     @id, no, Used as the name of a ``map`` variable that will be used to store provided input (if no per-input assignment is provided).
     @inputTitle, no, A custom text to display as the title of the user input popup (default is "Server interaction"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
-    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped, no, A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError, no, A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     @timeout, no, An optional timeout (in milliseconds) on the time to wait for the interaction to be completed. This is provided as a ``number`` or a variable reference.
     @title, no, A short title to display for this step (default is "interact"). Within scriptlets this can also be :ref:`a variable reference<scriptlets_dynamic_references>`.
@@ -2555,7 +2556,7 @@ The element's structure is as follows:
     @asTemplate~ no~ Whether or not the result will be considered as a template for placeholder replacement (see :ref:`test-case-expressions-template-files`). By default this is "false".
     @lang~ no~ Not used currently (and defaulting to XPath as the built-in :ref:`expression language <test-case-expressions>`).
     @level~ no~ The severity level to consider for the log entry. This can be (in increasing severity) ``DEBUG``, ``INFO`` (the default level), ``WARNING`` or ``ERROR``. It can also be provided as a variable reference. See :ref:`tdl-steps-common-level` for further details.
-    @skipped~ no~ A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped~ no~ A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @source~ no~ A variable reference to identify a source ``object`` variable upon which the expression should be evaluated.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
 
@@ -2660,7 +2661,7 @@ a test report is returned in the `GITB TRL (Test Reporting Language) format`_. T
     @invert~ no~ A boolean flag determining whether the step's result should be inverted (default is "false"). Setting to "true" will expect a validation failure to complete the step as a success.
     @level~ no~ The severity level to be considered when this step fails validation. Can be set to ``ERROR`` (the default) or ``WARNING``, or be defined dynamically via :ref:`variable reference<test-case-referring-to-variables>`. See :ref:`tdl-steps-common-level` for further details.
     @output~ no~ A string value determining the name of the variable to be set with the output of the step (if any). If this is not set the output is displayed but is not recorded in the test session context.
-    @skipped~ no~ A boolean value or variable reference (default being "false") which will result in the step being skipped if "true" See also :ref:`tdl-steps-common-skipped`.
+    @skipped~ no~ A boolean value or variable reference (default being "false") which will result in the step being skipped if "true". See also :ref:`tdl-steps-common-skipped`.
     @stopOnError~ no~ A boolean flag determining whether the test session should end if this step fails (default is "false"). See also :ref:`tdl-steps-common-stoponerror`.
     config~ no~ Zero or more elements to provide configuration for the validation. Each ``config`` element has a ``name`` attribute and a text content or variable reference as value.
     documentation~ no~ Rich text content that provides further information on the current step.
