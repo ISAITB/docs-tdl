@@ -69,6 +69,8 @@ versioning of the GITB software.
 
 .. _Interoperability Test Bed Team: https://joinup.ec.europa.eu/solution/interoperability-test-bed/about
 
+.. _introduction_core_concept:
+
 Core concepts
 -------------
 
